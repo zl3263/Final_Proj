@@ -1,0 +1,58 @@
+---
+title: "processing"
+output: html_document
+date: "2022-11-25"
+---
+
+```{r}
+library(tidyverse)
+```
+In the origin data, each proporties are compared with three comparable rentals.
+So in total, information of four building(sets) forms one observation.
+
+
+```{r}
+comparable_rental_income_raw = read_csv("data/DOF__Cooperative_Comparable_Rental_Income__Citywide.csv") %>%
+  janitor::clean_names()
+head(comparable_rental_income_raw)
+
+```
+
+Seperate the observations:
+
+so I would like to seperate one and 3 comparables with into four subset with same variable names for further processing.
+
+delete `distance_from_co_op_in_miles*` to make the variables consistent to each other.
+
+```{r}
+namelist = comparable_rental_income_raw %>%
+  select(-c("distance_from_co_op_in_miles","distance_from_co_op_in_miles_1","distance_from_co_op_in_miles_2")) %>%
+  colnames()
+
+## to be optimized 
+
+rentalincom_ori = comparable_rental_income_raw %>%
+  select(append(namelist[1:14],"report_year"))
+
+std_colname = colnames(rentalincom_ori)
+
+rentalincom_c1 = comparable_rental_income_raw %>%
+  select(append(namelist[15:28],"report_year"))
+colnames(rentalincom_c1) = std_colname
+
+rentalincom_c2 = comparable_rental_income_raw %>%
+  select(append(namelist[29:42],"report_year"))
+colnames(rentalincom_c2) = std_colname
+  
+rentalincom_c3 = comparable_rental_income_raw %>%
+  select(append(namelist[43:56],"report_year"))
+colnames(rentalincom_c3) = std_colname
+
+transormed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)
+```
+
+
+```{r}
+
+```
+
