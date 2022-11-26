@@ -1,8 +1,20 @@
 ---
 title: "processing"
-output: html_document
+output: github_document
 date: "2022-11-25"
 ---
+# Preprocessing
+
+## parts to be completed (add as your wish)
+
+| Contents                          | Stage | Comments                |
+| --------------------------------- | ----- | ----------------------- |
+| seperate observations             | √     |                         |
+| NAs (error value)                 |       | na.omit()  other error? |
+| add explenations to each variable |       |                         |
+| link the address to lat&lon       |       | other ways to plot map? |
+
+
 
 ```{r}
 library(tidyverse)
@@ -18,7 +30,7 @@ head(comparable_rental_income_raw)
 
 ```
 
-Seperate the observations:
+### Seperate the observations:
 
 so I would like to seperate one and 3 comparables with into four subset with same variable names for further processing.
 
@@ -51,8 +63,12 @@ colnames(rentalincom_c3) = std_colname
 transormed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)
 ```
 
+### clean data 
 
 ```{r}
-
+transormed_rental_income = transormed_rental_income %>% 
+  na.omit() 
 ```
+
+
 
