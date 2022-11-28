@@ -11,8 +11,9 @@ date: "2022-11-25"
 | --------------------------------- | ----- | ----------------------- |
 | seperate observations             | √     |                         |
 | NAs (error value)                 |       | na.omit()  other error? |
-| add explenations to each variable |       |                         |
+| add explanations to each variable |       |                         |
 | link the address to lat&lon       |       | other ways to plot map? |
+| simple scatter/box plots          |       |                         |
 
 
 
@@ -69,6 +70,73 @@ transormed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,r
 transormed_rental_income = transormed_rental_income %>% 
   na.omit() 
 ```
+
+
+### Data description
+
+Boro-Block-Lot: Borough-Block-Lot(BBL) location
+
+```{r}
+comparable_rental_income_raw %>% distinct(building_classification)
+comparable_rental_income_raw %>% distinct(neighborhood)
+comparable_rental_income_raw %>% distinct(year_built)
+```
+
+Gross SqFt: Gross square footage of the building
+Estimated Gross Income: Estimated Income per SquareFoot * Gross SquareFoot
+Gross Income per SqFt: Estimated income per squarefoot of median comparable
+Estimated Expense: Estimated Expense per SquareFoot * Gross SquareFoot
+Expense per SqFt: Estimated expense per squarefoot of median comparab
+Net Operating Income: Estimated Gross Income-Estimated Expense
+Full Market Value: Current year’s total market value of the land and building
+Market Value per SqFt: Full Market Value/ Gross SquareFoot
+Distance from Co-op in miles: calculated distance from comparable to the subject
+
+## plots
+#built year vs value
+```{r}
+comparable_rental_income_raw %>% 
+  
+  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Year vs Total Market Value",
+    x = "Year the building was built",
+    y = "Total Market Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
+```
+
+```{r}
+comparable_rental_income_raw %>% 
+  
+  ggplot(aes(x = estimated_gross_income, y = estimated_expense,color = building_classification))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Income vs Expense",
+    x = "Estimated Income",
+    y = "Estimated Expense"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
+
+```
+
+```{r}
+
+```
+
+
+
+
+
 
 
 
