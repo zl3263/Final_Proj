@@ -19,6 +19,7 @@ date: "2022-11-25"
 
 ```{r}
 library(tidyverse)
+library(corrplot)
 ```
 In the origin data, each proporties are compared with three comparable rentals.
 So in total, information of four building(sets) forms one observation.
@@ -128,13 +129,31 @@ comparable_rental_income_raw %>%
   )
 
 ```
-
+correlation
 ```{r}
-
+rentalincom_c1_1 = rentalincom_c1 %>%
+  drop_na()
+# Plot the correlation
+corr = data.frame(lapply(lapply(rentalincom_c1_1, as.factor), as.numeric))
+corrplot(cor(corr), type = "lower")
 ```
 
+```{r}
+rentalincom_c2_1 = rentalincom_c2 %>%
+  drop_na()
+# Plot the correlation
+corr = data.frame(lapply(lapply(rentalincom_c2_1, as.factor), as.numeric))
+corrplot(cor(corr), type = "lower")
+```
 
-
+```{r}
+rentalincom_c3_1 = rentalincom_c3 %>%
+  drop_na()
+# Plot the correlation
+corr = data.frame(lapply(lapply(rentalincom_c3_1, as.factor), as.numeric))
+corrplot(cor(corr), type = "lower")
+```
+```
 
 
 
