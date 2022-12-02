@@ -8,16 +8,32 @@ processing
 
 | Contents                          | Stage | Comments                |
 |-----------------------------------|-------|-------------------------|
-| seperate observations             | √     |                         |
+| separate observations             | √     |                         |
 | NAs (error value)                 |       | na.omit()  other error? |
-| add explenations to each variable |       |                         |
+| add explanations to each variable |       |                         |
 | link the address to lat&lon       |       | other ways to plot map? |
+| simple scatter/box plots          |       |                         |
 
 ``` r
 library(tidyverse)
 ```
 
-In the origin data, each proporties are compared with three comparable
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+    ## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
+    ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+    ## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+    ## ✔ readr   2.1.2      ✔ forcats 0.5.2 
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ✖ dplyr::filter() masks stats::filter()
+    ## ✖ dplyr::lag()    masks stats::lag()
+
+``` r
+library(corrplot)
+```
+
+    ## corrplot 0.92 loaded
+
+In the origin data, each properties are compared with three comparable
 rentals. So in total, information of four building(sets) forms one
 observation.
 
@@ -58,7 +74,7 @@ head(comparable_rental_income_raw)
 
 ### Seperate the observations:
 
-so I would like to seperate one and 3 comparables with into four subset
+so I would like to separate one and 3 comparables with into four subset
 with same variable names for further processing.
 
 delete `distance_from_co_op_in_miles*` to make the variables consistent
@@ -96,4 +112,182 @@ transormed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,r
 ``` r
 transormed_rental_income = transormed_rental_income %>% 
   na.omit() 
+
+save(transormed_rental_income, file = "data/cleaned_data.RData")
 ```
+
+### Data description
+
+Boro-Block-Lot: Borough-Block-Lot(BBL) location
+
+``` r
+comparable_rental_income_raw %>% distinct(building_classification)
+```
+
+    ## # A tibble: 12 × 1
+    ##    building_classification
+    ##    <chr>                  
+    ##  1 D4  -ELEVATOR          
+    ##  2 D0  -ELEVATOR          
+    ##  3 C6  -WALK-UP           
+    ##  4 C8  -WALK-UP           
+    ##  5 D4-ELEVATOR            
+    ##  6 C6-WALK-UP             
+    ##  7 D4  -ELEVATOR          
+    ##  8 D0  -ELEVATOR          
+    ##  9 C6  -WALK-UP           
+    ## 10 C8  -WALK-UP           
+    ## 11 D0-ELEVATOR            
+    ## 12 C8-WALK-UP
+
+``` r
+comparable_rental_income_raw %>% distinct(neighborhood)
+```
+
+    ## # A tibble: 295 × 1
+    ##    neighborhood   
+    ##    <chr>          
+    ##  1 FINANCIAL      
+    ##  2 SOUTHBRIDGE    
+    ##  3 CIVIC CENTER   
+    ##  4 TRIBECA        
+    ##  5 CHINATOWN      
+    ##  6 SOHO           
+    ##  7 LOWER EAST SIDE
+    ##  8 ALPHABET CITY  
+    ##  9 EAST VILLAGE   
+    ## 10 LITTLE ITALY   
+    ## # … with 285 more rows
+
+``` r
+comparable_rental_income_raw %>% distinct(year_built)
+```
+
+    ## # A tibble: 123 × 1
+    ##    year_built
+    ##         <dbl>
+    ##  1       1909
+    ##  2       1926
+    ##  3       1971
+    ##  4       1901
+    ##  5       1960
+    ##  6       1915
+    ##  7       1920
+    ##  8       1900
+    ##  9       1925
+    ## 10       1931
+    ## # … with 113 more rows
+
+Gross SqFt: Gross square footage of the building Estimated Gross Income:
+Estimated Income per SquareFoot \* Gross SquareFoot Gross Income per
+SqFt: Estimated income per squarefoot of median comparable Estimated
+Expense: Estimated Expense per SquareFoot \* Gross SquareFoot Expense
+per SqFt: Estimated expense per squarefoot of median comparab Net
+Operating Income: Estimated Gross Income-Estimated Expense Full Market
+Value: Current year’s total market value of the land and building Market
+Value per SqFt: Full Market Value/ Gross SquareFoot Distance from Co-op
+in miles: calculated distance from comparable to the subject
+
+## plots
+
+\#built year vs value
+
+``` r
+comparable_rental_income_raw %>% 
+  
+  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Total Market Value vs Year",
+    x = "Year the building was built",
+    y = "Total Market Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
+```
+
+![](preprocessing1_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+plot_neighbor = 
+  comparable_rental_income_raw %>% 
+  drop_na() %>% 
+  group_by(neighborhood) %>% 
+  summarise(mean_value = mean(full_market_value)) %>% 
+  mutate(neighborhood = fct_reorder(neighborhood,mean_value)) %>% 
+  filter(mean_value > 29000000) %>% 
+  ggplot(aes(x = neighborhood, y = mean_value))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Neighborhood vs value",
+    x = "Neighborhood",
+    y = "Mean Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+
+plot_neighbor
+```
+
+![](preprocessing1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+comparable_rental_income_raw %>% 
+  
+  ggplot(aes(x = estimated_gross_income, y = estimated_expense,color = building_classification))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Expense vs Income",
+    x = "Estimated Income",
+    y = "Estimated Expense"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
+```
+
+![](preprocessing1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+correlation
+
+``` r
+rentalincom_c1_1 = 
+  rentalincom_c1 %>%
+  drop_na()
+# Plot the correlation
+corr = data.frame(lapply(lapply(rentalincom_c1_1, as.factor), as.numeric))
+corrplot(cor(corr), type = "lower")
+```
+
+![](preprocessing1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+rentalincom_c2_1 = 
+  rentalincom_c2 %>%
+  drop_na()
+# Plot the correlation
+corr = data.frame(lapply(lapply(rentalincom_c2_1, as.factor), as.numeric))
+corrplot(cor(corr), type = "lower")
+```
+
+![](preprocessing1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+rentalincom_c3_1 = 
+  rentalincom_c3 %>%
+  drop_na()
+# Plot the correlation
+corr = data.frame(lapply(lapply(rentalincom_c3_1, as.factor), as.numeric))
+corrplot(cor(corr), type = "lower")
+```
+
+![](preprocessing1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+\`\`\`
