@@ -3,22 +3,28 @@ output_dir: "."
 navbar:
   title: "Home"
   left:
-    - text: "page1"
-      href: index.html
+    - text: "Introduction"
+      href: Introduction.html
+    - text: "Exploring Data"
+      href: Exploring_Data.html
+    - text: "Statistical Analysis"
+      href: Statistical_Analysis.html
+    - text: "Modeling"
+      href: Modeling.html
+    - text: "Map"
+      href: Map.html
+      
+      
   right:
-    - text: spinner
+    - text: More
       menu:
-        - text: "a"
-          href: a.html
-        - text: "b"
-          href: b.html
-        - text: "c"
-          href: c.html
-
-    - icon: fa-envelope fa-lg
-      href: mailto:zl3263@cumc.columbia.edu
+        - text: Report
+          href: Report.html
+        - text: Acknowledgement
+          href: Acknowledgement.html
     - icon: fa-github fa-lg
-      href: http://github.com/zl3263/
+      href: https://github.com/zl3263/Final_Proj
+      
 output:
   html_document:
     code_folding: hide
