@@ -1,16 +1,25 @@
 name: "Final Proj"
 output_dir: "."
 navbar:
+  title: "Home"
   left:
-    - icon: fa-desktop fa-lg
+    - text: "page1"
       href: index.html
   right:
+    - text: spinner
+      menu:
+        - text: "a"
+          href: a.html
+        - text: "b"
+          href: b.html
+        - text: "c"
+          href: c.html
+
     - icon: fa-envelope fa-lg
       href: mailto:zl3263@cumc.columbia.edu
     - icon: fa-github fa-lg
       href: http://github.com/zl3263/
 output:
   html_document:
-    toc: true
-    toc_float: true
     code_folding: hide
+    theme: lumen

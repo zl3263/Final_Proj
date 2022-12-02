@@ -1,6 +1,7 @@
 ---
 title: "Final Project"
 output: 
-  html_document:
-    theme: lumen
+  html_document
+
 ---
+The index page

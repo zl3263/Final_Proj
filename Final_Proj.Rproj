@@ -13,4 +13,4 @@ RnwWeave: Sweave
 LaTeX: pdfLaTeX
 
 BuildType: Website
-WebsitePath: E:/2023_autumn/DataScience/Final_Proj
+WebsitePath: site_pages
