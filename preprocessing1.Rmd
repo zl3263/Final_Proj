@@ -70,6 +70,8 @@ transormed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,r
 ```{r}
 transormed_rental_income = transormed_rental_income %>% 
   na.omit() 
+
+save(transormed_rental_income, file = "data/cleaned_data.RData")
 ```
 
 
