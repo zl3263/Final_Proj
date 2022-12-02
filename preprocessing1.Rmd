@@ -9,7 +9,7 @@ date: "2022-11-25"
 
 | Contents                          | Stage | Comments                |
 | --------------------------------- | ----- | ----------------------- |
-| seperate observations             | √     |                         |
+| separate observations             | √     |                         |
 | NAs (error value)                 |       | na.omit()  other error? |
 | add explanations to each variable |       |                         |
 | link the address to lat&lon       |       | other ways to plot map? |
@@ -21,7 +21,7 @@ date: "2022-11-25"
 library(tidyverse)
 library(corrplot)
 ```
-In the origin data, each proporties are compared with three comparable rentals.
+In the origin data, each properties are compared with three comparable rentals.
 So in total, information of four building(sets) forms one observation.
 
 
@@ -34,7 +34,7 @@ head(comparable_rental_income_raw)
 
 ### Seperate the observations:
 
-so I would like to seperate one and 3 comparables with into four subset with same variable names for further processing.
+so I would like to separate one and 3 comparables with into four subset with same variable names for further processing.
 
 delete `distance_from_co_op_in_miles*` to make the variables consistent to each other.
 
