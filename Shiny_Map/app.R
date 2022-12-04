@@ -7,6 +7,9 @@ library(sf)
 library(shinyWidgets)
 library(geojsonio)
 
+# Now avaliable on https://nuc-rental-income.shinyapps.io/shiny_map/
+
+
 #block_edge = geojsonio::geojson_read("zoning_boundary.json",what  = "sp")
 load("cleaned_data.RData")
 #block_edge =  geojsonio::geojson_read("E:/Data_Science/Final_Proj/data/2000 Census Blocks.geojson",what  = "sp") 
@@ -41,7 +44,7 @@ ui <- bootstrapPage(
                 ')
   ),
   
-  leafletOutput("map", width = "100%", height = "80%"),
+  leafletOutput("map", width = "100%", height = "70%"),
   textOutput("test"),
   dataTableOutput("record"),
   absolutePanel(
@@ -74,7 +77,17 @@ server <- function(input, output) {
     output$record <- renderDataTable({
       transformed_rental_income %>%
         filter(zoning == "R4-1") %>%
-        select(address)
+        select(
+          zoning,
+          address,
+          neighborhood,
+          building_classification,
+          total_units,
+          year_built,
+          gross_sq_ft,
+          gross_income_per_sq_ft,
+          full_market_value
+        ) 
     })
     
     observe({
@@ -93,7 +106,17 @@ server <- function(input, output) {
       output$record <- renderDataTable({
         transformed_rental_income %>%
           filter(zoning == input$map_geojson_click$properties$ZONEDIS) %>%
-          select(address) 
+          select(
+            zoning,
+            address,
+            neighborhood,
+            building_classification,
+            total_units,
+            year_built,
+            gross_sq_ft,
+            gross_income_per_sq_ft,
+            full_market_value
+          ) 
       })
     })
     
