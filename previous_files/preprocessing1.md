@@ -16,8 +16,24 @@ processing
 
 ``` r
 library(tidyverse)
+```
+
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+    ## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
+    ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+    ## ✔ tidyr   1.2.0      ✔ stringr 1.4.1 
+    ## ✔ readr   2.1.2      ✔ forcats 0.5.2 
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ✖ dplyr::filter() masks stats::filter()
+    ## ✖ dplyr::lag()    masks stats::lag()
+
+``` r
 library(corrplot)
 ```
+
+    ## Warning: 程辑包'corrplot'是用R版本4.2.2 来建造的
+
+    ## corrplot 0.92 loaded
 
 In the origin data, each properties are compared with three comparable
 rentals. So in total, information of four building(sets) forms one
@@ -90,16 +106,16 @@ rentalincom_c3 = comparable_rental_income_raw %>%
   select(append(namelist[43:56],"report_year"))
 colnames(rentalincom_c3) = std_colname
 
-transormed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)
+transformed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)
 ```
 
 ### clean data
 
 ``` r
-transormed_rental_income = transormed_rental_income %>% 
+transformed_rental_income = transformed_rental_income %>% 
   na.omit() 
 
-save(transormed_rental_income, file = "data/cleaned_data.RData")
+save(transformed_rental_income, file = "data/cleaned_data.RData")
 ```
 
 ### Data description

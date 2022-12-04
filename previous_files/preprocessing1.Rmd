@@ -72,16 +72,43 @@ rentalincom_c3 = comparable_rental_income_raw %>%
   select(append(namelist[43:56],"report_year"))
 colnames(rentalincom_c3) = std_colname
 
-transormed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)
+transformed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)
 ```
 
 ### clean data 
 
 ```{r}
-transormed_rental_income = transormed_rental_income %>% 
+transformed_rental_income = transformed_rental_income %>% 
   na.omit() 
+```
 
-save(transormed_rental_income, file = "data/cleaned_data.RData")
+### add zoning info for the dataset
+Because our data only include `boro_block_lot`, which is the tax identification of a building, if we need to mark the building on the map, we need to map the zoning of the building on the map.
+```{r}
+find_zoning = function(block_id){
+  taxlot_to_zoning[taxlot_to_zoning$tax_block==block_id,] %>%
+  head(1) %>%
+  pull(zoning_district_1)
+}
+transformed_rental_income =
+  transformed_rental_income %>%
+  mutate(
+    block_id = as.numeric(substr(boro_block_lot,3,7))
+  ) 
+
+taxlot_to_zoning = read_csv("data/taxlot_to_zoning.csv") %>%
+  janitor::clean_names() %>%
+  filter(tax_block %in% transformed_rental_income$block_id) %>%
+  distinct(tax_block,zoning_district_1)
+
+transformed_rental_income =
+transformed_rental_income %>%
+  filter(block_id %in% taxlot_to_zoning$tax_block) %>%
+  mutate(
+    zoning = map_chr(block_id,find_zoning)
+  )
+    
+save(transformed_rental_income, file = "data/cleaned_data.RData")
 ```
 
 
