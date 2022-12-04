@@ -7,8 +7,9 @@ library(sf)
 library(shinyWidgets)
 library(geojsonio)
 
-#block_edge = rgdal::readOGR("data/2000 Census Blocks.geojson") 
-
+#block_edge =  geojsonio::geojson_read("E:/Data_Science/Final_Proj/data/2000 Census Blocks.geojson") 
+block_edge <- readLines("E:/Data_Science/Final_Proj/data/2000 Census Blocks.geojson") %>% paste(collapse = "\n") 
+#load("cache.RData")
 
 # Define UI for application that draws a histogram
 ui <- bootstrapPage(
@@ -47,10 +48,11 @@ ui <- bootstrapPage(
 server <- function(input, output) {
 
     output$map <- renderLeaflet({
-        leaflet()%>%
+        leaflet(block_edge)%>%
         addProviderTiles("CartoDB.Positron")%>%
-        setView(-3, 54.3, zoom = 6)
-        #addTopoJSON(block_edge, weight = 1, color = "#444444", fill = FALSE)
+        setView(lng = -73.90, lat = 40.7, zoom = 12) %>%
+        #addPolygons()
+        addGeoJSON(block_edge, weight = 1, color = "#444444", fill = FALSE)
     })
 }
 
