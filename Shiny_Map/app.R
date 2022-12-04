@@ -7,10 +7,10 @@ library(sf)
 library(shinyWidgets)
 library(geojsonio)
 
-block_edge = geojsonio::geojson_read("zoning_boundary.json",what  = "sp")
+#block_edge = geojsonio::geojson_read("zoning_boundary.json",what  = "sp")
 load("cleaned_data.RData")
 #block_edge =  geojsonio::geojson_read("E:/Data_Science/Final_Proj/data/2000 Census Blocks.geojson",what  = "sp") 
-#block_edge <- readLines("E:/Data_Science/Final_Proj/data/2000 Census Blocks.geojson") %>% paste(collapse = "\n") 
+block_edge <- readLines("zoning_boundary.json") %>% paste(collapse = "\n") 
 #load("cache.RData")
 
 # Define UI for application
@@ -42,6 +42,7 @@ ui <- bootstrapPage(
   ),
   
   leafletOutput("map", width = "100%", height = "80%"),
+  textOutput("test"),
   dataTableOutput("record"),
   absolutePanel(
     top = 10, right = 10, style = "z-index:500; text-align: right;",
@@ -51,24 +52,50 @@ ui <- bootstrapPage(
 
 )
 
-# Define server logic required to draw a histogram
+# Define server logic
 server <- function(input, output) {
 
     output$map <- renderLeaflet({
-        leaflet(block_edge)%>%
-        addProviderTiles("CartoDB.Positron")%>%
-        setView(lng = -73.90, lat = 40.7, zoom = 12) %>%
-        addPolygons(
-          smoothFactor = 0.3,
-          color = "#444444",
-          weight=1,
-          fillColor = "transparent",
-          label = ~ZONEDIST
-        )
-        #addGeoJSON(block_edge, weight = 1, color = "#444444", fill = FALSE)
+      leaflet(block_edge)%>%
+      addProviderTiles("CartoDB.Positron")%>%
+      setView(lng = -73.90, lat = 40.7, zoom = 12) %>%
+      #addPolygons(
+      #  smoothFactor = 0.3,
+      #  color = "#444444",
+      #  weight=1,
+      #  fillColor = "transparent",
+      #  label = ~ZONEDIST
+      #)
+      addGeoJSON(block_edge, weight = 1, color = "#444444", fillColor = "transparent")
+    })
+    output$test <- renderText({
+      "none"
+    })
+    output$record <- renderDataTable({
+      transformed_rental_income %>%
+        filter(zoning == "R4-1") %>%
+        select(address)
     })
     
-    output$record
+    observe({
+      leafletProxy("map") %>% clearPopups()
+      event <- input$map_geojson_click
+      if (is.null(event))
+        return()
+      
+      isolate({
+        output$test <- renderText({
+          paste0("You are looking at records for zone: ",input$map_geojson_click$properties$ZONEDIST)
+          
+        })
+      })
+      
+      output$record <- renderDataTable({
+        transformed_rental_income %>%
+          filter(zoning == input$map_geojson_click$properties$ZONEDIS) %>%
+          select(address) 
+      })
+    })
     
 }
 
