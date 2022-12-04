@@ -15,8 +15,6 @@ date: "2022-11-25"
 | link the address to lat&lon       |       | other ways to plot map? |
 | simple scatter/box plots          |       |                         |
 
-
-
 ```{r}
 library(tidyverse)
 library(corrplot)
@@ -97,6 +95,7 @@ Distance from Co-op in miles: calculated distance from comparable to the subject
 
 ## plots
 #built year vs value
+
 ```{r}
 comparable_rental_income_raw %>% 
   
@@ -185,7 +184,7 @@ rentalincom_c3_1 =
 corr = data.frame(lapply(lapply(rentalincom_c3_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
-```
+
 
 
 
