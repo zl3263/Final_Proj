@@ -48,9 +48,22 @@ Manhattan_data = transformed_rental_income %>%
 
 Manhattan_data$latlona = map(.x = Manhattan_data$address, ~ geocode(.x, output = "latlona", source = "google"))
 save(Manhattan_data, file = "data/Manhattan_latlonmap.RData")
+
+#
+
+load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
+colnames(Manhattan_data) = c("address1","times","latlona")
+Manhattan_data = Manhattan_data %>%
+  unnest(cols = latlona) %>%
+  select(-address)
+colnames(Manhattan_data) = c("address","times","lon","lat")
+save(Manhattan_data, file = "data/Manhattan_latlonmap.RData")
 ```
 
+```{r message=FALSE, warning=FALSE}
+load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
 
+```
 
 Some key variables are as follows:
 
