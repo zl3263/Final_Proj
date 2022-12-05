@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2022-11-25" />
+
+<title>Exploratory</title>
+
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="Introduction.html">Introduction</a>
+</li>
+<li>
+  <a href="Exploring_Data.html">Exploring Data</a>
+</li>
+<li>
+  <a href="Statistical_Analysis.html">Statistical Analysis</a>
+</li>
+<li>
+  <a href="Modeling.html">Modeling</a>
+</li>
+<li>
+  <a href="https://nuc-rental-income.shinyapps.io/shiny_map/">Browse by Map</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    More
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="Report.html">Report</a>
+    </li>
+    <li>
+      <a href="Acknowledgement.html">Acknowledgement</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="https://github.com/zl3263/Final_Proj">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Exploratory</h1>
+<h4 class="date">2022-11-25</h4>
+
+</div>
+
+
+<div id="preprocessing" class="section level1">
+<h1>Preprocessing</h1>
+<div id="parts-to-be-completed-add-as-your-wish" class="section level2">
+<h2>parts to be completed (add as your wish)</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Contents</th>
+<th>Stage</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>separate observations</td>
+<td>√</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>NAs (error value)</td>
+<td></td>
+<td>na.omit()  other error?</td>
+</tr>
+<tr class="odd">
+<td>add explanations to each variable</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>link the address to lat&amp;lon</td>
+<td></td>
+<td>other ways to plot map?</td>
+</tr>
+<tr class="odd">
+<td>simple scatter/box plots</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
+## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+## ✔ readr   2.1.2      ✔ forcats 0.5.2 
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(corrplot)</code></pre>
+<pre><code>## corrplot 0.92 loaded</code></pre>
+<p>In the origin data, each properties are compared with three
+comparable rentals. So in total, information of four building(sets)
+forms one observation.</p>
+<pre class="r"><code>comparable_rental_income_raw = read_csv(&quot;data/DOF__Cooperative_Comparable_Rental_Income__Citywide.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;% 
+  mutate(
+    building_classification = str_remove_all(building_classification, &quot;\\s&quot;),
+    building_classification_1 = str_remove_all(building_classification_1, &quot;\\s&quot;),
+    building_classification_2 = str_remove_all(building_classification_2, &quot;\\s&quot;),
+    building_classification_3 = str_remove_all(building_classification_3, &quot;\\s&quot;)
+  )</code></pre>
+<pre><code>## Rows: 44960 Columns: 60
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (16): Boro-Block-Lot, Address, Neighborhood, Building Classification, Bo...
+## dbl (44): Total Units, Year Built, Gross SqFt, Estimated Gross Income, Gross...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>head(comparable_rental_income_raw)</code></pre>
+<pre><code>## # A tibble: 6 × 60
+##   boro_block_lot address neigh…¹ build…² total…³ year_…⁴ gross…⁵ estim…⁶ gross…⁷
+##   &lt;chr&gt;          &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 1-00011-0014   26 BEA… FINANC… D4-ELE…      21    1909   51387  2.40e6    46.7
+## 2 1-00028-0001   3 HANO… FINANC… D0-ELE…     211    1926  239121  9.46e6    39.6
+## 3 1-00094-0001   80 GOL… SOUTHB… D4-ELE…    1652    1971 2155492  6.81e7    31.6
+## 4 1-00100-0026   138 NA… SOUTHB… D4-ELE…      43    1901   79422  3.13e6    39.4
+## 5 1-00117-0001   185 PA… CIVIC … D4-ELE…     465    1960  515425  2.59e7    50.2
+## 6 1-00134-0025   258 BR… CIVIC … D4-ELE…      45    1915   88320  4.24e6    48  
+## # … with 51 more variables: estimated_expense &lt;dbl&gt;, expense_per_sq_ft &lt;dbl&gt;,
+## #   net_operating_income &lt;dbl&gt;, full_market_value &lt;dbl&gt;,
+## #   market_value_per_sq_ft &lt;dbl&gt;, boro_block_lot_1 &lt;chr&gt;, address_1 &lt;chr&gt;,
+## #   neighborhood_1 &lt;chr&gt;, building_classification_1 &lt;chr&gt;, total_units_1 &lt;dbl&gt;,
+## #   year_built_1 &lt;dbl&gt;, gross_sq_ft_1 &lt;dbl&gt;, estimated_gross_income_1 &lt;dbl&gt;,
+## #   gross_income_per_sq_ft_1 &lt;dbl&gt;, estimated_expense_1 &lt;dbl&gt;,
+## #   expense_per_sq_ft_1 &lt;dbl&gt;, net_operating_income_1 &lt;dbl&gt;, …</code></pre>
+<pre class="r"><code>comparable_rental_income = 
+  comparable_rental_income_raw %&gt;% 
+  separate(boro_block_lot, into = c(&quot;borough&quot;, &quot;block&quot;, &quot;lot&quot;), sep = &quot;-&quot;) %&gt;% 
+  separate(boro_block_lot_1, into = c(&quot;borough_1&quot;, &quot;block_1&quot;, &quot;lot_1&quot;), sep = &quot;-&quot;) %&gt;% 
+  separate(boro_block_lot_2, into = c(&quot;borough_2&quot;, &quot;block_2&quot;, &quot;lot_2&quot;), sep = &quot;-&quot;) %&gt;% 
+  separate(boro_block_lot_3, into = c(&quot;borough_3&quot;, &quot;block_3&quot;, &quot;lot_3&quot;), sep = &quot;-&quot;) %&gt;% 
+  mutate(
+    borough = case_when(
+      borough == &quot;1&quot; ~ &quot;Manhattan&quot;,
+      borough == &quot;2&quot; ~ &quot;Bronx&quot;,
+      borough == &quot;3&quot; ~ &quot;Brooklyn&quot;,
+      borough == &quot;4&quot; ~ &quot;Queens&quot;,
+      borough == &quot;5&quot; ~ &quot;Staten Island&quot;),
+    borough_1 = case_when(
+      borough_1 == &quot;1&quot; ~ &quot;Manhattan&quot;,
+      borough_1 == &quot;2&quot; ~ &quot;Bronx&quot;,
+      borough_1 == &quot;3&quot; ~ &quot;Brooklyn&quot;,
+      borough_1 == &quot;4&quot; ~ &quot;Queens&quot;,
+      borough_1 == &quot;5&quot; ~ &quot;Staten Island&quot;),
+    borough_2 = case_when(
+      borough_2 == &quot;1&quot; ~ &quot;Manhattan&quot;,
+      borough_2 == &quot;2&quot; ~ &quot;Bronx&quot;,
+      borough_2 == &quot;3&quot; ~ &quot;Brooklyn&quot;,
+      borough_2 == &quot;4&quot; ~ &quot;Queens&quot;,
+      borough_2 == &quot;5&quot; ~ &quot;Staten Island&quot;),
+    borough_3 = case_when(
+      borough_3 == &quot;1&quot; ~ &quot;Manhattan&quot;,
+      borough_3 == &quot;2&quot; ~ &quot;Bronx&quot;,
+      borough_3 == &quot;3&quot; ~ &quot;Brooklyn&quot;,
+      borough_3 == &quot;4&quot; ~ &quot;Queens&quot;,
+      borough_3 == &quot;5&quot; ~ &quot;Staten Island&quot;)
+    )</code></pre>
+<div id="seperate-the-observations" class="section level3">
+<h3>Seperate the observations:</h3>
+<p>so I would like to separate one and 3 comparables with into four
+subset with same variable names for further processing.</p>
+<p>delete <code>distance_from_co_op_in_miles*</code> to make the
+variables consistent to each other.</p>
+<pre class="r"><code>namelist = comparable_rental_income_raw %&gt;%
+  select(-c(&quot;distance_from_co_op_in_miles&quot;,&quot;distance_from_co_op_in_miles_1&quot;,&quot;distance_from_co_op_in_miles_2&quot;)) %&gt;%
+  colnames()
+
+## to be optimized 
+
+rentalincom_ori = comparable_rental_income_raw %&gt;%
+  select(append(namelist[1:14],&quot;report_year&quot;))
+
+std_colname = colnames(rentalincom_ori)
+
+rentalincom_c1 = comparable_rental_income_raw %&gt;%
+  select(append(namelist[15:28],&quot;report_year&quot;))
+colnames(rentalincom_c1) = std_colname
+
+rentalincom_c2 = comparable_rental_income_raw %&gt;%
+  select(append(namelist[29:42],&quot;report_year&quot;))
+colnames(rentalincom_c2) = std_colname
+  
+rentalincom_c3 = comparable_rental_income_raw %&gt;%
+  select(append(namelist[43:56],&quot;report_year&quot;))
+colnames(rentalincom_c3) = std_colname
+
+transformed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)</code></pre>
+</div>
+<div id="clean-data" class="section level3">
+<h3>clean data</h3>
+<pre class="r"><code>transformed_rental_income = transformed_rental_income %&gt;% 
+  na.omit() 
+
+save(transformed_rental_income, file = &quot;data/cleaned_data.RData&quot;)</code></pre>
+</div>
+<div id="data-description" class="section level3">
+<h3>Data description</h3>
+<p>Boro-Block-Lot: Borough-Block-Lot(BBL) location</p>
+<pre class="r"><code>comparable_rental_income_raw %&gt;% distinct(neighborhood)</code></pre>
+<pre><code>## # A tibble: 295 × 1
+##    neighborhood   
+##    &lt;chr&gt;          
+##  1 FINANCIAL      
+##  2 SOUTHBRIDGE    
+##  3 CIVIC CENTER   
+##  4 TRIBECA        
+##  5 CHINATOWN      
+##  6 SOHO           
+##  7 LOWER EAST SIDE
+##  8 ALPHABET CITY  
+##  9 EAST VILLAGE   
+## 10 LITTLE ITALY   
+## # … with 285 more rows</code></pre>
+<pre class="r"><code>comparable_rental_income_raw %&gt;% distinct(year_built)</code></pre>
+<pre><code>## # A tibble: 123 × 1
+##    year_built
+##         &lt;dbl&gt;
+##  1       1909
+##  2       1926
+##  3       1971
+##  4       1901
+##  5       1960
+##  6       1915
+##  7       1920
+##  8       1900
+##  9       1925
+## 10       1931
+## # … with 113 more rows</code></pre>
+<p>Gross SqFt: Gross square footage of the building Estimated Gross
+Income: Estimated Income per SquareFoot * Gross SquareFoot Gross Income
+per SqFt: Estimated income per squarefoot of median comparable Estimated
+Expense: Estimated Expense per SquareFoot * Gross SquareFoot Expense per
+SqFt: Estimated expense per squarefoot of median comparab Net Operating
+Income: Estimated Gross Income-Estimated Expense Full Market Value:
+Current year’s total market value of the land and building Market Value
+per SqFt: Full Market Value/ Gross SquareFoot Distance from Co-op in
+miles: calculated distance from comparable to the subject</p>
+</div>
+</div>
+<div id="plots" class="section level2">
+<h2>plots</h2>
+<p>Overview of key variables</p>
+<p>Which borough has the highest full_market_value?</p>
+<p>the first rental only</p>
+<pre class="r"><code>plot_borough = 
+  comparable_rental_income %&gt;% 
+  drop_na() %&gt;% 
+  group_by(borough) %&gt;% 
+  summarise(mean_value = mean(full_market_value)) %&gt;% 
+  mutate(borough = fct_reorder(borough,mean_value)) %&gt;% 
+  ggplot(aes(x = borough, y = mean_value, fill = mean_value))+
+  geom_bar(stat = &#39;identity&#39;)+
+  labs(
+    title = &quot;Borough vs value&quot;,
+    x = &quot;Borough&quot;,
+    y = &quot;Mean Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))+ 
+  coord_flip()+
+  theme_bw()
+
+plot_borough</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>summary on all rentals</p>
+<pre class="r"><code>plot_borough = 
+  transformed_rental_income %&gt;% 
+  drop_na() %&gt;% 
+  separate(boro_block_lot, into = c(&quot;borough&quot;, &quot;block&quot;, &quot;lot&quot;), sep = &quot;-&quot;) %&gt;% 
+  mutate(
+    borough = case_when(
+      borough == &quot;1&quot; ~ &quot;Manhattan&quot;,
+      borough == &quot;2&quot; ~ &quot;Bronx&quot;,
+      borough == &quot;3&quot; ~ &quot;Brooklyn&quot;,
+      borough == &quot;4&quot; ~ &quot;Queens&quot;,
+      borough == &quot;5&quot; ~ &quot;Staten Island&quot;)) %&gt;% 
+  drop_na() %&gt;% 
+  group_by(borough) %&gt;% 
+  summarise(mean_value = mean(full_market_value),
+            value_sd  = sd(full_market_value)) %&gt;% 
+  mutate(borough = fct_reorder(borough,mean_value)) %&gt;% 
+  ggplot(aes(x = borough, y = mean_value, fill = borough))+ 
+  geom_bar(stat = &#39;identity&#39;)+
+  scale_fill_manual(values=c(&quot;#999999&quot;, &quot;#E69F00&quot;, &quot;#56B4E9&quot;, &quot;#678F8D&quot;, &quot;#598987&quot;, &quot;#999999&quot;))+
+  coord_flip()+
+
+  theme_bw()
+
+
+plot_borough</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Neighbourhoods with highest full market value(mean_value &gt;
+29000000):</p>
+<pre class="r"><code>plot_neighbor = 
+  comparable_rental_income_raw %&gt;% 
+  drop_na() %&gt;% 
+  group_by(neighborhood) %&gt;% 
+  summarise(mean_value = mean(full_market_value)) %&gt;% 
+  mutate(neighborhood = fct_reorder(neighborhood,mean_value)) %&gt;% 
+  filter(mean_value &gt; 29000000) %&gt;% 
+  ggplot(aes(x = neighborhood, y = mean_value))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Neighborhood vs value&quot;,
+    x = &quot;Neighborhood&quot;,
+    y = &quot;Mean Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+plot_neighbor</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>plot_neighbor_1 = 
+  comparable_rental_income_raw %&gt;% 
+  drop_na() %&gt;% 
+  group_by(neighborhood_1) %&gt;% 
+  summarise(mean_value_1 = mean(full_market_value_1)) %&gt;% 
+  mutate(neighborhood_1 = fct_reorder(neighborhood_1,mean_value_1)) %&gt;% 
+  filter(mean_value_1 &gt; 29000000) %&gt;% 
+  ggplot(aes(x = neighborhood_1, y = mean_value_1))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Neighborhood vs value&quot;,
+    x = &quot;Neighborhood&quot;,
+    y = &quot;Mean Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+plot_neighbor_1</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>plot_neighbor_2 = 
+  comparable_rental_income_raw %&gt;% 
+  drop_na() %&gt;% 
+  group_by(neighborhood_2) %&gt;% 
+  summarise(mean_value_2 = mean(full_market_value_2)) %&gt;% 
+  mutate(neighborhood_2 = fct_reorder(neighborhood_2,mean_value_2)) %&gt;% 
+  filter(mean_value_2 &gt; 29000000) %&gt;% 
+  ggplot(aes(x = neighborhood_2, y = mean_value_2))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Neighborhood vs value&quot;,
+    x = &quot;Neighborhood&quot;,
+    y = &quot;Mean Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+plot_neighbor_2</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre class="r"><code>plot_neighbor_3 = 
+  comparable_rental_income_raw %&gt;% 
+  drop_na() %&gt;% 
+  group_by(neighborhood_3) %&gt;% 
+  summarise(mean_value_3 = mean(full_market_value_3)) %&gt;% 
+  mutate(neighborhood_3 = fct_reorder(neighborhood_3,mean_value_3)) %&gt;% 
+  filter(mean_value_3 &gt; 29000000) %&gt;% 
+  ggplot(aes(x = neighborhood_3, y = mean_value_3))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Neighborhood vs value&quot;,
+    x = &quot;Neighborhood&quot;,
+    y = &quot;Mean Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+plot_neighbor_3</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<pre class="r"><code>transformed_rental_income %&gt;% 
+  drop_na() %&gt;% 
+  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  geom_point(alpha = .3, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Total Market Value vs Year&quot;,
+    x = &quot;Year the building was built&quot;,
+    y = &quot;Total Market Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<pre class="r"><code>comparable_rental_income_raw %&gt;% 
+  drop_na() %&gt;% 
+  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Total Market Value vs Year&quot;,
+    x = &quot;Year the building was built&quot;,
+    y = &quot;Total Market Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<pre class="r"><code>comparable_rental_income_raw %&gt;% 
+  drop_na() %&gt;% 
+  ggplot(aes(x = year_built_1, y = full_market_value_1, color = building_classification_1))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Total Market Value vs Year&quot;,
+    x = &quot;Year the building was built&quot;,
+    y = &quot;Total Market Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>comparable_rental_income_raw %&gt;% 
+  drop_na() %&gt;% 
+  ggplot(aes(x = year_built_2, y = full_market_value_2,color = building_classification_2))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Total Market Value vs Year&quot;,
+    x = &quot;Year the building was built&quot;,
+    y = &quot;Total Market Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<pre class="r"><code>comparable_rental_income_raw %&gt;% 
+  drop_na() %&gt;% 
+  ggplot(aes(x = year_built_3, y = full_market_value_3,color = building_classification_3))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Total Market Value vs Year&quot;,
+    x = &quot;Year the building was built&quot;,
+    y = &quot;Total Market Value&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p>Correlation plots</p>
+<pre class="r"><code>rentalincom_c1_1 = 
+  rentalincom_c1 %&gt;%
+  drop_na()
+# Plot the correlation
+corr = data.frame(lapply(lapply(rentalincom_c1_1, as.factor), as.numeric))
+corrplot(cor(corr), type = &quot;lower&quot;)</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre class="r"><code>rentalincom_c2_1 = 
+  rentalincom_c2 %&gt;%
+  drop_na()
+# Plot the correlation
+corr = data.frame(lapply(lapply(rentalincom_c2_1, as.factor), as.numeric))
+corrplot(cor(corr), type = &quot;lower&quot;)</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<pre class="r"><code>rentalincom_c3_1 = 
+  rentalincom_c3 %&gt;%
+  drop_na()
+# Plot the correlation
+corr = data.frame(lapply(lapply(rentalincom_c3_1, as.factor), as.numeric))
+corrplot(cor(corr), type = &quot;lower&quot;)</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<pre class="r"><code>comparable_rental_income_raw %&gt;% 
+  
+  ggplot(aes(x = estimated_gross_income, y = estimated_expense,color = building_classification))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = &quot;Expense vs Income&quot;,
+    x = &quot;Estimated Income&quot;,
+    y = &quot;Estimated Expense&quot;
+  )+ 
+  viridis::scale_color_viridis(
+    name = &quot;Classification&quot;, 
+    discrete = TRUE
+  )</code></pre>
+<p><img src="Exploratory_analysis_1_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
