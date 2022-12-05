@@ -138,7 +138,56 @@ Distance from Co-op in miles: calculated distance from comparable to the subject
 ## plots
 
 Overview of key variables
+
+Which borough has the highest full_market_value?
+
+```{r}
+plot_borough = 
+  comparable_rental_income %>% 
+  drop_na() %>% 
+  group_by(borough) %>% 
+  summarise(mean_value = mean(full_market_value)) %>% 
+  mutate(borough = fct_reorder(borough,mean_value)) %>% 
+  ggplot(aes(x = borough, y = mean_value))+
+  geom_point()+
+  labs(
+    title = "Borough vs value",
+    x = "Borough",
+    y = "Mean Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+
+plot_borough
+```
+
+```{r}
+plot_borough = 
+  transformed_rental_income %>% 
+  drop_na() %>% 
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>% 
+  mutate(
+    borough = case_when(
+      borough == "1" ~ "Manhattan",
+      borough == "2" ~ "Bronx",
+      borough == "3" ~ "Brooklyn",
+      borough == "4" ~ "Queens",
+      borough == "5" ~ "Staten Island")) %>% 
+  drop_na() %>% 
+  group_by(borough) %>% 
+  summarise(mean_value = mean(full_market_value)) %>% 
+  ggplot(aes(x = borough, y = mean_value))+
+  geom_point()
+
+plot_borough
+```
+
+
 Neighbourhoods with highest full market value(mean_value > 29000000):
+
 ```{r}
 plot_neighbor = 
   comparable_rental_income_raw %>% 
@@ -255,6 +304,24 @@ comparable_rental_income_raw %>%
     discrete = TRUE
   )
 ```
+
+```{r}
+comparable_rental_income %>% 
+  drop_na() %>% 
+  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Total Market Value vs Year",
+    x = "Year the building was built",
+    y = "Total Market Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
+```
+
 
 ```{r}
 comparable_rental_income_raw %>% 
