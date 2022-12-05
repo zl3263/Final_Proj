@@ -11,8 +11,8 @@ navbar:
       href: Statistical_Analysis.html
     - text: "Modeling"
       href: Modeling.html
-    - text: "Map"
-      href: Map.html
+    - text: "Browse by Map"
+      href: https://nuc-rental-income.shinyapps.io/shiny_map/
       
       
   right:
