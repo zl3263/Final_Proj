@@ -114,8 +114,56 @@ transformed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,
 ``` r
 transformed_rental_income = transformed_rental_income %>% 
   na.omit() 
+```
 
+### add zoning info for the dataset
+
+Because our data only include `boro_block_lot`, which is the tax
+identification of a building, if we need to mark the building on the
+map, we need to map the zoning of the building on the map.
+
+``` r
+find_zoning = function(block_id){
+  taxlot_to_zoning[taxlot_to_zoning$tax_block==block_id,] %>%
+  head(1) %>%
+  pull(zoning_district_1)
+}
+transformed_rental_income =
+  transformed_rental_income %>%
+  mutate(
+    block_id = as.numeric(substr(boro_block_lot,3,7)),
+    boro_block = as.numeric(paste0(substr(boro_block_lot,1,1),substr(boro_block_lot,3,7)))
+  ) 
+
+taxlot_to_zoning = read_csv("data/taxlot_to_zoning.csv") %>%
+  janitor::clean_names() %>%
+  filter(tax_block %in% transformed_rental_income$block_id) %>%
+  distinct(tax_block,zoning_district_1)
+```
+
+    ## Warning: One or more parsing issues, see `problems()` for details
+
+    ## Rows: 858266 Columns: 16
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (7): Zoning District 1, Zoning District 2, Commercial Overlay 1, Special...
+    ## dbl (4): Borough Code, Tax Block, Tax Lot, BBL
+    ## lgl (5): Zoning District 3, Zoning District 4, Commercial Overlay 2, Special...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+transformed_rental_income =
+transformed_rental_income %>%
+  filter(block_id %in% taxlot_to_zoning$tax_block) %>%
+  mutate(
+    zoning = map_chr(block_id,find_zoning)
+  )
+    
 save(transformed_rental_income, file = "data/cleaned_data.RData")
+# because shiny can only access its own directory....
+save(transformed_rental_income, file = "Shiny_Map/cleaned_data.RData")
 ```
 
 ### Data description
@@ -211,7 +259,7 @@ comparable_rental_income_raw %>%
   )
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 plot_neighbor = 
@@ -238,7 +286,7 @@ plot_neighbor =
 plot_neighbor
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 comparable_rental_income_raw %>% 
@@ -257,7 +305,7 @@ comparable_rental_income_raw %>%
   )
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 correlation
 
 ``` r
@@ -269,7 +317,7 @@ corr = data.frame(lapply(lapply(rentalincom_c1_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 rentalincom_c2_1 = 
@@ -280,7 +328,7 @@ corr = data.frame(lapply(lapply(rentalincom_c2_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 rentalincom_c3_1 = 
@@ -291,5 +339,5 @@ corr = data.frame(lapply(lapply(rentalincom_c3_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 \`\`\`

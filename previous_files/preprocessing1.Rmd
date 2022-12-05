@@ -93,7 +93,8 @@ find_zoning = function(block_id){
 transformed_rental_income =
   transformed_rental_income %>%
   mutate(
-    block_id = as.numeric(substr(boro_block_lot,3,7))
+    block_id = as.numeric(substr(boro_block_lot,3,7)),
+    boro_block = as.numeric(paste0(substr(boro_block_lot,1,1),substr(boro_block_lot,3,7)))
   ) 
 
 taxlot_to_zoning = read_csv("data/taxlot_to_zoning.csv") %>%
@@ -109,6 +110,8 @@ transformed_rental_income %>%
   )
     
 save(transformed_rental_income, file = "data/cleaned_data.RData")
+# because shiny can only access its own directory....
+save(transformed_rental_income, file = "Shiny_Map/cleaned_data.RData")
 ```
 
 

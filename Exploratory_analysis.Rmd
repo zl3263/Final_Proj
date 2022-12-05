@@ -60,16 +60,16 @@ rentalincom_c3 = comparable_rental_income_raw %>%
   select(append(namelist[43:56],"report_year"))
 colnames(rentalincom_c3) = std_colname
 
-transormed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)
+transformed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)
 ```
 
 ### clean data 
 
 ```{r}
-transormed_rental_income = transormed_rental_income %>% 
+transformed_rental_income = transformed_rental_income %>% 
   na.omit() 
 
-save(transormed_rental_income, file = "data/cleaned_data.RData")
+save(transformed_rental_income, file = "data/cleaned_data.RData")
 ```
 
 

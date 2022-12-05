@@ -10,14 +10,9 @@ library(geojsonsf)
 
 # Now avaliable on https://nuc-rental-income.shinyapps.io/shiny_map/
 
+load("cleaned_data.RData")
 
 #block_edge = geojsonio::geojson_read("zoning_boundary.json",what  = "sp")
-load("cleaned_data.RData")
-transformed_rental_income =
-  transormed_rental_income %>%
-  mutate(
-    boro_block = as.numeric(paste0(substr(boro_block_lot,1,1),substr(boro_block_lot,3,7)))
-  ) 
 #block_edge =  geojsonio::geojson_read("E:/Data_Science/Final_Proj/data/2000 Census Blocks.geojson",what  = "sp") 
 #block_edge <- readLines("zoning_boundary.json") %>% paste(collapse = "\n") 
 #load("cache.RData")
