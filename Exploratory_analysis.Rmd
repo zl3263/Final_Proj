@@ -42,7 +42,34 @@ comparable_rental_income =
   separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>% 
   separate(boro_block_lot_1, into = c("borough_1", "block_1", "lot_1"), sep = "-") %>% 
   separate(boro_block_lot_2, into = c("borough_2", "block_2", "lot_2"), sep = "-") %>% 
-  separate(boro_block_lot_3, into = c("borough_3", "block_3", "lot_3"), sep = "-")
+  separate(boro_block_lot_3, into = c("borough_3", "block_3", "lot_3"), sep = "-") %>% 
+  mutate(
+    borough = case_when(
+      borough == "1" ~ "Manhattan",
+      borough == "2" ~ "Bronx",
+      borough == "3" ~ "Brooklyn",
+      borough == "4" ~ "Queens",
+      borough == "5" ~ "Staten Island"),
+    borough_1 = case_when(
+      borough_1 == "1" ~ "Manhattan",
+      borough_1 == "2" ~ "Bronx",
+      borough_1 == "3" ~ "Brooklyn",
+      borough_1 == "4" ~ "Queens",
+      borough_1 == "5" ~ "Staten Island"),
+    borough_2 = case_when(
+      borough_2 == "1" ~ "Manhattan",
+      borough_2 == "2" ~ "Bronx",
+      borough_2 == "3" ~ "Brooklyn",
+      borough_2 == "4" ~ "Queens",
+      borough_2 == "5" ~ "Staten Island"),
+    borough_3 = case_when(
+      borough_3 == "1" ~ "Manhattan",
+      borough_3 == "2" ~ "Bronx",
+      borough_3 == "3" ~ "Brooklyn",
+      borough_3 == "4" ~ "Queens",
+      borough_3 == "5" ~ "Staten Island")
+    )
+  
 ```
 
 
