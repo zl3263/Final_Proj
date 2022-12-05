@@ -9,7 +9,7 @@ library(geojsonio)
 library(geojsonsf)
 
 # Now avaliable on https://nuc-rental-income.shinyapps.io/shiny_map/
-
+#setwd("Shiny_Map")
 load("cleaned_data.RData")
 
 #block_edge = geojsonio::geojson_read("zoning_boundary.json",what  = "sp")
@@ -18,7 +18,14 @@ load("cleaned_data.RData")
 #load("cache.RData")
 block_edge=read_sf("DTM_Tax_Block_Polygon.shp") %>%
   st_transform("NAD83") %>%
-  sf_geojson()
+  mutate(borough=as.numeric(BORO)) %>%
+  select(borough,everything())%>%
+  nest(data=OBJECTID:geometry) %>%
+  mutate(data = map(data,sf_geojson)) %>%
+  na.omit() %>%
+  arrange(borough)
+
+
 
 # Define UI for application
 ui <- bootstrapPage(
@@ -52,10 +59,24 @@ ui <- bootstrapPage(
   textOutput("test"),
   dataTableOutput("record"),
   absolutePanel(
-    top = 10, right = 10, style = "z-index:500; text-align: right;",
+    top = 10, left = 10, style = "z-index:500; text-align: left;",
     tags$h2("Browse our dataset by Borough-Block"),
-    tags$a("Back to Mail Page", href="https://zl3263.github.io/Final_Proj/")
+    tags$a("Back to Main Page", href="https://zl3263.github.io/Final_Proj/"),
+    selectInput(
+      "selected_boro",
+      label = "Select Borough",
+      choices = list(
+        Manhattan = 1,
+        Bronx = 2,
+        Brooklyn = 3,
+        Queens = 4,
+        Staten_Island = 5
+      ),
+      selected = 1,
+      width = "30%"
+    )
   ),
+
 
 )
 
@@ -63,9 +84,9 @@ ui <- bootstrapPage(
 server <- function(input, output) {
 
     output$map <- renderLeaflet({
-      leaflet(block_edge)%>%
+      leaflet(block_edge,options = leafletOptions(zoomControl = FALSE))%>%
       addProviderTiles("CartoDB.Positron")%>%
-      setView(lng = -73.90, lat = 40.7, zoom = 12) %>%
+      setView(lng = -73.974, lat = 40.762, zoom = 12) %>%
       #addPolygons(
       #  smoothFactor = 0.3,
       #  color = "#444444",
@@ -73,7 +94,7 @@ server <- function(input, output) {
       #  fillColor = "transparent",
       #  label = ~paste(as.character(BORO),"-",as.character(BLOCK))
       #)
-      addGeoJSON(block_edge, weight = 1, color = "#444444", fillColor = "transparent")
+      addGeoJSON(block_edge$data[[1]], weight = 1, color = "#444444", fillColor = "transparent")
     })
     output$test <- renderText({
       "Please select block"
@@ -94,7 +115,22 @@ server <- function(input, output) {
           report_year
         ) 
     })
-    
+    observe({
+      selected_boro = as.numeric(input$selected_boro)
+      output$map <- renderLeaflet({
+        leaflet(block_edge,options = leafletOptions(zoomControl = FALSE))%>%
+          addProviderTiles("CartoDB.Positron")%>%
+          setView(lng = -73.974, lat = 40.762, zoom = 12) %>%
+          #addPolygons(
+          #  smoothFactor = 0.3,
+          #  color = "#444444",
+          #  weight=1,
+          #  fillColor = "transparent",
+          #  label = ~paste(as.character(BORO),"-",as.character(BLOCK))
+          #)
+          addGeoJSON(block_edge$data[[selected_boro]], weight = 1, color = "#444444", fillColor = "transparent")
+      })
+    })
     observe({
       leafletProxy("map") %>% clearPopups()
       event <- input$map_geojson_click
