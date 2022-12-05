@@ -6,15 +6,24 @@ library(htmlwidgets)
 library(sf)
 library(shinyWidgets)
 library(geojsonio)
+library(geojsonsf)
 
 # Now avaliable on https://nuc-rental-income.shinyapps.io/shiny_map/
 
 
 #block_edge = geojsonio::geojson_read("zoning_boundary.json",what  = "sp")
 load("cleaned_data.RData")
+transformed_rental_income =
+  transormed_rental_income %>%
+  mutate(
+    boro_block = as.numeric(paste0(substr(boro_block_lot,1,1),substr(boro_block_lot,3,7)))
+  ) 
 #block_edge =  geojsonio::geojson_read("E:/Data_Science/Final_Proj/data/2000 Census Blocks.geojson",what  = "sp") 
-block_edge <- readLines("zoning_boundary.json") %>% paste(collapse = "\n") 
+#block_edge <- readLines("zoning_boundary.json") %>% paste(collapse = "\n") 
 #load("cache.RData")
+block_edge=read_sf("DTM_Tax_Block_Polygon.shp") %>%
+  st_transform("NAD83") %>%
+  sf_geojson()
 
 # Define UI for application
 ui <- bootstrapPage(
@@ -49,8 +58,8 @@ ui <- bootstrapPage(
   dataTableOutput("record"),
   absolutePanel(
     top = 10, right = 10, style = "z-index:500; text-align: right;",
-    tags$h2("Browse our dataset by zoning"),
-    tags$a("About this tool", href="https://cultureofinsight.com/portfolio/crimewatch/")
+    tags$h2("Browse our dataset by Borough-Block"),
+    tags$a("Back to Mail Page", href="https://zl3263.github.io/Final_Proj/")
   ),
 
 )
@@ -67,18 +76,18 @@ server <- function(input, output) {
       #  color = "#444444",
       #  weight=1,
       #  fillColor = "transparent",
-      #  label = ~ZONEDIST
+      #  label = ~paste(as.character(BORO),"-",as.character(BLOCK))
       #)
       addGeoJSON(block_edge, weight = 1, color = "#444444", fillColor = "transparent")
     })
     output$test <- renderText({
-      "none"
+      "Please select block"
     })
     output$record <- renderDataTable({
       transformed_rental_income %>%
-        filter(zoning == "R4-1") %>%
+        filter(boro_block == 100011) %>%
         select(
-          zoning,
+          boro_block,
           address,
           neighborhood,
           building_classification,
@@ -86,7 +95,8 @@ server <- function(input, output) {
           year_built,
           gross_sq_ft,
           gross_income_per_sq_ft,
-          full_market_value
+          full_market_value,
+          report_year
         ) 
     })
     
@@ -98,16 +108,21 @@ server <- function(input, output) {
       
       isolate({
         output$test <- renderText({
-          paste0("You are looking at records for zone: ",input$map_geojson_click$properties$ZONEDIST)
+          paste0(
+            "You are looking at records for boro-block: ",
+            as.character(input$map_geojson_click$properties$BORO),
+            "-",
+            as.character(input$map_geojson_click$properties$BLOCK)
+          )
           
         })
       })
       
       output$record <- renderDataTable({
         transformed_rental_income %>%
-          filter(zoning == input$map_geojson_click$properties$ZONEDIS) %>%
+          filter(boro_block == as.numeric(input$map_geojson_click$properties$BORO)*100000+as.numeric(input$map_geojson_click$properties$BLOCK)) %>%
           select(
-            zoning,
+            boro_block,
             address,
             neighborhood,
             building_classification,
@@ -115,7 +130,8 @@ server <- function(input, output) {
             year_built,
             gross_sq_ft,
             gross_income_per_sq_ft,
-            full_market_value
+            full_market_value,
+            report_year
           ) 
       })
     })
