@@ -33,7 +33,7 @@ transformed_rental_income %>%
 ```
 address to lat and long
 
-```{r}
+```{r eval=FALSE}
 Manhattan_data = transformed_rental_income %>%
   filter(
     borough == "Manhattan"
