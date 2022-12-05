@@ -263,7 +263,7 @@ $(document).ready(function () {
   <a href="Modeling.html">Modeling</a>
 </li>
 <li>
-  <a href="Map.html">Map</a>
+  <a href="https://nuc-rental-income.shinyapps.io/shiny_map/">Browse by Map</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -329,7 +329,7 @@ $(document).ready(function () {
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre class="r"><code>load(&#39;./data/cleaned_data.RData&#39;)
 
-data_1 = transormed_rental_income %&gt;%
+data_1 = transformed_rental_income %&gt;%
   separate(boro_block_lot, into = c(&quot;borough&quot;, &quot;block&quot;, &quot;lot&quot;), sep = &quot;-&quot;) %&gt;%
   unite(col = &quot;bbl&quot;, c(&quot;borough&quot;, &quot;block&quot;, &quot;lot&quot;), sep = &quot;&quot;, remove = FALSE) %&gt;%
   mutate(bbl = as.numeric(bbl))
@@ -617,7 +617,656 @@ all_eg = lm(estimated_gross_income ~ ., data = data_egi)
 
 egi_fit = step(io_eg, direction = &quot;both&quot;, scope = formula(all_eg), trace = 0)
 
-equatiomatic::extract_eq(egi_fit)</code></pre>
+equatiomatic::extract_eq(egi_fit, use_coefs = TRUE)</code></pre>
+<p><span class="math display">\[
+\operatorname{\widehat{estimated\_gross\_income}} = -12138283.47 +
+22.27(\operatorname{gross\_sq\_ft}) -
+475749.66(\operatorname{neighborhood}_{\operatorname{SOUTHBRIDGE}}) +
+2669468.55(\operatorname{neighborhood}_{\operatorname{CIVIC\ CENTER}}) +
+4271705.17(\operatorname{neighborhood}_{\operatorname{TRIBECA}}) +
+1862304.31(\operatorname{neighborhood}_{\operatorname{CHINATOWN}}) +
+1884613.21(\operatorname{neighborhood}_{\operatorname{SOHO}}) +
+730979.88(\operatorname{neighborhood}_{\operatorname{LOWER\ EAST\
+SIDE}}) +
+1491147.07(\operatorname{neighborhood}_{\operatorname{ALPHABET\ CITY}})
++ 1766153.05(\operatorname{neighborhood}_{\operatorname{EAST\ VILLAGE}})
++ 1358849.78(\operatorname{neighborhood}_{\operatorname{LITTLE\ ITALY}})
++ 2303032.41(\operatorname{neighborhood}_{\operatorname{GREENWICH\
+VILLAGE-CENTRAL}}) +
+2006040.87(\operatorname{neighborhood}_{\operatorname{GREENWICH\
+VILLAGE-WEST}}) +
+1857643.67(\operatorname{neighborhood}_{\operatorname{CHELSEA}}) +
+353755.16(\operatorname{neighborhood}_{\operatorname{JAVITS\ CENTER}}) +
+1431635(\operatorname{neighborhood}_{\operatorname{FASHION}}) +
+2201218.19(\operatorname{neighborhood}_{\operatorname{FLATIRON}}) +
+1667540.05(\operatorname{neighborhood}_{\operatorname{MURRAY\ HILL}}) +
+1958251.26(\operatorname{neighborhood}_{\operatorname{GRAMERCY}}) +
+2558394.03(\operatorname{neighborhood}_{\operatorname{KIPS\ BAY}}) +
+1555648.83(\operatorname{neighborhood}_{\operatorname{MIDTOWN\ WEST}}) +
+1424905.68(\operatorname{neighborhood}_{\operatorname{CLINTON}}) +
+2433778.85(\operatorname{neighborhood}_{\operatorname{UPPER\ WEST\ SIDE\
+(59-79)}}) + 1534142.3(\operatorname{neighborhood}_{\operatorname{UPPER\
+WEST\ SIDE\ (79-96)}}) +
+1364448.44(\operatorname{neighborhood}_{\operatorname{MIDTOWN\ CBD}}) +
+2374591.51(\operatorname{neighborhood}_{\operatorname{MIDTOWN\ EAST}}) +
+260994.49(\operatorname{neighborhood}_{\operatorname{FLUSHING-NORTH}}) +
+2506523.49(\operatorname{neighborhood}_{\operatorname{UPPER\ EAST\ SIDE\
+(59-79)}}) +
+1848791.09(\operatorname{neighborhood}_{\operatorname{UPPER\ EAST\ SIDE\
+(79-96)}}) +
+44832.5(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE/JEROME\
+PARK}}) +
+811340.71(\operatorname{neighborhood}_{\operatorname{HARLEM-CENTRAL}}) +
+1357846.44(\operatorname{neighborhood}_{\operatorname{UPPER\ EAST\ SIDE\
+(96-110)}}) +
+969085.48(\operatorname{neighborhood}_{\operatorname{HARLEM-EAST}}) +
+1295104.29(\operatorname{neighborhood}_{\operatorname{MANHATTAN\
+VALLEY}}) + 1435320.91(\operatorname{neighborhood}_{\operatorname{UPPER\
+WEST\ SIDE\ (96-116)}}) +
+1567637.45(\operatorname{neighborhood}_{\operatorname{MORNINGSIDE\
+HEIGHTS}}) +
+896573.61(\operatorname{neighborhood}_{\operatorname{HARLEM-WEST}}) +
+707090.22(\operatorname{neighborhood}_{\operatorname{HARLEM-UPPER}}) +
+834002.21(\operatorname{neighborhood}_{\operatorname{WASHINGTON\
+HEIGHTS\ LOWER}}) +
+699871.39(\operatorname{neighborhood}_{\operatorname{WASHINGTON\
+HEIGHTS\ UPPER}}) +
+545180.72(\operatorname{neighborhood}_{\operatorname{INWOOD}}) +
+722119.93(\operatorname{neighborhood}_{\operatorname{MOTT\ HAVEN/PORT\
+MORRIS}}) +
+832753.44(\operatorname{neighborhood}_{\operatorname{MORRISANIA/LONGWOOD}})
++
+189732.97(\operatorname{neighborhood}_{\operatorname{MELROSE/CONCOURSE}})
++
+515486.81(\operatorname{neighborhood}_{\operatorname{HIGHBRIDGE/MORRIS\
+HEIGHTS}}) + 809505.37(\operatorname{neighborhood}_{\operatorname{HUNTS\
+POINT}}) + 669435.72(\operatorname{neighborhood}_{\operatorname{MOUNT\
+HOPE/MOUNT\ EDEN}}) +
+850643.06(\operatorname{neighborhood}_{\operatorname{CROTONA\ PARK}}) +
+655811.11(\operatorname{neighborhood}_{\operatorname{EAST\ TREMONT}}) +
+697679.76(\operatorname{neighborhood}_{\operatorname{BATHGATE}}) +
+725558.51(\operatorname{neighborhood}_{\operatorname{BELMONT}}) +
+499214.25(\operatorname{neighborhood}_{\operatorname{FORDHAM}}) +
+457106.13(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE\
+HTS/UNIV\ HTS}}) +
+361623.51(\operatorname{neighborhood}_{\operatorname{BEDFORD\
+PARK/NORWOOD}}) +
+34226.68(\operatorname{neighborhood}_{\operatorname{WOODLAWN}}) -
+1886169.34(\operatorname{neighborhood}_{\operatorname{CASTLE\
+HILL/UNIONPORT}}) -
+1143636.26(\operatorname{neighborhood}_{\operatorname{SOUNDVIEW}}) +
+89267.36(\operatorname{neighborhood}_{\operatorname{PARKCHESTER}}) +
+567300.85(\operatorname{neighborhood}_{\operatorname{WESTCHESTER}}) +
+500785.78(\operatorname{neighborhood}_{\operatorname{SCHUYLERVILLE/PELHAM\
+BAY}}) + 132398.54(\operatorname{neighborhood}_{\operatorname{MORRIS\
+PARK/VAN\ NEST}}) +
+351651.45(\operatorname{neighborhood}_{\operatorname{PELHAM\ PARKWAY\
+SOUTH}}) +
+147575.99(\operatorname{neighborhood}_{\operatorname{BRONXDALE}}) -
+266385.65(\operatorname{neighborhood}_{\operatorname{PELHAM\ PARKWAY\
+NORTH}}) +
+12142.88(\operatorname{neighborhood}_{\operatorname{WILLIAMSBRIDGE}}) +
+124287.83(\operatorname{neighborhood}_{\operatorname{WAKEFIELD}}) -
+105495069.08(\operatorname{neighborhood}_{\operatorname{CO-OP\ CITY}}) -
+953590.89(\operatorname{neighborhood}_{\operatorname{BAYCHESTER}}) -
+3888386.77(\operatorname{neighborhood}_{\operatorname{COUNTRY\ CLUB}}) -
+179385.27(\operatorname{neighborhood}_{\operatorname{RIVERDALE}}) +
+705442.68(\operatorname{neighborhood}_{\operatorname{VAN\ CORTLANDT\
+PARK}}) +
+348033.59(\operatorname{neighborhood}_{\operatorname{FIELDSTON}}) +
+235292.54(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-METROTECH}})
++ 252523.18(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON\
+MALL}}) + 895642.45(\operatorname{neighborhood}_{\operatorname{BOERUM\
+HILL}}) +
+1421297(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON\
+FERRY}}) +
+1382327.65(\operatorname{neighborhood}_{\operatorname{BROOKLYN\
+HEIGHTS}}) +
+1386382.71(\operatorname{neighborhood}_{\operatorname{COBBLE\ HILL}}) +
+686160.99(\operatorname{neighborhood}_{\operatorname{SUNSET\ PARK}}) +
+804981.35(\operatorname{neighborhood}_{\operatorname{BOROUGH\ PARK}}) +
+896692.05(\operatorname{neighborhood}_{\operatorname{PARK\ SLOPE}}) +
+644866.7(\operatorname{neighborhood}_{\operatorname{PARK\ SLOPE\
+SOUTH}}) + 492570.97(\operatorname{neighborhood}_{\operatorname{WINDSOR\
+TERRACE}}) +
+830943.4(\operatorname{neighborhood}_{\operatorname{PROSPECT\ HEIGHTS}})
++ 782612.59(\operatorname{neighborhood}_{\operatorname{CROWN\ HEIGHTS}})
++ 139972.41(\operatorname{neighborhood}_{\operatorname{FLATBUSH-NORTH}})
++ 474171.3(\operatorname{neighborhood}_{\operatorname{FLATBUSH-LEFFERTS\
+GARDEN}}) + 792774.44(\operatorname{neighborhood}_{\operatorname{OCEAN\
+HILL}}) + 374208.32(\operatorname{neighborhood}_{\operatorname{BEDFORD\
+STUYVESANT}}) +
+483720.62(\operatorname{neighborhood}_{\operatorname{CLINTON\ HILL}}) +
+211379.66(\operatorname{neighborhood}_{\operatorname{FORT\ GREENE}}) +
+516771.08(\operatorname{neighborhood}_{\operatorname{NAVY\ YARD}}) +
+1207657.35(\operatorname{neighborhood}_{\operatorname{WILLIAMSBURG-SOUTH}})
+-
+1473217.69(\operatorname{neighborhood}_{\operatorname{WILLIAMSBURG-CENTRAL}})
++
+515602.58(\operatorname{neighborhood}_{\operatorname{WILLIAMSBURG-EAST}})
++
+750753.95(\operatorname{neighborhood}_{\operatorname{WILLIAMSBURG-NORTH}})
++ 143641.93(\operatorname{neighborhood}_{\operatorname{BAYSIDE}}) +
+674900.93(\operatorname{neighborhood}_{\operatorname{GREENPOINT}}) +
+935358.9(\operatorname{neighborhood}_{\operatorname{BUSHWICK}}) -
+46260.61(\operatorname{neighborhood}_{\operatorname{BROWNSVILLE}}) +
+683492.94(\operatorname{neighborhood}_{\operatorname{CYPRESS\ HILLS}}) +
+417291.49(\operatorname{neighborhood}_{\operatorname{EAST\ NEW\ YORK}})
+- 6771.99(\operatorname{neighborhood}_{\operatorname{FLATBUSH-EAST}}) +
+221759.07(\operatorname{neighborhood}_{\operatorname{FLATBUSH-CENTRAL}})
++ 91496.56(\operatorname{neighborhood}_{\operatorname{KENSINGTON}}) +
+182880.83(\operatorname{neighborhood}_{\operatorname{OCEAN\
+PARKWAY-NORTH}}) +
+450438.96(\operatorname{neighborhood}_{\operatorname{BAY\ RIDGE}}) +
+383410.11(\operatorname{neighborhood}_{\operatorname{DYKER\ HEIGHTS}}) +
+594193.3(\operatorname{neighborhood}_{\operatorname{BENSONHURST}}) +
+167190.94(\operatorname{neighborhood}_{\operatorname{BATH\ BEACH}}) +
+282281.31(\operatorname{neighborhood}_{\operatorname{GRAVESEND}}) +
+333318.71(\operatorname{neighborhood}_{\operatorname{OCEAN\
+PARKWAY-SOUTH}}) +
+176520.39(\operatorname{neighborhood}_{\operatorname{MIDWOOD}}) +
+200723.2(\operatorname{neighborhood}_{\operatorname{MADISON}}) -
+2390814.65(\operatorname{neighborhood}_{\operatorname{CONEY\ ISLAND}}) +
+658350.03(\operatorname{neighborhood}_{\operatorname{BRIGHTON\ BEACH}})
++ 187336.76(\operatorname{neighborhood}_{\operatorname{SHEEPSHEAD\
+BAY}}) - 90305.88(\operatorname{neighborhood}_{\operatorname{MARINE\
+PARK}}) -
+148347.33(\operatorname{neighborhood}_{\operatorname{FLATLANDS}}) +
+282897.75(\operatorname{neighborhood}_{\operatorname{CANARSIE}}) +
+531291.76(\operatorname{neighborhood}_{\operatorname{OLD\ MILL\ BASIN}})
++ 54011.39(\operatorname{neighborhood}_{\operatorname{BERGEN\ BEACH}}) +
+523847.95(\operatorname{neighborhood}_{\operatorname{MANHATTAN\ BEACH}})
++ 350559.88(\operatorname{neighborhood}_{\operatorname{LONG\ ISLAND\
+CITY}}) +
+469809.75(\operatorname{neighborhood}_{\operatorname{SUNNYSIDE}}) -
+283509.13(\operatorname{neighborhood}_{\operatorname{WOODSIDE}}) +
+429423.71(\operatorname{neighborhood}_{\operatorname{ASTORIA}}) +
+646894.21(\operatorname{neighborhood}_{\operatorname{JACKSON\ HEIGHTS}})
++ 315740.31(\operatorname{neighborhood}_{\operatorname{ELMHURST}}) +
+106474.01(\operatorname{neighborhood}_{\operatorname{EAST\ ELMHURST}}) -
+280907.85(\operatorname{neighborhood}_{\operatorname{CORONA}}) +
+355698.19(\operatorname{neighborhood}_{\operatorname{REGO\ PARK}}) +
+564112.89(\operatorname{neighborhood}_{\operatorname{FOREST\ HILLS}}) +
+741463.02(\operatorname{neighborhood}_{\operatorname{FLUSHING\ MEADOW\
+PARK}}) -
+237436.16(\operatorname{neighborhood}_{\operatorname{MASPETH}}) -
+516870.33(\operatorname{neighborhood}_{\operatorname{MIDDLE\ VILLAGE}})
++ 350507.3(\operatorname{neighborhood}_{\operatorname{KEW\ GARDENS}}) -
+1351320.06(\operatorname{neighborhood}_{\operatorname{GLENDALE}}) +
+183339.83(\operatorname{neighborhood}_{\operatorname{WHITESTONE}}) +
+544029.64(\operatorname{neighborhood}_{\operatorname{BEECHHURST}}) -
+103915.65(\operatorname{neighborhood}_{\operatorname{FLUSHING-SOUTH}}) -
+3683229.27(\operatorname{neighborhood}_{\operatorname{HILLCREST}}) -
+896532.97(\operatorname{neighborhood}_{\operatorname{FRESH\ MEADOWS}}) -
+32211.28(\operatorname{neighborhood}_{\operatorname{OAKLAND\ GARDENS}})
+- 809684.66(\operatorname{neighborhood}_{\operatorname{HOLLIS\ HILLS}})
++ 34554.83(\operatorname{neighborhood}_{\operatorname{QUEENS\ VILLAGE}})
++ 420325.7(\operatorname{neighborhood}_{\operatorname{DOUGLASTON}}) +
+91254.49(\operatorname{neighborhood}_{\operatorname{LITTLE\ NECK}}) -
+59815.8(\operatorname{neighborhood}_{\operatorname{GLEN\ OAKS}}) +
+228596.72(\operatorname{neighborhood}_{\operatorname{FLORAL\ PARK}}) +
+34369.77(\operatorname{neighborhood}_{\operatorname{WOODHAVEN}}) +
+394328.86(\operatorname{neighborhood}_{\operatorname{RICHMOND\ HILL}}) +
+115003.58(\operatorname{neighborhood}_{\operatorname{BRIARWOOD}}) +
+248690.44(\operatorname{neighborhood}_{\operatorname{JAMAICA}}) +
+744.16(\operatorname{neighborhood}_{\operatorname{JAMAICA\ HILLS}}) +
+417211.26(\operatorname{neighborhood}_{\operatorname{JAMAICA\ ESTATES}})
++ 471816.28(\operatorname{neighborhood}_{\operatorname{HOLLIS}}) +
+63848.35(\operatorname{neighborhood}_{\operatorname{SOUTH\ JAMAICA}}) -
+164426.19(\operatorname{neighborhood}_{\operatorname{HOLLISWOOD}}) -
+323090.66(\operatorname{neighborhood}_{\operatorname{HOWARD\ BEACH}}) -
+258230.81(\operatorname{neighborhood}_{\operatorname{SO.\
+JAMAICA-BAISLEY\ PARK}}) -
+7013227(\operatorname{neighborhood}_{\operatorname{SPRINGFIELD\
+GARDENS}}) +
+83969.31(\operatorname{neighborhood}_{\operatorname{LAURELTON}}) -
+428436.9(\operatorname{neighborhood}_{\operatorname{FAR\ ROCKAWAY}}) -
+4448253(\operatorname{neighborhood}_{\operatorname{ARVERNE}}) -
+3388160.27(\operatorname{neighborhood}_{\operatorname{HAMMELS}}) -
+373939.41(\operatorname{neighborhood}_{\operatorname{ROCKAWAY\ PARK}}) +
+83165.18(\operatorname{neighborhood}_{\operatorname{BELLE\ HARBOR}}) -
+261621.78(\operatorname{neighborhood}_{\operatorname{NEW\ BRIGHTON-ST.\
+GEORGE}}) - 331836.8(\operatorname{neighborhood}_{\operatorname{NEW\
+BRIGHTON}}) + 150203.02(\operatorname{neighborhood}_{\operatorname{WEST\
+NEW\ BRIGHTON}}) -
+205635.06(\operatorname{neighborhood}_{\operatorname{LIVINGSTON}}) -
+484505.92(\operatorname{neighborhood}_{\operatorname{CLOVE\ LAKES}}) -
+230843.97(\operatorname{neighborhood}_{\operatorname{GRYMES\ HILL}}) -
+434781.57(\operatorname{neighborhood}_{\operatorname{ARROCHAR-SHORE\
+ACRES}}) -
+779176.69(\operatorname{neighborhood}_{\operatorname{CONCORD-FOX\
+HILLS}}) -
+398208.92(\operatorname{neighborhood}_{\operatorname{ROSEBANK}}) +
+38697.03(\operatorname{neighborhood}_{\operatorname{DONGAN\ HILLS}}) +
+133190.87(\operatorname{neighborhood}_{\operatorname{GRANT\ CITY}}) -
+129608.41(\operatorname{neighborhood}_{\operatorname{GREAT\ KILLS}}) -
+108959.7(\operatorname{neighborhood}_{\operatorname{GREAT\ KILLS-BAY\
+TERRACE}}) +
+3473252.08(\operatorname{neighborhood}_{\operatorname{CIVIC CENTER}}) +
+890929.65(\operatorname{neighborhood}_{\operatorname{LOWER EAST SIDE}})
++ 1531388.86(\operatorname{neighborhood}_{\operatorname{ALPHABET CITY}})
++ 1785645.03(\operatorname{neighborhood}_{\operatorname{EAST VILLAGE}})
++ 1222602.03(\operatorname{neighborhood}_{\operatorname{LITTLE ITALY}})
++
+2618467(\operatorname{neighborhood}_{\operatorname{GREENWICH VILLAGE-CENTRAL}})
++
+2203447.58(\operatorname{neighborhood}_{\operatorname{GREENWICH VILLAGE-WEST}})
++ 1384905.1(\operatorname{neighborhood}_{\operatorname{JAVITS CENTER}})
++ 1608930.03(\operatorname{neighborhood}_{\operatorname{MURRAY HILL}}) +
+2691179.54(\operatorname{neighborhood}_{\operatorname{KIPS BAY}}) +
+1840396.7(\operatorname{neighborhood}_{\operatorname{MIDTOWN WEST}}) +
+2462197.48(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE (59-79)}})
++
+1533684.85(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE (79-96)}})
++ 1193632.9(\operatorname{neighborhood}_{\operatorname{MIDTOWN CBD}}) +
+2709269.72(\operatorname{neighborhood}_{\operatorname{MIDTOWN EAST}}) +
+3690601.99(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE (59-79)}})
++
+15254601.56(\operatorname{neighborhood}_{\operatorname{ROOSEVELT ISLAND}})
++
+1852260.25(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE (79-96)}})
++
+3060231.7(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE (96-110)}})
++
+1434443.16(\operatorname{neighborhood}_{\operatorname{MANHATTAN VALLEY}})
++
+1661460.44(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE (96-116)}})
++
+1189210.47(\operatorname{neighborhood}_{\operatorname{MORNINGSIDE HEIGHTS}})
++
+828620.81(\operatorname{neighborhood}_{\operatorname{WASHINGTON HEIGHTS LOWER}})
++
+709655.37(\operatorname{neighborhood}_{\operatorname{WASHINGTON HEIGHTS UPPER}})
++
+393916.8(\operatorname{neighborhood}_{\operatorname{MOTT HAVEN/PORT MORRIS}})
++
+216382.47(\operatorname{neighborhood}_{\operatorname{HIGHBRIDGE/MORRIS HEIGHTS}})
++ 786830.28(\operatorname{neighborhood}_{\operatorname{HUNTS POINT}}) +
+572529.03(\operatorname{neighborhood}_{\operatorname{MOUNT HOPE/MOUNT EDEN}})
++ 738540.14(\operatorname{neighborhood}_{\operatorname{CROTONA PARK}}) +
+755499.26(\operatorname{neighborhood}_{\operatorname{EAST TREMONT}}) +
+297804.14(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE HTS/UNIV HTS}})
+-
+371509.5(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE/JEROME PARK}})
++
+292224.07(\operatorname{neighborhood}_{\operatorname{BEDFORD PARK/NORWOOD}})
+-
+1507037.73(\operatorname{neighborhood}_{\operatorname{CASTLE HILL/UNIONPORT}})
++
+303676.86(\operatorname{neighborhood}_{\operatorname{SCHUYLERVILLE/PELHAM BAY}})
++
+207629.41(\operatorname{neighborhood}_{\operatorname{MORRIS PARK/VAN NEST}})
++
+161257.61(\operatorname{neighborhood}_{\operatorname{PELHAM PARKWAY SOUTH}})
+-
+554396.74(\operatorname{neighborhood}_{\operatorname{PELHAM PARKWAY NORTH}})
+- 90888768.57(\operatorname{neighborhood}_{\operatorname{CO-OP CITY}}) -
+4004891.87(\operatorname{neighborhood}_{\operatorname{COUNTRY CLUB}}) +
+570542.44(\operatorname{neighborhood}_{\operatorname{CITY ISLAND}}) +
+526460.47(\operatorname{neighborhood}_{\operatorname{VAN CORTLANDT PARK}})
++
+1286549.52(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON MALL}})
++ 755675.97(\operatorname{neighborhood}_{\operatorname{BOERUM HILL}}) +
+2143271.43(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON FERRY}})
++ 1462872(\operatorname{neighborhood}_{\operatorname{BROOKLYN HEIGHTS}})
++ 1489652.13(\operatorname{neighborhood}_{\operatorname{COBBLE HILL}}) +
+1114729.76(\operatorname{neighborhood}_{\operatorname{CARROLL GARDENS}})
++ 434428.63(\operatorname{neighborhood}_{\operatorname{RED HOOK}}) +
+633796.03(\operatorname{neighborhood}_{\operatorname{SUNSET PARK}}) +
+740312.15(\operatorname{neighborhood}_{\operatorname{BOROUGH PARK}}) +
+942154.85(\operatorname{neighborhood}_{\operatorname{PARK SLOPE}}) +
+596325.52(\operatorname{neighborhood}_{\operatorname{PARK SLOPE SOUTH}})
++ 707069.03(\operatorname{neighborhood}_{\operatorname{GOWANUS}}) +
+437524.24(\operatorname{neighborhood}_{\operatorname{WINDSOR TERRACE}})
++
+886807.4(\operatorname{neighborhood}_{\operatorname{PROSPECT HEIGHTS}})
++ 875966.54(\operatorname{neighborhood}_{\operatorname{CROWN HEIGHTS}})
++
+496478.9(\operatorname{neighborhood}_{\operatorname{FLATBUSH-LEFFERTS GARDEN}})
++ 792929.67(\operatorname{neighborhood}_{\operatorname{OCEAN HILL}}) +
+238324.9(\operatorname{neighborhood}_{\operatorname{BEDFORD STUYVESANT}})
++ 480743.58(\operatorname{neighborhood}_{\operatorname{CLINTON HILL}}) +
+793480.26(\operatorname{neighborhood}_{\operatorname{FORT GREENE}}) +
+23610.45(\operatorname{neighborhood}_{\operatorname{NAVY YARD}}) +
+497874.7(\operatorname{neighborhood}_{\operatorname{CYPRESS HILLS}}) +
+705431.56(\operatorname{neighborhood}_{\operatorname{EAST NEW YORK}}) +
+159494.89(\operatorname{neighborhood}_{\operatorname{OCEAN PARKWAY-NORTH}})
++ 413791.49(\operatorname{neighborhood}_{\operatorname{BAY RIDGE}}) +
+230755.39(\operatorname{neighborhood}_{\operatorname{DYKER HEIGHTS}}) -
+10202.32(\operatorname{neighborhood}_{\operatorname{BATH BEACH}}) +
+350288.51(\operatorname{neighborhood}_{\operatorname{OCEAN PARKWAY-SOUTH}})
+- 1125441.04(\operatorname{neighborhood}_{\operatorname{CONEY ISLAND}})
++ 587175.85(\operatorname{neighborhood}_{\operatorname{BRIGHTON BEACH}})
++ 181726.44(\operatorname{neighborhood}_{\operatorname{SHEEPSHEAD BAY}})
+- 340806.91(\operatorname{neighborhood}_{\operatorname{MARINE PARK}}) +
+530105.72(\operatorname{neighborhood}_{\operatorname{OLD MILL BASIN}}) +
+32996.6(\operatorname{neighborhood}_{\operatorname{BERGEN BEACH}}) +
+495496.33(\operatorname{neighborhood}_{\operatorname{MANHATTAN BEACH}})
+-
+34720.69(\operatorname{neighborhood}_{\operatorname{LONG ISLAND CITY}})
++
+513288.28(\operatorname{neighborhood}_{\operatorname{JACKSON HEIGHTS}})
+- 175940(\operatorname{neighborhood}_{\operatorname{EAST ELMHURST}}) +
+479722.66(\operatorname{neighborhood}_{\operatorname{REGO PARK}}) +
+501358.08(\operatorname{neighborhood}_{\operatorname{FOREST HILLS}}) +
+527600.06(\operatorname{neighborhood}_{\operatorname{FLUSHING MEADOW PARK}})
++ 536205.98(\operatorname{neighborhood}_{\operatorname{MIDDLE VILLAGE}})
++ 231199.89(\operatorname{neighborhood}_{\operatorname{KEW GARDENS}}) -
+55344.89(\operatorname{neighborhood}_{\operatorname{FRESH MEADOWS}}) +
+321476.48(\operatorname{neighborhood}_{\operatorname{OAKLAND GARDENS}})
+- 587299.63(\operatorname{neighborhood}_{\operatorname{HOLLIS HILLS}}) +
+109033.85(\operatorname{neighborhood}_{\operatorname{QUEENS VILLAGE}}) +
+402412.03(\operatorname{neighborhood}_{\operatorname{LITTLE NECK}}) +
+671251.69(\operatorname{neighborhood}_{\operatorname{GLEN OAKS}}) +
+286175.7(\operatorname{neighborhood}_{\operatorname{FLORAL PARK}}) +
+246539.06(\operatorname{neighborhood}_{\operatorname{RICHMOND HILL}}) -
+187037.81(\operatorname{neighborhood}_{\operatorname{JAMAICA HILLS}}) +
+295479.33(\operatorname{neighborhood}_{\operatorname{JAMAICA ESTATES}})
++ 782924.89(\operatorname{neighborhood}_{\operatorname{SOUTH JAMAICA}})
+- 297573.73(\operatorname{neighborhood}_{\operatorname{HOWARD BEACH}}) -
+168509.89(\operatorname{neighborhood}_{\operatorname{SO. JAMAICA-BAISLEY PARK}})
+-
+14234646.21(\operatorname{neighborhood}_{\operatorname{SPRINGFIELD GARDENS}})
+- 94517.64(\operatorname{neighborhood}_{\operatorname{FAR ROCKAWAY}}) -
+1033795.03(\operatorname{neighborhood}_{\operatorname{ROCKAWAY PARK}}) +
+99529.5(\operatorname{neighborhood}_{\operatorname{BELLE HARBOR}}) -
+358496.56(\operatorname{neighborhood}_{\operatorname{NEW BRIGHTON-ST. GEORGE}})
+- 421103.61(\operatorname{neighborhood}_{\operatorname{CLOVE LAKES}}) -
+294408.3(\operatorname{neighborhood}_{\operatorname{GRYMES HILL}}) -
+183937.07(\operatorname{neighborhood}_{\operatorname{ARROCHAR-SHORE ACRES}})
++
+123099.95(\operatorname{neighborhood}_{\operatorname{CONCORD-FOX HILLS}})
++ 55862.02(\operatorname{neighborhood}_{\operatorname{DONGAN HILLS}}) -
+7626.74(\operatorname{neighborhood}_{\operatorname{GRANT CITY}}) -
+86279.31(\operatorname{neighborhood}_{\operatorname{GREAT KILLS}}) -
+240027.46(\operatorname{neighborhood}_{\operatorname{GREAT KILLS-BAY TERRACE}})
++ 406223(\operatorname{neighborhood}_{\operatorname{CITY\ ISLAND}}) +
+755692.92(\operatorname{neighborhood}_{\operatorname{CARROLL\ GARDENS}})
++ 327265.6(\operatorname{neighborhood}_{\operatorname{RED\ HOOK}}) +
+29727633.51(\operatorname{neighborhood}_{\operatorname{ROOSEVELT\
+ISLAND}}) + 432897.24(\operatorname{neighborhood}_{\operatorname{OZONE\
+PARK}}) + 516575.15(\operatorname{neighborhood}_{\operatorname{SOUTH\
+OZONE\ PARK}}) -
+465886.88(\operatorname{neighborhood}_{\operatorname{PORT\ RICHMOND}}) -
+238652.71(\operatorname{neighborhood}_{\operatorname{STAPLETON}}) -
+147974.79(\operatorname{neighborhood}_{\operatorname{OAKWOOD-BEACH}}) +
+100466.71(\operatorname{neighborhood}_{\operatorname{THROGS NECK}}) +
+887739.87(\operatorname{neighborhood}_{\operatorname{WYCKOFF HEIGHTS}})
+- 7913488.64(\operatorname{neighborhood}_{\operatorname{SPRING CREEK}})
++
+703445.26(\operatorname{neighborhood}_{\operatorname{GERRITSEN BEACH}})
++ 522418.01(\operatorname{neighborhood}_{\operatorname{OZONE PARK}}) -
+96014.7(\operatorname{neighborhood}_{\operatorname{STAPLETON-CLIFTON}})
+- 243670.25(\operatorname{neighborhood}_{\operatorname{OAKWOOD}}) -
+8388307.17(\operatorname{neighborhood}_{\operatorname{SPRING\ CREEK}}) +
+55863.72(\operatorname{neighborhood}_{\operatorname{CAMBRIA\ HEIGHTS}})
+- 1298560.13(\operatorname{neighborhood}_{\operatorname{BULLS\ HEAD}}) +
+213555.09(\operatorname{neighborhood}_{\operatorname{ST.\ ALBANS}}) +
+242765.13(\operatorname{neighborhood}_{\operatorname{WYCKOFF\ HEIGHTS}})
++ 508375.24(\operatorname{neighborhood}_{\operatorname{BUSH\ TERMINAL}})
++ 313404.56(\operatorname{neighborhood}_{\operatorname{COLLEGE\ POINT}})
++ 501089.22(\operatorname{neighborhood}_{\operatorname{BRONX\ PARK}}) +
+131279.39(\operatorname{neighborhood}_{\operatorname{CONCORD}}) -
+850490.96(\operatorname{neighborhood}_{\operatorname{MIDLAND\ BEACH}}) -
+108233907.53(\operatorname{neighborhood}_{\operatorname{NEW\ DORP}}) -
+238876.98(\operatorname{neighborhood}_{\operatorname{ROSEDALE}}) -
+603094.85(\operatorname{neighborhood}_{\operatorname{THROGS\ NECK}}) +
+474983.94(\operatorname{neighborhood}_{\operatorname{COBBLE\
+HILL-WEST}}) -
+65121.92(\operatorname{neighborhood}_{\operatorname{WESTERLEIGH}}) +
+990386.21(\operatorname{neighborhood}_{\operatorname{BRONX PARK}}) -
+85460.34(\operatorname{neighborhood}_{\operatorname{CAMBRIA HEIGHTS}}) -
+255990.86(\operatorname{neighborhood}_{\operatorname{NEW BRIGHTON}}) -
+678442.97(\operatorname{neighborhood}_{\operatorname{GRASMERE}}) -
+472926.05(\operatorname{neighborhood}_{\operatorname{ELTINGVILLE}}) +
+456212.14(\operatorname{neighborhood}_{\operatorname{TOMPKINSVILLE}}) -
+157282.9(\operatorname{neighborhood}_{\operatorname{DONGAN\ HILLS-OLD\
+TOWN}}) -
+244405.16(\operatorname{neighborhood}_{\operatorname{SEAGATE}}) -
+133707.37(\operatorname{neighborhood}_{\operatorname{CASTLETON\
+CORNERS}}) +
+757479.39(\operatorname{neighborhood}_{\operatorname{GERRITSEN\ BEACH}})
++ 181393.11(\operatorname{neighborhood}_{\operatorname{SILVER\ LAKE}}) -
+62964.78(\operatorname{neighborhood}_{\operatorname{ST. ALBANS}}) -
+169914.34(\operatorname{neighborhood}_{\operatorname{ARROCHAR}}) -
+3848203.18(\operatorname{zoning}_{\operatorname{R8}}) -
+545391.61(\operatorname{zoning}_{\operatorname{C6-4}}) -
+3846692.76(\operatorname{zoning}_{\operatorname{R7-2}}) -
+1134068.85(\operatorname{zoning}_{\operatorname{C5-3}}) -
+4080194.03(\operatorname{zoning}_{\operatorname{C6-3A}}) -
+4358762.47(\operatorname{zoning}_{\operatorname{C6-2A}}) -
+4116499.28(\operatorname{zoning}_{\operatorname{C6-1}}) -
+4005059.18(\operatorname{zoning}_{\operatorname{C6-4A}}) -
+3900998.13(\operatorname{zoning}_{\operatorname{M1-5/R7X}}) -
+3218193.38(\operatorname{zoning}_{\operatorname{M1-5/R9X}}) -
+3071993.63(\operatorname{zoning}_{\operatorname{C6-2}}) -
+3855542.46(\operatorname{zoning}_{\operatorname{R8A}}) -
+3674362.12(\operatorname{zoning}_{\operatorname{R7A}}) -
+4137280.5(\operatorname{zoning}_{\operatorname{R8B}}) -
+3847947(\operatorname{zoning}_{\operatorname{R7B}}) -
+3339677.92(\operatorname{zoning}_{\operatorname{C4-4A}}) -
+4213440.48(\operatorname{zoning}_{\operatorname{C1-6A}}) -
+3800391.85(\operatorname{zoning}_{\operatorname{C6-2G}}) -
+3751085.41(\operatorname{zoning}_{\operatorname{M1-5/R7D}}) -
+4507980.17(\operatorname{zoning}_{\operatorname{M1-5B}}) -
+4069784.53(\operatorname{zoning}_{\operatorname{R6}}) -
+4133436.57(\operatorname{zoning}_{\operatorname{M1-5/R9A}}) -
+4003907.05(\operatorname{zoning}_{\operatorname{C1-7}}) -
+2761960.64(\operatorname{zoning}_{\operatorname{R10}}) -
+3166323.95(\operatorname{zoning}_{\operatorname{C6-2M}}) -
+4207949.59(\operatorname{zoning}_{\operatorname{C2-6}}) -
+4088460.72(\operatorname{zoning}_{\operatorname{C1-6}}) -
+4081772.41(\operatorname{zoning}_{\operatorname{C4-5}}) -
+3620302.39(\operatorname{zoning}_{\operatorname{M1-6}}) -
+3343645.22(\operatorname{zoning}_{\operatorname{M1-5}}) -
+3663901.21(\operatorname{zoning}_{\operatorname{R6A}}) -
+3550784.71(\operatorname{zoning}_{\operatorname{C1-7A}}) -
+3949301.11(\operatorname{zoning}_{\operatorname{C2-6A}}) -
+3803902.98(\operatorname{zoning}_{\operatorname{C6-4M}}) -
+3983773.86(\operatorname{zoning}_{\operatorname{C2-7A}}) -
+3840267.78(\operatorname{zoning}_{\operatorname{M1-6D}}) -
+2973298.36(\operatorname{zoning}_{\operatorname{C6-3X}}) -
+2922310.27(\operatorname{zoning}_{\operatorname{C5-2}}) -
+3238514.07(\operatorname{zoning}_{\operatorname{C6-4.5}}) -
+3900346.23(\operatorname{zoning}_{\operatorname{M1-5M}}) -
+2879966.46(\operatorname{zoning}_{\operatorname{C1-9A}}) -
+3773254.26(\operatorname{zoning}_{\operatorname{R9A}}) -
+2055742.77(\operatorname{zoning}_{\operatorname{C2-8}}) -
+3631567.71(\operatorname{zoning}_{\operatorname{C4-5A}}) -
+2692029.64(\operatorname{zoning}_{\operatorname{C1-9}}) -
+1662490.48(\operatorname{zoning}_{\operatorname{C5-2.5}}) -
+3782992.64(\operatorname{zoning}_{\operatorname{C1-8A}}) -
+3146238.06(\operatorname{zoning}_{\operatorname{C2-8A}}) -
+3442779.45(\operatorname{zoning}_{\operatorname{C6-6.5}}) -
+1984076.04(\operatorname{zoning}_{\operatorname{C6-6}}) -
+2577523.73(\operatorname{zoning}_{\operatorname{C5-1}}) -
+1193707.98(\operatorname{zoning}_{\operatorname{R10H}}) -
+3251847.35(\operatorname{zoning}_{\operatorname{C6-7}}) -
+3059340.62(\operatorname{zoning}_{\operatorname{C2-7}}) -
+4017500.7(\operatorname{zoning}_{\operatorname{C1-8}}) -
+2950965.47(\operatorname{zoning}_{\operatorname{R10A}}) +
+1042373.11(\operatorname{zoning}_{\operatorname{C4-7}}) -
+3495549.41(\operatorname{zoning}_{\operatorname{C4-6A}}) -
+3641137.72(\operatorname{zoning}_{\operatorname{R9}}) -
+3137123.95(\operatorname{zoning}_{\operatorname{C5-P}}) -
+3802055.71(\operatorname{zoning}_{\operatorname{R5}}) -
+3285321.61(\operatorname{zoning}_{\operatorname{R9X}}) -
+3814753.67(\operatorname{zoning}_{\operatorname{C1-8X}}) -
+3732424.54(\operatorname{zoning}_{\operatorname{C6-3}}) -
+3999842.61(\operatorname{zoning}_{\operatorname{R7-1}}) -
+2974075(\operatorname{zoning}_{\operatorname{C5-1A}}) -
+4488589.51(\operatorname{zoning}_{\operatorname{C8-4}}) -
+4026682.76(\operatorname{zoning}_{\operatorname{C4-4D}}) -
+3778422.84(\operatorname{zoning}_{\operatorname{C4-4}}) -
+3642081.61(\operatorname{zoning}_{\operatorname{R7D}}) -
+3708192.81(\operatorname{zoning}_{\operatorname{R7X}}) -
+3808599.2(\operatorname{zoning}_{\operatorname{M1-1/R7-2}}) -
+3797922.13(\operatorname{zoning}_{\operatorname{R1-2}}) -
+3374782.46(\operatorname{zoning}_{\operatorname{C4-2}}) -
+3743289.88(\operatorname{zoning}_{\operatorname{R8X}}) -
+4052544.83(\operatorname{zoning}_{\operatorname{C4-5X}}) -
+3548697.24(\operatorname{zoning}_{\operatorname{R4A}}) -
+3619878.09(\operatorname{zoning}_{\operatorname{R5A}}) -
+3586351.91(\operatorname{zoning}_{\operatorname{R5B}}) -
+3581684(\operatorname{zoning}_{\operatorname{R4-1}}) -
+3161316.49(\operatorname{zoning}_{\operatorname{R5D}}) -
+3849223.64(\operatorname{zoning}_{\operatorname{R4}}) +
+NA(\operatorname{zoning}_{\operatorname{C3A}}) -
+3491153.14(\operatorname{zoning}_{\operatorname{R2}}) -
+3568968.43(\operatorname{zoning}_{\operatorname{R6B}}) -
+5883132.99(\operatorname{zoning}_{\operatorname{M2-1}}) -
+3890596.75(\operatorname{zoning}_{\operatorname{C5-2A}}) -
+3748892.83(\operatorname{zoning}_{\operatorname{C8-2}}) -
+3915160.35(\operatorname{zoning}_{\operatorname{C4-3}}) -
+3651050.99(\operatorname{zoning}_{\operatorname{M1-2/R6A}}) -
+3460363.43(\operatorname{zoning}_{\operatorname{R2A}}) -
+3593101.07(\operatorname{zoning}_{\operatorname{R3-2}}) -
+3275679.85(\operatorname{zoning}_{\operatorname{R3X}}) -
+3554834.44(\operatorname{zoning}_{\operatorname{R4B}}) -
+3399195.71(\operatorname{zoning}_{\operatorname{R3-1}}) -
+4537031.2(\operatorname{zoning}_{\operatorname{M3-1}}) -
+3583398.53(\operatorname{zoning}_{\operatorname{R1-2A}}) -
+3474022.12(\operatorname{zoning}_{\operatorname{C8-1}}) -
+3383479.4(\operatorname{zoning}_{\operatorname{R3A}}) -
+919238.86(\operatorname{zoning}_{\operatorname{C6-4X}}) -
+4753621.64(\operatorname{zoning}_{\operatorname{C5-4}}) +
+7762767.59(\operatorname{zoning}_{\operatorname{BPC}}) -
+3593419.27(\operatorname{zoning}_{\operatorname{R9-1}}) -
+3853734.16(\operatorname{zoning}_{\operatorname{M2-4}}) -
+4842376.21(\operatorname{zoning}_{\operatorname{C4-6}}) -
+3565040.66(\operatorname{zoning}_{\operatorname{M1-5/R7-2}}) -
+3709572.23(\operatorname{zoning}_{\operatorname{M1-2}}) -
+3675164.5(\operatorname{zoning}_{\operatorname{M1-1}}) -
+4286005.53(\operatorname{zoning}_{\operatorname{M1-2/R6}}) -
+3484329.49(\operatorname{zoning}_{\operatorname{C4-2A}}) -
+4317802.17(\operatorname{zoning}_{\operatorname{M1-5/R10}}) -
+4218209.93(\operatorname{zoning}_{\operatorname{M1-6/R10}}) -
+3135729.81(\operatorname{zoning}_{\operatorname{C6-5}}) -
+4182140.91(\operatorname{zoning}_{\operatorname{M1-2/R8A}}) -
+3733134(\operatorname{zoning}_{\operatorname{C4-3A}}) -
+6154112.24(\operatorname{zoning}_{\operatorname{M1-4/R7-2}}) -
+5164560.57(\operatorname{zoning}_{\operatorname{M1-3/R7X}}) -
+3209695.7(\operatorname{zoning}_{\operatorname{M1-4/R7A}}) -
+954112.74(\operatorname{zoning}_{\operatorname{C6-9}}) -
+3967209.69(\operatorname{zoning}_{\operatorname{C6-1G}}) -
+4163651.43(\operatorname{zoning}_{\operatorname{C6-5.5}}) -
+4245132.97(\operatorname{zoning}_{\operatorname{M1-4}}) -
+3415215.1(\operatorname{zoning}_{\operatorname{C4-5D}}) -
+4277481.05(\operatorname{zoning}_{\operatorname{C6-7T}}) -
+3987488.14(\operatorname{zoning}_{\operatorname{C8-3}}) -
+3230923.59(\operatorname{zoning}_{\operatorname{M1-4/R6B}}) -
+3644676.33(\operatorname{zoning}_{\operatorname{M1-2D}}) +
+102456893.63(\operatorname{zoning}_{\operatorname{C4-1}}) -
+3907559.5(\operatorname{zoning}_{\operatorname{M1-2/R6B}}) -
+3770145.8(\operatorname{zoning}_{\operatorname{M1-5/R8A}}) -
+3899507.42(\operatorname{zoning}_{\operatorname{M1-5/R9-1}}) -
+3754586.02(\operatorname{zoning}_{\operatorname{M1-1D}}) -
+6583033.52(\operatorname{zoning}_{\operatorname{M1-2/R7A}}) -
+3569631.46(\operatorname{zoning}_{\operatorname{M1-2/R5D}}) -
+5590279.92(\operatorname{zoning}_{\operatorname{R7-3}}) -
+3497232.66(\operatorname{zoning}_{\operatorname{C4-4L}}) -
+5030073.94(\operatorname{zoning}_{\operatorname{M1-4/R8A}}) -
+4375132.21(\operatorname{zoning}_{\operatorname{M1-3/R8}}) +
+66347.71(\operatorname{building\_classification}_{\operatorname{D0\ \
+-ELEVATOR}}) -
+129245.97(\operatorname{building\_classification}_{\operatorname{C6\ \
+-WALK-UP}}) +
+323222.37(\operatorname{building\_classification}_{\operatorname{C8\ \
+-WALK-UP}}) -
+546445.22(\operatorname{building\_classification}_{\operatorname{D4-ELEVATOR}})
+-
+249747.47(\operatorname{building\_classification}_{\operatorname{C6-WALK-UP}})
++
+102370.23(\operatorname{building\_classification}_{\operatorname{D4  -ELEVATOR}})
++
+115373.35(\operatorname{building\_classification}_{\operatorname{D0  -ELEVATOR}})
+-
+142474.93(\operatorname{building\_classification}_{\operatorname{C6  -WALK-UP}})
++
+305101.99(\operatorname{building\_classification}_{\operatorname{C8  -WALK-UP}})
+-
+264867.86(\operatorname{building\_classification}_{\operatorname{D0-ELEVATOR}})
++
+208635.82(\operatorname{building\_classification}_{\operatorname{C8-WALK-UP}})
++ 80927.79(\operatorname{building\_classification}_{\operatorname{D5\ \
+-ELEVATOR}}) +
+1352901.14(\operatorname{building\_classification}_{\operatorname{D6\ \
+-ELEVATOR}}) -
+51625.94(\operatorname{building\_classification}_{\operatorname{D9\ \
+-ELEVATOR}}) +
+847243.44(\operatorname{building\_classification}_{\operatorname{D8\ \
+-ELEVATOR}}) -
+225920.57(\operatorname{building\_classification}_{\operatorname{D1\ \
+-ELEVATOR}}) -
+222686.92(\operatorname{building\_classification}_{\operatorname{D3\ \
+-ELEVATOR}}) -
+170803.46(\operatorname{building\_classification}_{\operatorname{D7\ \
+-ELEVATOR}}) +
+1988.89(\operatorname{building\_classification}_{\operatorname{C1\ \
+-WALK-UP}}) -
+223117.76(\operatorname{building\_classification}_{\operatorname{C7\ \
+-WALK-UP}}) -
+342791.6(\operatorname{building\_classification}_{\operatorname{C4\ \
+-WALK-UP}}) -
+643985.62(\operatorname{building\_classification}_{\operatorname{C5\ \
+-WALK-UP}}) -
+174049.82(\operatorname{building\_classification}_{\operatorname{D2\ \
+-ELEVATOR}}) -
+474269.49(\operatorname{building\_classification}_{\operatorname{D1-ELEVATOR}})
+-
+69487.22(\operatorname{building\_classification}_{\operatorname{C1-WALK-UP}})
++ 345468.42(\operatorname{building\_classification}_{\operatorname{C9\ \
+-WALK-UP}}) +
+86243.28(\operatorname{building\_classification}_{\operatorname{D5  -ELEVATOR}})
++
+31400.01(\operatorname{building\_classification}_{\operatorname{D7  -ELEVATOR}})
++
+1579861.44(\operatorname{building\_classification}_{\operatorname{D6  -ELEVATOR}})
++
+1807510.65(\operatorname{building\_classification}_{\operatorname{D8  -ELEVATOR}})
+-
+140252.93(\operatorname{building\_classification}_{\operatorname{D1  -ELEVATOR}})
+-
+253666.11(\operatorname{building\_classification}_{\operatorname{D3  -ELEVATOR}})
++
+22090.75(\operatorname{building\_classification}_{\operatorname{C1  -WALK-UP}})
+-
+50490.66(\operatorname{building\_classification}_{\operatorname{D9  -ELEVATOR}})
+-
+200938.29(\operatorname{building\_classification}_{\operatorname{C7  -WALK-UP}})
+-
+404153.41(\operatorname{building\_classification}_{\operatorname{C4  -WALK-UP}})
+-
+774477.84(\operatorname{building\_classification}_{\operatorname{C5  -WALK-UP}})
+-
+278771.21(\operatorname{building\_classification}_{\operatorname{D2  -ELEVATOR}})
++
+366339.67(\operatorname{building\_classification}_{\operatorname{C9  -WALK-UP}})
+-
+390465.08(\operatorname{building\_classification}_{\operatorname{C7-WALK-UP}})
+-
+417643.97(\operatorname{building\_classification}_{\operatorname{C4-WALK-UP}})
+-
+17294.26(\operatorname{building\_classification}_{\operatorname{D6-ELEVATOR}})
+-
+664560.88(\operatorname{building\_classification}_{\operatorname{D7-ELEVATOR}})
+-
+156148.96(\operatorname{building\_classification}_{\operatorname{D8-ELEVATOR}})
+-
+632515.52(\operatorname{building\_classification}_{\operatorname{D9-ELEVATOR}})
+-
+333187.66(\operatorname{building\_classification}_{\operatorname{D5-ELEVATOR}})
+-
+523226.22(\operatorname{building\_classification}_{\operatorname{D3-ELEVATOR}})
+-
+694514.23(\operatorname{building\_classification}_{\operatorname{C5-WALK-UP}})
+-
+336630.79(\operatorname{building\_classification}_{\operatorname{D2-ELEVATOR}})
++
+83167.22(\operatorname{building\_classification}_{\operatorname{C9-WALK-UP}})
++ 7854.78(\operatorname{year\_built}) +
+2091.15(\operatorname{total\_units})
+\]</span></p>
 <p><span class="math display">\[
 \operatorname{estimated\_gross\_income} = \alpha +
 \beta_{1}(\operatorname{gross\_sq\_ft}) +
@@ -858,173 +1507,162 @@ HILLS}}) +
 + \beta_{179}(\operatorname{neighborhood}_{\operatorname{GREAT\ KILLS}})
 + \beta_{180}(\operatorname{neighborhood}_{\operatorname{GREAT\
 KILLS-BAY\ TERRACE}}) +
-\beta_{181}(\operatorname{neighborhood}_{\operatorname{CIVIC CENTER}}) +
-\beta_{182}(\operatorname{neighborhood}_{\operatorname{LOWER EAST SIDE}})
+\beta_{181}(\operatorname{neighborhood}_{\operatorname{CIVIC CENTER}}) +
+\beta_{182}(\operatorname{neighborhood}_{\operatorname{LOWER EAST
+SIDE}}) +
+\beta_{183}(\operatorname{neighborhood}_{\operatorname{ALPHABET CITY}})
++ \beta_{184}(\operatorname{neighborhood}_{\operatorname{EAST VILLAGE}})
++ \beta_{185}(\operatorname{neighborhood}_{\operatorname{LITTLE ITALY}})
++ \beta_{186}(\operatorname{neighborhood}_{\operatorname{GREENWICH
+VILLAGE-CENTRAL}}) +
+\beta_{187}(\operatorname{neighborhood}_{\operatorname{GREENWICH
+VILLAGE-WEST}}) +
+\beta_{188}(\operatorname{neighborhood}_{\operatorname{JAVITS CENTER}})
++ \beta_{189}(\operatorname{neighborhood}_{\operatorname{MURRAY HILL}})
++ \beta_{190}(\operatorname{neighborhood}_{\operatorname{KIPS BAY}}) +
+\beta_{191}(\operatorname{neighborhood}_{\operatorname{MIDTOWN WEST}}) +
+\beta_{192}(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE
+(59-79)}}) +
+\beta_{193}(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE
+(79-96)}}) +
+\beta_{194}(\operatorname{neighborhood}_{\operatorname{MIDTOWN CBD}}) +
+\beta_{195}(\operatorname{neighborhood}_{\operatorname{MIDTOWN EAST}}) +
+\beta_{196}(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE
+(59-79)}}) +
+\beta_{197}(\operatorname{neighborhood}_{\operatorname{ROOSEVELT
+ISLAND}}) + \beta_{198}(\operatorname{neighborhood}_{\operatorname{UPPER
+EAST SIDE (79-96)}}) +
+\beta_{199}(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE
+(96-110)}}) +
+\beta_{200}(\operatorname{neighborhood}_{\operatorname{MANHATTAN
+VALLEY}}) + \beta_{201}(\operatorname{neighborhood}_{\operatorname{UPPER
+WEST SIDE (96-116)}}) +
+\beta_{202}(\operatorname{neighborhood}_{\operatorname{MORNINGSIDE
+HEIGHTS}}) +
+\beta_{203}(\operatorname{neighborhood}_{\operatorname{WASHINGTON
+HEIGHTS LOWER}}) +
+\beta_{204}(\operatorname{neighborhood}_{\operatorname{WASHINGTON
+HEIGHTS UPPER}}) +
+\beta_{205}(\operatorname{neighborhood}_{\operatorname{MOTT HAVEN/PORT
+MORRIS}}) +
+\beta_{206}(\operatorname{neighborhood}_{\operatorname{HIGHBRIDGE/MORRIS
+HEIGHTS}}) +
+\beta_{207}(\operatorname{neighborhood}_{\operatorname{HUNTS POINT}}) +
+\beta_{208}(\operatorname{neighborhood}_{\operatorname{MOUNT HOPE/MOUNT
+EDEN}}) + \beta_{209}(\operatorname{neighborhood}_{\operatorname{CROTONA
+PARK}}) + \beta_{210}(\operatorname{neighborhood}_{\operatorname{EAST
+TREMONT}}) +
+\beta_{211}(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE
+HTS/UNIV HTS}}) +
+\beta_{212}(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE/JEROME
+PARK}}) + \beta_{213}(\operatorname{neighborhood}_{\operatorname{BEDFORD
+PARK/NORWOOD}}) +
+\beta_{214}(\operatorname{neighborhood}_{\operatorname{CASTLE
+HILL/UNIONPORT}}) +
+\beta_{215}(\operatorname{neighborhood}_{\operatorname{SCHUYLERVILLE/PELHAM
+BAY}}) + \beta_{216}(\operatorname{neighborhood}_{\operatorname{MORRIS
+PARK/VAN NEST}}) +
+\beta_{217}(\operatorname{neighborhood}_{\operatorname{PELHAM PARKWAY
+SOUTH}}) + \beta_{218}(\operatorname{neighborhood}_{\operatorname{PELHAM
+PARKWAY NORTH}}) +
+\beta_{219}(\operatorname{neighborhood}_{\operatorname{CO-OP CITY}}) +
+\beta_{220}(\operatorname{neighborhood}_{\operatorname{COUNTRY CLUB}}) +
+\beta_{221}(\operatorname{neighborhood}_{\operatorname{CITY ISLAND}}) +
+\beta_{222}(\operatorname{neighborhood}_{\operatorname{VAN CORTLANDT
+PARK}}) +
+\beta_{223}(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON
+MALL}}) + \beta_{224}(\operatorname{neighborhood}_{\operatorname{BOERUM
+HILL}}) +
+\beta_{225}(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON
+FERRY}}) +
+\beta_{226}(\operatorname{neighborhood}_{\operatorname{BROOKLYN
+HEIGHTS}}) +
+\beta_{227}(\operatorname{neighborhood}_{\operatorname{COBBLE HILL}}) +
+\beta_{228}(\operatorname{neighborhood}_{\operatorname{CARROLL
+GARDENS}}) + \beta_{229}(\operatorname{neighborhood}_{\operatorname{RED
+HOOK}}) + \beta_{230}(\operatorname{neighborhood}_{\operatorname{SUNSET
+PARK}}) + \beta_{231}(\operatorname{neighborhood}_{\operatorname{BOROUGH
+PARK}}) + \beta_{232}(\operatorname{neighborhood}_{\operatorname{PARK
+SLOPE}}) + \beta_{233}(\operatorname{neighborhood}_{\operatorname{PARK
+SLOPE SOUTH}}) +
+\beta_{234}(\operatorname{neighborhood}_{\operatorname{GOWANUS}}) +
+\beta_{235}(\operatorname{neighborhood}_{\operatorname{WINDSOR
+TERRACE}}) +
+\beta_{236}(\operatorname{neighborhood}_{\operatorname{PROSPECT
+HEIGHTS}}) +
+\beta_{237}(\operatorname{neighborhood}_{\operatorname{CROWN HEIGHTS}})
 +
-\beta_{183}(\operatorname{neighborhood}_{\operatorname{ALPHABET CITY}})
-+ \beta_{184}(\operatorname{neighborhood}_{\operatorname{EAST VILLAGE}})
-+ \beta_{185}(\operatorname{neighborhood}_{\operatorname{LITTLE ITALY}})
-+
-\beta_{186}(\operatorname{neighborhood}_{\operatorname{GREENWICH VILLAGE-CENTRAL}})
-+
-\beta_{187}(\operatorname{neighborhood}_{\operatorname{GREENWICH VILLAGE-WEST}})
-+
-\beta_{188}(\operatorname{neighborhood}_{\operatorname{JAVITS CENTER}})
-+ \beta_{189}(\operatorname{neighborhood}_{\operatorname{MURRAY HILL}})
-+ \beta_{190}(\operatorname{neighborhood}_{\operatorname{KIPS BAY}}) +
-\beta_{191}(\operatorname{neighborhood}_{\operatorname{MIDTOWN WEST}}) +
-\beta_{192}(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE (59-79)}})
-+
-\beta_{193}(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE (79-96)}})
-+ \beta_{194}(\operatorname{neighborhood}_{\operatorname{MIDTOWN CBD}})
-+ \beta_{195}(\operatorname{neighborhood}_{\operatorname{MIDTOWN EAST}})
-+
-\beta_{196}(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE (59-79)}})
-+
-\beta_{197}(\operatorname{neighborhood}_{\operatorname{ROOSEVELT ISLAND}})
-+
-\beta_{198}(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE (79-96)}})
-+
-\beta_{199}(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE (96-110)}})
-+
-\beta_{200}(\operatorname{neighborhood}_{\operatorname{MANHATTAN VALLEY}})
-+
-\beta_{201}(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE (96-116)}})
-+
-\beta_{202}(\operatorname{neighborhood}_{\operatorname{MORNINGSIDE HEIGHTS}})
-+
-\beta_{203}(\operatorname{neighborhood}_{\operatorname{WASHINGTON HEIGHTS LOWER}})
-+
-\beta_{204}(\operatorname{neighborhood}_{\operatorname{WASHINGTON HEIGHTS UPPER}})
-+
-\beta_{205}(\operatorname{neighborhood}_{\operatorname{MOTT HAVEN/PORT MORRIS}})
-+
-\beta_{206}(\operatorname{neighborhood}_{\operatorname{HIGHBRIDGE/MORRIS HEIGHTS}})
-+ \beta_{207}(\operatorname{neighborhood}_{\operatorname{HUNTS POINT}})
-+
-\beta_{208}(\operatorname{neighborhood}_{\operatorname{MOUNT HOPE/MOUNT EDEN}})
-+ \beta_{209}(\operatorname{neighborhood}_{\operatorname{CROTONA PARK}})
-+ \beta_{210}(\operatorname{neighborhood}_{\operatorname{EAST TREMONT}})
-+
-\beta_{211}(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE HTS/UNIV HTS}})
-+
-\beta_{212}(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE/JEROME PARK}})
-+
-\beta_{213}(\operatorname{neighborhood}_{\operatorname{BEDFORD PARK/NORWOOD}})
-+
-\beta_{214}(\operatorname{neighborhood}_{\operatorname{CASTLE HILL/UNIONPORT}})
-+
-\beta_{215}(\operatorname{neighborhood}_{\operatorname{SCHUYLERVILLE/PELHAM BAY}})
-+
-\beta_{216}(\operatorname{neighborhood}_{\operatorname{MORRIS PARK/VAN NEST}})
-+
-\beta_{217}(\operatorname{neighborhood}_{\operatorname{PELHAM PARKWAY SOUTH}})
-+
-\beta_{218}(\operatorname{neighborhood}_{\operatorname{PELHAM PARKWAY NORTH}})
-+ \beta_{219}(\operatorname{neighborhood}_{\operatorname{CO-OP CITY}}) +
-\beta_{220}(\operatorname{neighborhood}_{\operatorname{COUNTRY CLUB}}) +
-\beta_{221}(\operatorname{neighborhood}_{\operatorname{CITY ISLAND}}) +
-\beta_{222}(\operatorname{neighborhood}_{\operatorname{VAN CORTLANDT PARK}})
-+
-\beta_{223}(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON MALL}})
-+ \beta_{224}(\operatorname{neighborhood}_{\operatorname{BOERUM HILL}})
-+
-\beta_{225}(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON FERRY}})
-+
-\beta_{226}(\operatorname{neighborhood}_{\operatorname{BROOKLYN HEIGHTS}})
-+ \beta_{227}(\operatorname{neighborhood}_{\operatorname{COBBLE HILL}})
-+
-\beta_{228}(\operatorname{neighborhood}_{\operatorname{CARROLL GARDENS}})
-+ \beta_{229}(\operatorname{neighborhood}_{\operatorname{RED HOOK}}) +
-\beta_{230}(\operatorname{neighborhood}_{\operatorname{SUNSET PARK}}) +
-\beta_{231}(\operatorname{neighborhood}_{\operatorname{BOROUGH PARK}}) +
-\beta_{232}(\operatorname{neighborhood}_{\operatorname{PARK SLOPE}}) +
-\beta_{233}(\operatorname{neighborhood}_{\operatorname{PARK SLOPE SOUTH}})
-+ \beta_{234}(\operatorname{neighborhood}_{\operatorname{GOWANUS}}) +
-\beta_{235}(\operatorname{neighborhood}_{\operatorname{WINDSOR TERRACE}})
-+
-\beta_{236}(\operatorname{neighborhood}_{\operatorname{PROSPECT HEIGHTS}})
-+
-\beta_{237}(\operatorname{neighborhood}_{\operatorname{CROWN HEIGHTS}})
-+
-\beta_{238}(\operatorname{neighborhood}_{\operatorname{FLATBUSH-LEFFERTS GARDEN}})
-+ \beta_{239}(\operatorname{neighborhood}_{\operatorname{OCEAN HILL}}) +
-\beta_{240}(\operatorname{neighborhood}_{\operatorname{BEDFORD STUYVESANT}})
-+ \beta_{241}(\operatorname{neighborhood}_{\operatorname{CLINTON HILL}})
-+ \beta_{242}(\operatorname{neighborhood}_{\operatorname{FORT GREENE}})
-+ \beta_{243}(\operatorname{neighborhood}_{\operatorname{NAVY YARD}}) +
-\beta_{244}(\operatorname{neighborhood}_{\operatorname{CYPRESS HILLS}})
-+
-\beta_{245}(\operatorname{neighborhood}_{\operatorname{EAST NEW YORK}})
-+
-\beta_{246}(\operatorname{neighborhood}_{\operatorname{OCEAN PARKWAY-NORTH}})
-+ \beta_{247}(\operatorname{neighborhood}_{\operatorname{BAY RIDGE}}) +
-\beta_{248}(\operatorname{neighborhood}_{\operatorname{DYKER HEIGHTS}})
-+ \beta_{249}(\operatorname{neighborhood}_{\operatorname{BATH BEACH}}) +
-\beta_{250}(\operatorname{neighborhood}_{\operatorname{OCEAN PARKWAY-SOUTH}})
-+ \beta_{251}(\operatorname{neighborhood}_{\operatorname{CONEY ISLAND}})
-+
-\beta_{252}(\operatorname{neighborhood}_{\operatorname{BRIGHTON BEACH}})
-+
-\beta_{253}(\operatorname{neighborhood}_{\operatorname{SHEEPSHEAD BAY}})
-+ \beta_{254}(\operatorname{neighborhood}_{\operatorname{MARINE PARK}})
-+
-\beta_{255}(\operatorname{neighborhood}_{\operatorname{OLD MILL BASIN}})
-+ \beta_{256}(\operatorname{neighborhood}_{\operatorname{BERGEN BEACH}})
-+
-\beta_{257}(\operatorname{neighborhood}_{\operatorname{MANHATTAN BEACH}})
-+
-\beta_{258}(\operatorname{neighborhood}_{\operatorname{LONG ISLAND CITY}})
-+
-\beta_{259}(\operatorname{neighborhood}_{\operatorname{JACKSON HEIGHTS}})
-+
-\beta_{260}(\operatorname{neighborhood}_{\operatorname{EAST ELMHURST}})
-+ \beta_{261}(\operatorname{neighborhood}_{\operatorname{REGO PARK}}) +
-\beta_{262}(\operatorname{neighborhood}_{\operatorname{FOREST HILLS}}) +
-\beta_{263}(\operatorname{neighborhood}_{\operatorname{FLUSHING MEADOW PARK}})
-+
-\beta_{264}(\operatorname{neighborhood}_{\operatorname{MIDDLE VILLAGE}})
-+ \beta_{265}(\operatorname{neighborhood}_{\operatorname{KEW GARDENS}})
-+
-\beta_{266}(\operatorname{neighborhood}_{\operatorname{FRESH MEADOWS}})
-+
-\beta_{267}(\operatorname{neighborhood}_{\operatorname{OAKLAND GARDENS}})
-+ \beta_{268}(\operatorname{neighborhood}_{\operatorname{HOLLIS HILLS}})
-+
-\beta_{269}(\operatorname{neighborhood}_{\operatorname{QUEENS VILLAGE}})
-+ \beta_{270}(\operatorname{neighborhood}_{\operatorname{LITTLE NECK}})
-+ \beta_{271}(\operatorname{neighborhood}_{\operatorname{GLEN OAKS}}) +
-\beta_{272}(\operatorname{neighborhood}_{\operatorname{FLORAL PARK}}) +
-\beta_{273}(\operatorname{neighborhood}_{\operatorname{RICHMOND HILL}})
-+
-\beta_{274}(\operatorname{neighborhood}_{\operatorname{JAMAICA HILLS}})
-+
-\beta_{275}(\operatorname{neighborhood}_{\operatorname{JAMAICA ESTATES}})
-+
-\beta_{276}(\operatorname{neighborhood}_{\operatorname{SOUTH JAMAICA}})
-+ \beta_{277}(\operatorname{neighborhood}_{\operatorname{HOWARD BEACH}})
-+
-\beta_{278}(\operatorname{neighborhood}_{\operatorname{SO. JAMAICA-BAISLEY PARK}})
-+
-\beta_{279}(\operatorname{neighborhood}_{\operatorname{SPRINGFIELD GARDENS}})
-+ \beta_{280}(\operatorname{neighborhood}_{\operatorname{FAR ROCKAWAY}})
-+
-\beta_{281}(\operatorname{neighborhood}_{\operatorname{ROCKAWAY PARK}})
-+ \beta_{282}(\operatorname{neighborhood}_{\operatorname{BELLE HARBOR}})
-+
-\beta_{283}(\operatorname{neighborhood}_{\operatorname{NEW BRIGHTON-ST. GEORGE}})
-+ \beta_{284}(\operatorname{neighborhood}_{\operatorname{CLOVE LAKES}})
-+ \beta_{285}(\operatorname{neighborhood}_{\operatorname{GRYMES HILL}})
-+
-\beta_{286}(\operatorname{neighborhood}_{\operatorname{ARROCHAR-SHORE ACRES}})
-+
-\beta_{287}(\operatorname{neighborhood}_{\operatorname{CONCORD-FOX HILLS}})
-+ \beta_{288}(\operatorname{neighborhood}_{\operatorname{DONGAN HILLS}})
-+ \beta_{289}(\operatorname{neighborhood}_{\operatorname{GRANT CITY}}) +
-\beta_{290}(\operatorname{neighborhood}_{\operatorname{GREAT KILLS}}) +
-\beta_{291}(\operatorname{neighborhood}_{\operatorname{GREAT KILLS-BAY TERRACE}})
-+ \beta_{292}(\operatorname{neighborhood}_{\operatorname{CITY\ ISLAND}})
-+ \beta_{293}(\operatorname{neighborhood}_{\operatorname{CARROLL\
+\beta_{238}(\operatorname{neighborhood}_{\operatorname{FLATBUSH-LEFFERTS
+GARDEN}}) + \beta_{239}(\operatorname{neighborhood}_{\operatorname{OCEAN
+HILL}}) + \beta_{240}(\operatorname{neighborhood}_{\operatorname{BEDFORD
+STUYVESANT}}) +
+\beta_{241}(\operatorname{neighborhood}_{\operatorname{CLINTON HILL}}) +
+\beta_{242}(\operatorname{neighborhood}_{\operatorname{FORT GREENE}}) +
+\beta_{243}(\operatorname{neighborhood}_{\operatorname{NAVY YARD}}) +
+\beta_{244}(\operatorname{neighborhood}_{\operatorname{CYPRESS HILLS}})
++ \beta_{245}(\operatorname{neighborhood}_{\operatorname{EAST NEW
+YORK}}) + \beta_{246}(\operatorname{neighborhood}_{\operatorname{OCEAN
+PARKWAY-NORTH}}) +
+\beta_{247}(\operatorname{neighborhood}_{\operatorname{BAY RIDGE}}) +
+\beta_{248}(\operatorname{neighborhood}_{\operatorname{DYKER HEIGHTS}})
++ \beta_{249}(\operatorname{neighborhood}_{\operatorname{BATH BEACH}}) +
+\beta_{250}(\operatorname{neighborhood}_{\operatorname{OCEAN
+PARKWAY-SOUTH}}) +
+\beta_{251}(\operatorname{neighborhood}_{\operatorname{CONEY ISLAND}}) +
+\beta_{252}(\operatorname{neighborhood}_{\operatorname{BRIGHTON BEACH}})
++ \beta_{253}(\operatorname{neighborhood}_{\operatorname{SHEEPSHEAD
+BAY}}) + \beta_{254}(\operatorname{neighborhood}_{\operatorname{MARINE
+PARK}}) + \beta_{255}(\operatorname{neighborhood}_{\operatorname{OLD
+MILL BASIN}}) +
+\beta_{256}(\operatorname{neighborhood}_{\operatorname{BERGEN BEACH}}) +
+\beta_{257}(\operatorname{neighborhood}_{\operatorname{MANHATTAN
+BEACH}}) + \beta_{258}(\operatorname{neighborhood}_{\operatorname{LONG
+ISLAND CITY}}) +
+\beta_{259}(\operatorname{neighborhood}_{\operatorname{JACKSON
+HEIGHTS}}) + \beta_{260}(\operatorname{neighborhood}_{\operatorname{EAST
+ELMHURST}}) +
+\beta_{261}(\operatorname{neighborhood}_{\operatorname{REGO PARK}}) +
+\beta_{262}(\operatorname{neighborhood}_{\operatorname{FOREST HILLS}}) +
+\beta_{263}(\operatorname{neighborhood}_{\operatorname{FLUSHING MEADOW
+PARK}}) + \beta_{264}(\operatorname{neighborhood}_{\operatorname{MIDDLE
+VILLAGE}}) + \beta_{265}(\operatorname{neighborhood}_{\operatorname{KEW
+GARDENS}}) +
+\beta_{266}(\operatorname{neighborhood}_{\operatorname{FRESH MEADOWS}})
++ \beta_{267}(\operatorname{neighborhood}_{\operatorname{OAKLAND
+GARDENS}}) +
+\beta_{268}(\operatorname{neighborhood}_{\operatorname{HOLLIS HILLS}}) +
+\beta_{269}(\operatorname{neighborhood}_{\operatorname{QUEENS VILLAGE}})
++ \beta_{270}(\operatorname{neighborhood}_{\operatorname{LITTLE NECK}})
++ \beta_{271}(\operatorname{neighborhood}_{\operatorname{GLEN OAKS}}) +
+\beta_{272}(\operatorname{neighborhood}_{\operatorname{FLORAL PARK}}) +
+\beta_{273}(\operatorname{neighborhood}_{\operatorname{RICHMOND HILL}})
++ \beta_{274}(\operatorname{neighborhood}_{\operatorname{JAMAICA
+HILLS}}) +
+\beta_{275}(\operatorname{neighborhood}_{\operatorname{JAMAICA
+ESTATES}}) +
+\beta_{276}(\operatorname{neighborhood}_{\operatorname{SOUTH JAMAICA}})
++ \beta_{277}(\operatorname{neighborhood}_{\operatorname{HOWARD BEACH}})
++ \beta_{278}(\operatorname{neighborhood}_{\operatorname{SO.
+JAMAICA-BAISLEY PARK}}) +
+\beta_{279}(\operatorname{neighborhood}_{\operatorname{SPRINGFIELD
+GARDENS}}) + \beta_{280}(\operatorname{neighborhood}_{\operatorname{FAR
+ROCKAWAY}}) +
+\beta_{281}(\operatorname{neighborhood}_{\operatorname{ROCKAWAY PARK}})
++ \beta_{282}(\operatorname{neighborhood}_{\operatorname{BELLE HARBOR}})
++ \beta_{283}(\operatorname{neighborhood}_{\operatorname{NEW
+BRIGHTON-ST. GEORGE}}) +
+\beta_{284}(\operatorname{neighborhood}_{\operatorname{CLOVE LAKES}}) +
+\beta_{285}(\operatorname{neighborhood}_{\operatorname{GRYMES HILL}}) +
+\beta_{286}(\operatorname{neighborhood}_{\operatorname{ARROCHAR-SHORE
+ACRES}}) +
+\beta_{287}(\operatorname{neighborhood}_{\operatorname{CONCORD-FOX
+HILLS}}) + \beta_{288}(\operatorname{neighborhood}_{\operatorname{DONGAN
+HILLS}}) + \beta_{289}(\operatorname{neighborhood}_{\operatorname{GRANT
+CITY}}) + \beta_{290}(\operatorname{neighborhood}_{\operatorname{GREAT
+KILLS}}) + \beta_{291}(\operatorname{neighborhood}_{\operatorname{GREAT
+KILLS-BAY TERRACE}}) +
+\beta_{292}(\operatorname{neighborhood}_{\operatorname{CITY\ ISLAND}}) +
+\beta_{293}(\operatorname{neighborhood}_{\operatorname{CARROLL\
 GARDENS}}) + \beta_{294}(\operatorname{neighborhood}_{\operatorname{RED\
 HOOK}}) +
 \beta_{295}(\operatorname{neighborhood}_{\operatorname{ROOSEVELT\
@@ -1035,13 +1673,13 @@ PARK}}) + \beta_{298}(\operatorname{neighborhood}_{\operatorname{PORT\
 RICHMOND}}) +
 \beta_{299}(\operatorname{neighborhood}_{\operatorname{STAPLETON}}) +
 \beta_{300}(\operatorname{neighborhood}_{\operatorname{OAKWOOD-BEACH}})
-+ \beta_{301}(\operatorname{neighborhood}_{\operatorname{THROGS NECK}})
-+
-\beta_{302}(\operatorname{neighborhood}_{\operatorname{WYCKOFF HEIGHTS}})
-+ \beta_{303}(\operatorname{neighborhood}_{\operatorname{SPRING CREEK}})
-+
-\beta_{304}(\operatorname{neighborhood}_{\operatorname{GERRITSEN BEACH}})
-+ \beta_{305}(\operatorname{neighborhood}_{\operatorname{OZONE PARK}}) +
++ \beta_{301}(\operatorname{neighborhood}_{\operatorname{THROGS NECK}})
++ \beta_{302}(\operatorname{neighborhood}_{\operatorname{WYCKOFF
+HEIGHTS}}) +
+\beta_{303}(\operatorname{neighborhood}_{\operatorname{SPRING CREEK}}) +
+\beta_{304}(\operatorname{neighborhood}_{\operatorname{GERRITSEN
+BEACH}}) + \beta_{305}(\operatorname{neighborhood}_{\operatorname{OZONE
+PARK}}) +
 \beta_{306}(\operatorname{neighborhood}_{\operatorname{STAPLETON-CLIFTON}})
 + \beta_{307}(\operatorname{neighborhood}_{\operatorname{OAKWOOD}}) +
 \beta_{308}(\operatorname{neighborhood}_{\operatorname{SPRING\ CREEK}})
@@ -1063,10 +1701,11 @@ PARK}}) +
 \beta_{321}(\operatorname{neighborhood}_{\operatorname{COBBLE\
 HILL-WEST}}) +
 \beta_{322}(\operatorname{neighborhood}_{\operatorname{WESTERLEIGH}}) +
-\beta_{323}(\operatorname{neighborhood}_{\operatorname{BRONX PARK}}) +
-\beta_{324}(\operatorname{neighborhood}_{\operatorname{CAMBRIA HEIGHTS}})
-+ \beta_{325}(\operatorname{neighborhood}_{\operatorname{NEW BRIGHTON}})
-+ \beta_{326}(\operatorname{neighborhood}_{\operatorname{GRASMERE}}) +
+\beta_{323}(\operatorname{neighborhood}_{\operatorname{BRONX PARK}}) +
+\beta_{324}(\operatorname{neighborhood}_{\operatorname{CAMBRIA
+HEIGHTS}}) + \beta_{325}(\operatorname{neighborhood}_{\operatorname{NEW
+BRIGHTON}}) +
+\beta_{326}(\operatorname{neighborhood}_{\operatorname{GRASMERE}}) +
 \beta_{327}(\operatorname{neighborhood}_{\operatorname{ELTINGVILLE}}) +
 \beta_{328}(\operatorname{neighborhood}_{\operatorname{TOMPKINSVILLE}})
 + \beta_{329}(\operatorname{neighborhood}_{\operatorname{DONGAN\
@@ -1077,7 +1716,7 @@ CORNERS}}) +
 \beta_{332}(\operatorname{neighborhood}_{\operatorname{GERRITSEN\
 BEACH}}) +
 \beta_{333}(\operatorname{neighborhood}_{\operatorname{SILVER\ LAKE}}) +
-\beta_{334}(\operatorname{neighborhood}_{\operatorname{ST. ALBANS}}) +
+\beta_{334}(\operatorname{neighborhood}_{\operatorname{ST. ALBANS}}) +
 \beta_{335}(\operatorname{neighborhood}_{\operatorname{ARROCHAR}}) +
 \beta_{336}(\operatorname{zoning}_{\operatorname{R8}}) +
 \beta_{337}(\operatorname{zoning}_{\operatorname{C6-4}}) +
@@ -1227,13 +1866,13 @@ BEACH}}) +
 +
 \beta_{478}(\operatorname{building\_classification}_{\operatorname{C6-WALK-UP}})
 +
-\beta_{479}(\operatorname{building\_classification}_{\operatorname{D4  -ELEVATOR}})
+\beta_{479}(\operatorname{building\_classification}_{\operatorname{D4  -ELEVATOR}})
 +
-\beta_{480}(\operatorname{building\_classification}_{\operatorname{D0  -ELEVATOR}})
+\beta_{480}(\operatorname{building\_classification}_{\operatorname{D0  -ELEVATOR}})
 +
-\beta_{481}(\operatorname{building\_classification}_{\operatorname{C6  -WALK-UP}})
+\beta_{481}(\operatorname{building\_classification}_{\operatorname{C6  -WALK-UP}})
 +
-\beta_{482}(\operatorname{building\_classification}_{\operatorname{C8  -WALK-UP}})
+\beta_{482}(\operatorname{building\_classification}_{\operatorname{C8  -WALK-UP}})
 +
 \beta_{483}(\operatorname{building\_classification}_{\operatorname{D0-ELEVATOR}})
 +
@@ -1267,31 +1906,31 @@ BEACH}}) +
 \beta_{498}(\operatorname{building\_classification}_{\operatorname{C1-WALK-UP}})
 + \beta_{499}(\operatorname{building\_classification}_{\operatorname{C9\
 \ -WALK-UP}}) +
-\beta_{500}(\operatorname{building\_classification}_{\operatorname{D5  -ELEVATOR}})
+\beta_{500}(\operatorname{building\_classification}_{\operatorname{D5  -ELEVATOR}})
 +
-\beta_{501}(\operatorname{building\_classification}_{\operatorname{D7  -ELEVATOR}})
+\beta_{501}(\operatorname{building\_classification}_{\operatorname{D7  -ELEVATOR}})
 +
-\beta_{502}(\operatorname{building\_classification}_{\operatorname{D6  -ELEVATOR}})
+\beta_{502}(\operatorname{building\_classification}_{\operatorname{D6  -ELEVATOR}})
 +
-\beta_{503}(\operatorname{building\_classification}_{\operatorname{D8  -ELEVATOR}})
+\beta_{503}(\operatorname{building\_classification}_{\operatorname{D8  -ELEVATOR}})
 +
-\beta_{504}(\operatorname{building\_classification}_{\operatorname{D1  -ELEVATOR}})
+\beta_{504}(\operatorname{building\_classification}_{\operatorname{D1  -ELEVATOR}})
 +
-\beta_{505}(\operatorname{building\_classification}_{\operatorname{D3  -ELEVATOR}})
+\beta_{505}(\operatorname{building\_classification}_{\operatorname{D3  -ELEVATOR}})
 +
-\beta_{506}(\operatorname{building\_classification}_{\operatorname{C1  -WALK-UP}})
+\beta_{506}(\operatorname{building\_classification}_{\operatorname{C1  -WALK-UP}})
 +
-\beta_{507}(\operatorname{building\_classification}_{\operatorname{D9  -ELEVATOR}})
+\beta_{507}(\operatorname{building\_classification}_{\operatorname{D9  -ELEVATOR}})
 +
-\beta_{508}(\operatorname{building\_classification}_{\operatorname{C7  -WALK-UP}})
+\beta_{508}(\operatorname{building\_classification}_{\operatorname{C7  -WALK-UP}})
 +
-\beta_{509}(\operatorname{building\_classification}_{\operatorname{C4  -WALK-UP}})
+\beta_{509}(\operatorname{building\_classification}_{\operatorname{C4  -WALK-UP}})
 +
-\beta_{510}(\operatorname{building\_classification}_{\operatorname{C5  -WALK-UP}})
+\beta_{510}(\operatorname{building\_classification}_{\operatorname{C5  -WALK-UP}})
 +
-\beta_{511}(\operatorname{building\_classification}_{\operatorname{D2  -ELEVATOR}})
+\beta_{511}(\operatorname{building\_classification}_{\operatorname{D2  -ELEVATOR}})
 +
-\beta_{512}(\operatorname{building\_classification}_{\operatorname{C9  -WALK-UP}})
+\beta_{512}(\operatorname{building\_classification}_{\operatorname{C9  -WALK-UP}})
 +
 \beta_{513}(\operatorname{building\_classification}_{\operatorname{C7-WALK-UP}})
 +
@@ -1315,7 +1954,7 @@ BEACH}}) +
 +
 \beta_{523}(\operatorname{building\_classification}_{\operatorname{C9-WALK-UP}})
 + \beta_{524}(\operatorname{year\_built}) +
-\beta_{525}(\operatorname{total\_units}) + \epsilon
+\beta_{525}(\operatorname{total\_units})
 \]</span></p>
 
 

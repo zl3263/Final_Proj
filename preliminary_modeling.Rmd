@@ -19,7 +19,7 @@ zoning = read_csv('./data/taxlot_to_zoning.csv') %>%
 ```{r}
 load('./data/cleaned_data.RData')
 
-data_1 = transormed_rental_income %>%
+data_1 = transformed_rental_income %>%
   separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>%
   unite(col = "bbl", c("borough", "block", "lot"), sep = "", remove = FALSE) %>%
   mutate(bbl = as.numeric(bbl))
@@ -61,7 +61,7 @@ all_eg = lm(estimated_gross_income ~ ., data = data_egi)
 
 egi_fit = step(io_eg, direction = "both", scope = formula(all_eg), trace = 0)
 
-equatiomatic::extract_eq(egi_fit)
+equatiomatic::extract_eq(egi_fit, use_coefs = TRUE)
 ```
 
 $$
