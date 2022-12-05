@@ -28,7 +28,7 @@ getwd()
 ```{r}
 library(tidyverse)
 library(corrplot)
-
+library(sf)
 
 ```
 In the origin data, each properties are compared with three comparable rentals.
@@ -109,9 +109,7 @@ transformed_rental_income %>%
     zoning = map_chr(block_id,find_zoning)
   )
     
-save(transformed_rental_income, file = "data/cleaned_data.RData")
-# because shiny can only access its own directory....
-save(transformed_rental_income, file = "Shiny_Map/cleaned_data.RData")
+
 ```
 
 
@@ -134,6 +132,53 @@ Net Operating Income: Estimated Gross Income-Estimated Expense
 Full Market Value: Current year’s total market value of the land and building
 Market Value per SqFt: Full Market Value/ Gross SquareFoot
 Distance from Co-op in miles: calculated distance from comparable to the subject
+
+### Somehow, we need the location of each block.
+Without copying file from `Shiny_Map`, directly use it...
+```{r}
+ave_location = function(geom,id){
+  mean(geom[[1]][[1]][,id])
+}
+
+block_edge=read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
+  st_transform("NAD83") %>%
+  mutate(
+    ave_long = map_dbl(geometry,~ave_location(.x,1)),
+    ave_lat = map_dbl(geometry,~ave_location(.x,2)),
+    boro_block=as.numeric(BORO)*100000+as.numeric(BLOCK)
+  ) %>%
+  as_tibble() %>%
+  select(boro_block,ave_long,ave_lat) %>%
+  arrange(boro_block) %>%
+  na.omit() %>%
+  group_by(boro_block) %>%
+  summarise(
+    long=mean(ave_long),
+    lat=mean(ave_lat)
+  )
+  
+expanded_df = 
+  tibble(boro_block=1:600000) %>%
+  full_join(block_edge)
+
+transformed_rental_income =
+  transformed_rental_income %>%
+  mutate(
+    longitude = expanded_df$long[boro_block],
+    latitude = expanded_df$lat[boro_block]
+  ) %>%
+  select(boro_block_lot,boro_block,block_id,longitude,latitude,zoning,everything())
+
+
+save(transformed_rental_income, file = "data/cleaned_data.RData")
+# because shiny can only access its own directory....
+save(transformed_rental_income, file = "Shiny_Map/cleaned_data.RData")
+
+```
+
+
+
+
 
 ## plots
 #built year vs value

@@ -35,6 +35,14 @@ library(corrplot)
 
     ## corrplot 0.92 loaded
 
+``` r
+library(sf)
+```
+
+    ## Warning: 程辑包'sf'是用R版本4.2.2 来建造的
+
+    ## Linking to GEOS 3.9.3, GDAL 3.5.2, PROJ 8.2.1; sf_use_s2() is TRUE
+
 In the origin data, each properties are compared with three comparable
 rentals. So in total, information of four building(sets) forms one
 observation.
@@ -160,10 +168,6 @@ transformed_rental_income %>%
   mutate(
     zoning = map_chr(block_id,find_zoning)
   )
-    
-save(transformed_rental_income, file = "data/cleaned_data.RData")
-# because shiny can only access its own directory....
-save(transformed_rental_income, file = "Shiny_Map/cleaned_data.RData")
 ```
 
 ### Data description
@@ -238,6 +242,54 @@ Value: Current year’s total market value of the land and building Market
 Value per SqFt: Full Market Value/ Gross SquareFoot Distance from Co-op
 in miles: calculated distance from comparable to the subject
 
+### Somehow, we need the location of each block.
+
+Without copying file from `Shiny_Map`, directly use it…
+
+``` r
+ave_location = function(geom,id){
+  mean(geom[[1]][[1]][,id])
+}
+
+block_edge=read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
+  st_transform("NAD83") %>%
+  mutate(
+    ave_long = map_dbl(geometry,~ave_location(.x,1)),
+    ave_lat = map_dbl(geometry,~ave_location(.x,2)),
+    boro_block=as.numeric(BORO)*100000+as.numeric(BLOCK)
+  ) %>%
+  as_tibble() %>%
+  select(boro_block,ave_long,ave_lat) %>%
+  arrange(boro_block) %>%
+  na.omit() %>%
+  group_by(boro_block) %>%
+  summarise(
+    long=mean(ave_long),
+    lat=mean(ave_lat)
+  )
+  
+expanded_df = 
+  tibble(boro_block=1:600000) %>%
+  full_join(block_edge)
+```
+
+    ## Joining, by = "boro_block"
+
+``` r
+transformed_rental_income =
+  transformed_rental_income %>%
+  mutate(
+    longitude = expanded_df$long[boro_block],
+    latitude = expanded_df$lat[boro_block]
+  ) %>%
+  select(boro_block_lot,boro_block,block_id,longitude,latitude,zoning,everything())
+
+
+save(transformed_rental_income, file = "data/cleaned_data.RData")
+# because shiny can only access its own directory....
+save(transformed_rental_income, file = "Shiny_Map/cleaned_data.RData")
+```
+
 ## plots
 
 \#built year vs value
@@ -259,7 +311,7 @@ comparable_rental_income_raw %>%
   )
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 plot_neighbor = 
@@ -286,7 +338,7 @@ plot_neighbor =
 plot_neighbor
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 comparable_rental_income_raw %>% 
@@ -305,7 +357,7 @@ comparable_rental_income_raw %>%
   )
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 correlation
 
 ``` r
@@ -317,7 +369,7 @@ corr = data.frame(lapply(lapply(rentalincom_c1_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 rentalincom_c2_1 = 
@@ -328,7 +380,7 @@ corr = data.frame(lapply(lapply(rentalincom_c2_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 rentalincom_c3_1 = 
@@ -339,5 +391,5 @@ corr = data.frame(lapply(lapply(rentalincom_c3_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
 
-![](preprocessing1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](preprocessing1_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 \`\`\`
