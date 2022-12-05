@@ -25,10 +25,26 @@ So in total, information of four building(sets) forms one observation.
 
 ```{r}
 comparable_rental_income_raw = read_csv("data/DOF__Cooperative_Comparable_Rental_Income__Citywide.csv") %>%
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  mutate(
+    building_classification = str_remove_all(building_classification, "\\s"),
+    building_classification_1 = str_remove_all(building_classification_1, "\\s"),
+    building_classification_2 = str_remove_all(building_classification_2, "\\s"),
+    building_classification_3 = str_remove_all(building_classification_3, "\\s")
+  )
 head(comparable_rental_income_raw)
 
 ```
+
+```{r}
+comparable_rental_income = 
+  comparable_rental_income_raw %>% 
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>% 
+  separate(boro_block_lot_1, into = c("borough_1", "block_1", "lot_1"), sep = "-") %>% 
+  separate(boro_block_lot_2, into = c("borough_2", "block_2", "lot_2"), sep = "-") %>% 
+  separate(boro_block_lot_3, into = c("borough_3", "block_3", "lot_3"), sep = "-")
+```
+
 
 ### Seperate the observations:
 
@@ -78,7 +94,6 @@ save(transformed_rental_income, file = "data/cleaned_data.RData")
 Boro-Block-Lot: Borough-Block-Lot(BBL) location
 
 ```{r}
-comparable_rental_income_raw %>% distinct(building_classification)
 comparable_rental_income_raw %>% distinct(neighborhood)
 comparable_rental_income_raw %>% distinct(year_built)
 ```
@@ -94,26 +109,9 @@ Market Value per SqFt: Full Market Value/ Gross SquareFoot
 Distance from Co-op in miles: calculated distance from comparable to the subject
 
 ## plots
-#built year vs value
 
-```{r}
-comparable_rental_income_raw %>% 
-  
-  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
-  geom_point(alpha = .8, size = 0.8)+ 
-  theme_bw()+ 
-  labs(
-    title = "Total Market Value vs Year",
-    x = "Year the building was built",
-    y = "Total Market Value"
-  )+ 
-  viridis::scale_color_viridis(
-    name = "Classification", 
-    discrete = TRUE
-  )
-```
-
-
+Overview of key variables
+Neighbourhoods with highest full market value(mean_value > 29000000):
 ```{r}
 plot_neighbor = 
   comparable_rental_income_raw %>% 
@@ -139,25 +137,152 @@ plot_neighbor =
 plot_neighbor
 ```
 
-
 ```{r}
-comparable_rental_income_raw %>% 
-  
-  ggplot(aes(x = estimated_gross_income, y = estimated_expense,color = building_classification))+
+plot_neighbor_1 = 
+  comparable_rental_income_raw %>% 
+  drop_na() %>% 
+  group_by(neighborhood_1) %>% 
+  summarise(mean_value_1 = mean(full_market_value_1)) %>% 
+  mutate(neighborhood_1 = fct_reorder(neighborhood_1,mean_value_1)) %>% 
+  filter(mean_value_1 > 29000000) %>% 
+  ggplot(aes(x = neighborhood_1, y = mean_value_1))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
   labs(
-    title = "Expense vs Income",
-    x = "Estimated Income",
-    y = "Estimated Expense"
+    title = "Neighborhood vs value",
+    x = "Neighborhood",
+    y = "Mean Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+
+plot_neighbor_1
+```
+
+```{r}
+plot_neighbor_2 = 
+  comparable_rental_income_raw %>% 
+  drop_na() %>% 
+  group_by(neighborhood_2) %>% 
+  summarise(mean_value_2 = mean(full_market_value_2)) %>% 
+  mutate(neighborhood_2 = fct_reorder(neighborhood_2,mean_value_2)) %>% 
+  filter(mean_value_2 > 29000000) %>% 
+  ggplot(aes(x = neighborhood_2, y = mean_value_2))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Neighborhood vs value",
+    x = "Neighborhood",
+    y = "Mean Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+
+plot_neighbor_2
+```
+
+```{r}
+plot_neighbor_3 = 
+  comparable_rental_income_raw %>% 
+  drop_na() %>% 
+  group_by(neighborhood_3) %>% 
+  summarise(mean_value_3 = mean(full_market_value_3)) %>% 
+  mutate(neighborhood_3 = fct_reorder(neighborhood_3,mean_value_3)) %>% 
+  filter(mean_value_3 > 29000000) %>% 
+  ggplot(aes(x = neighborhood_3, y = mean_value_3))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Neighborhood vs value",
+ 
+    y = "Mean Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )+
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+
+plot_neighbor_3
+```
+
+```{r}
+comparable_rental_income_raw %>% 
+  drop_na() %>% 
+  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Total Market Value vs Year",
+    x = "Year the building was built",
+    y = "Total Market Value"
   )+ 
   viridis::scale_color_viridis(
     name = "Classification", 
     discrete = TRUE
   )
-
 ```
-correlation
+
+```{r}
+comparable_rental_income_raw %>% 
+  drop_na() %>% 
+  ggplot(aes(x = year_built_1, y = full_market_value_1, color = building_classification_1))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Total Market Value vs Year",
+    x = "Year the building was built",
+    y = "Total Market Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
+```
+
+```{r}
+comparable_rental_income_raw %>% 
+  drop_na() %>% 
+  ggplot(aes(x = year_built_2, y = full_market_value_2,color = building_classification_2))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Total Market Value vs Year",
+    x = "Year the building was built",
+    y = "Total Market Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
+```
+
+```{r}
+comparable_rental_income_raw %>% 
+  
+  ggplot(aes(x = year_built_3, y = full_market_value_3,color = building_classification_3))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Total Market Value vs Year",
+    x = "Year the building was built",
+    y = "Total Market Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
+```
+
+
+Correlation plots
+
 ```{r}
 rentalincom_c1_1 = 
   rentalincom_c1 %>%
@@ -166,6 +291,7 @@ rentalincom_c1_1 =
 corr = data.frame(lapply(lapply(rentalincom_c1_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
+
 
 ```{r}
 rentalincom_c2_1 = 
@@ -186,7 +312,20 @@ corrplot(cor(corr), type = "lower")
 ```
 
 
+```{r}
+comparable_rental_income_raw %>% 
+  
+  ggplot(aes(x = estimated_gross_income, y = estimated_expense,color = building_classification))+
+  geom_point(alpha = .8, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Expense vs Income",
+    x = "Estimated Income",
+    y = "Estimated Expense"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
 
-
-
-
+```
