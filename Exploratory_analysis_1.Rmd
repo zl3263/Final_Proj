@@ -187,7 +187,7 @@ plot_borough =
   mutate(borough = fct_reorder(borough,mean_value)) %>% 
   ggplot(aes(x = borough, y = mean_value, fill = borough))+ 
   geom_bar(stat = 'identity')+
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9", "#678F8D", "#598987", "#999999"))+
+  scale_fill_manual(values=c("#D9B489", "#D49F3A", "#BC3D1C", "#4C372D", "#E8E3B9"))+
   coord_flip()+
 
   theme_bw()

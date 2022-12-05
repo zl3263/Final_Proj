@@ -565,7 +565,7 @@ plot_borough</code></pre>
   mutate(borough = fct_reorder(borough,mean_value)) %&gt;% 
   ggplot(aes(x = borough, y = mean_value, fill = borough))+ 
   geom_bar(stat = &#39;identity&#39;)+
-  scale_fill_manual(values=c(&quot;#999999&quot;, &quot;#E69F00&quot;, &quot;#56B4E9&quot;, &quot;#678F8D&quot;, &quot;#598987&quot;, &quot;#999999&quot;))+
+  scale_fill_manual(values=c(&quot;#D9B489&quot;, &quot;#D49F3A&quot;, &quot;#BC3D1C&quot;, &quot;#4C372D&quot;, &quot;#E8E3B9&quot;))+
   coord_flip()+
 
   theme_bw()
