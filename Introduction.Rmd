@@ -13,6 +13,17 @@ New to New York City, our group members are all shocked by the high cost of buil
 
 We are curious about the distribution of buildings of each pricing level in time and geographical zones. Also, we want to find factors that may have influence on buildings value. Based on which, we can further modeling and predicting the buildings price in New York.
 
+## Planned Analysis
+
+We plan to conduct following work in our project: 
+
+- Preprocessing: Data cleaning and transforamtion.
+- Exploratory Analysis: Include visualization of a single variable and relationship between variables.
+- Statistical Analysis: Based on hypothesis testing to find factors that may have influence on the buildings' marked value.
+- Modeling: Predicting building's value based 
+- Project our findings to interactive webpage.
+
+
 ## Data Source
 
 ### Cooperative Comparable Rental Income
