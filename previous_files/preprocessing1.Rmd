@@ -85,31 +85,26 @@ transformed_rental_income = transformed_rental_income %>%
 ### add zoning info for the dataset
 Because our data only include `boro_block_lot`, which is the tax identification of a building, if we need to mark the building on the map, we need to map the zoning of the building on the map.
 ```{r}
-find_zoning = function(block_id){
-  taxlot_to_zoning[taxlot_to_zoning$tax_block==block_id,] %>%
-  head(1) %>%
-  pull(zoning_district_1)
-}
+taxlot_to_zoning = read_csv("data/taxlot_to_zoning.csv") %>%
+  janitor::clean_names() %>%
+  mutate(
+    boro_block = as.numeric(borough_code * 100000 + tax_block)
+  ) %>%
+  select(boro_block,zoning_district_1) %>%
+  distinct(boro_block, .keep_all = TRUE)
+
+expanded_df = 
+  tibble(boro_block = 1:600000) %>%
+  full_join(taxlot_to_zoning,by = "boro_block")
+
 transformed_rental_income =
   transformed_rental_income %>%
   mutate(
     block_id = as.numeric(substr(boro_block_lot,3,7)),
-    boro_block = as.numeric(paste0(substr(boro_block_lot,1,1),substr(boro_block_lot,3,7)))
-  ) 
-
-taxlot_to_zoning = read_csv("data/taxlot_to_zoning.csv") %>%
-  janitor::clean_names() %>%
-  filter(tax_block %in% transformed_rental_income$block_id) %>%
-  distinct(tax_block,zoning_district_1)
-
-transformed_rental_income =
-transformed_rental_income %>%
-  filter(block_id %in% taxlot_to_zoning$tax_block) %>%
-  mutate(
-    zoning = map_chr(block_id,find_zoning)
+    boro_block = as.numeric(paste0(substr(boro_block_lot,1,1),substr(boro_block_lot,3,7))),
+    zoning = expanded_df$zoning_district_1[boro_block]
   )
-    
-
+  
 ```
 
 
@@ -140,12 +135,12 @@ ave_location = function(geom,id){
   mean(geom[[1]][[1]][,id])
 }
 
-block_edge=read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
+block_edge = read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
   st_transform("NAD83") %>%
   mutate(
     ave_long = map_dbl(geometry,~ave_location(.x,1)),
     ave_lat = map_dbl(geometry,~ave_location(.x,2)),
-    boro_block=as.numeric(BORO)*100000+as.numeric(BLOCK)
+    boro_block = as.numeric(BORO) * 100000 + as.numeric(BLOCK)
   ) %>%
   as_tibble() %>%
   select(boro_block,ave_long,ave_lat) %>%
@@ -153,12 +148,12 @@ block_edge=read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
   na.omit() %>%
   group_by(boro_block) %>%
   summarise(
-    long=mean(ave_long),
-    lat=mean(ave_lat)
+    long = mean(ave_long),
+    lat = mean(ave_lat)
   )
   
 expanded_df = 
-  tibble(boro_block=1:600000) %>%
+  tibble(boro_block = 1:600000) %>%
   full_join(block_edge)
 
 transformed_rental_income =
@@ -175,104 +170,5 @@ save(transformed_rental_income, file = "data/cleaned_data.RData")
 save(transformed_rental_income, file = "Shiny_Map/cleaned_data.RData")
 
 ```
-
-
-
-
-
-## plots
-#built year vs value
-```{r}
-comparable_rental_income_raw %>% 
-  
-  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
-  geom_point(alpha = .8, size = 0.8)+ 
-  theme_bw()+ 
-  labs(
-    title = "Total Market Value vs Year",
-    x = "Year the building was built",
-    y = "Total Market Value"
-  )+ 
-  viridis::scale_color_viridis(
-    name = "Classification", 
-    discrete = TRUE
-  )
-```
-
-
-```{r}
-plot_neighbor = 
-  comparable_rental_income_raw %>% 
-  drop_na() %>% 
-  group_by(neighborhood) %>% 
-  summarise(mean_value = mean(full_market_value)) %>% 
-  mutate(neighborhood = fct_reorder(neighborhood,mean_value)) %>% 
-  filter(mean_value > 29000000) %>% 
-  ggplot(aes(x = neighborhood, y = mean_value))+
-  geom_point(alpha = .8, size = 0.8)+ 
-  theme_bw()+ 
-  labs(
-    title = "Neighborhood vs value",
-    x = "Neighborhood",
-    y = "Mean Value"
-  )+ 
-  viridis::scale_color_viridis(
-    name = "Classification", 
-    discrete = TRUE
-  )+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
-
-plot_neighbor
-```
-
-
-```{r}
-comparable_rental_income_raw %>% 
-  
-  ggplot(aes(x = estimated_gross_income, y = estimated_expense,color = building_classification))+
-  geom_point(alpha = .8, size = 0.8)+ 
-  theme_bw()+ 
-  labs(
-    title = "Expense vs Income",
-    x = "Estimated Income",
-    y = "Estimated Expense"
-  )+ 
-  viridis::scale_color_viridis(
-    name = "Classification", 
-    discrete = TRUE
-  )
-
-```
-correlation
-```{r}
-rentalincom_c1_1 = 
-  rentalincom_c1 %>%
-  drop_na()
-# Plot the correlation
-corr = data.frame(lapply(lapply(rentalincom_c1_1, as.factor), as.numeric))
-corrplot(cor(corr), type = "lower")
-```
-
-```{r}
-rentalincom_c2_1 = 
-  rentalincom_c2 %>%
-  drop_na()
-# Plot the correlation
-corr = data.frame(lapply(lapply(rentalincom_c2_1, as.factor), as.numeric))
-corrplot(cor(corr), type = "lower")
-```
-
-```{r}
-rentalincom_c3_1 = 
-  rentalincom_c3 %>%
-  drop_na()
-# Plot the correlation
-corr = data.frame(lapply(lapply(rentalincom_c3_1, as.factor), as.numeric))
-corrplot(cor(corr), type = "lower")
-```
-```
-
-
-
 
 
