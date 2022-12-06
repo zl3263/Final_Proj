@@ -131,22 +131,13 @@ identification of a building, if we need to mark the building on the
 map, we need to map the zoning of the building on the map.
 
 ``` r
-find_zoning = function(block_id){
-  taxlot_to_zoning[taxlot_to_zoning$tax_block==block_id,] %>%
-  head(1) %>%
-  pull(zoning_district_1)
-}
-transformed_rental_income =
-  transformed_rental_income %>%
-  mutate(
-    block_id = as.numeric(substr(boro_block_lot,3,7)),
-    boro_block = as.numeric(paste0(substr(boro_block_lot,1,1),substr(boro_block_lot,3,7)))
-  ) 
-
 taxlot_to_zoning = read_csv("data/taxlot_to_zoning.csv") %>%
   janitor::clean_names() %>%
-  filter(tax_block %in% transformed_rental_income$block_id) %>%
-  distinct(tax_block,zoning_district_1)
+  mutate(
+    boro_block = as.numeric(borough_code * 100000 + tax_block)
+  ) %>%
+  select(boro_block,zoning_district_1) %>%
+  distinct(boro_block, .keep_all = TRUE)
 ```
 
     ## Warning: One or more parsing issues, see `problems()` for details
@@ -162,11 +153,16 @@ taxlot_to_zoning = read_csv("data/taxlot_to_zoning.csv") %>%
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
+expanded_df = 
+  tibble(boro_block = 1:600000) %>%
+  full_join(taxlot_to_zoning,by = "boro_block")
+
 transformed_rental_income =
-transformed_rental_income %>%
-  filter(block_id %in% taxlot_to_zoning$tax_block) %>%
+  transformed_rental_income %>%
   mutate(
-    zoning = map_chr(block_id,find_zoning)
+    block_id = as.numeric(substr(boro_block_lot,3,7)),
+    boro_block = as.numeric(paste0(substr(boro_block_lot,1,1),substr(boro_block_lot,3,7))),
+    zoning = expanded_df$zoning_district_1[boro_block]
   )
 ```
 
@@ -251,12 +247,12 @@ ave_location = function(geom,id){
   mean(geom[[1]][[1]][,id])
 }
 
-block_edge=read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
+block_edge = read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
   st_transform("NAD83") %>%
   mutate(
     ave_long = map_dbl(geometry,~ave_location(.x,1)),
     ave_lat = map_dbl(geometry,~ave_location(.x,2)),
-    boro_block=as.numeric(BORO)*100000+as.numeric(BLOCK)
+    boro_block = as.numeric(BORO) * 100000 + as.numeric(BLOCK)
   ) %>%
   as_tibble() %>%
   select(boro_block,ave_long,ave_lat) %>%
@@ -264,12 +260,12 @@ block_edge=read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
   na.omit() %>%
   group_by(boro_block) %>%
   summarise(
-    long=mean(ave_long),
-    lat=mean(ave_lat)
+    long = mean(ave_long),
+    lat = mean(ave_lat)
   )
   
 expanded_df = 
-  tibble(boro_block=1:600000) %>%
+  tibble(boro_block = 1:600000) %>%
   full_join(block_edge)
 ```
 
