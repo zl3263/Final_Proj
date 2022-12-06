@@ -1,5 +1,5 @@
 ---
-title: "Dataset Introduction"
+title: "Introduction"
 output: 
   html_document:
     toc: true
@@ -7,7 +7,27 @@ output:
 
 ---
 
-To attain the price information of buildings, we use the dataset published by the Department of Finance of NYC. This dataset contains the income and expense statements of condominium as well as comparable  rental buildings in NYC that helps people to estimate the market value of their buildings. 
+## Motivation
+
+New to New York City, our group members are all shocked by the high cost of building rentals. This encourages us to explore more about the property market and the buildings' price in NYC.
+
+We are curious about the distribution of buildings of each pricing level in time and geographical zones. Also, we want to find factors that may have influence on buildings value. Based on which, we can further modeling and predicting the buildings price in New York.
+
+## Data Source
+
+### Cooperative Comparable Rental Income
+
+To attain the price information of buildings, we use the dataset published by the Department of Finance of NYC. The origin data can be acquired from [NYC Open Data](https://data.cityofnewyork.us/City-Government/DOF-Cooperative-Comparable-Rental-Income-Citywide-/myei-c3fa)
+
+This dataset contains the income and expense statements of condominium and comparable rental buildings in NYC that helps people estimate the marked value of their own buildings. In each observations, a condominium/cooperative is compared with three rental buildings that have similar physical and geographical features.  We equaly treat these two kind of buildings and transformed the data shape to ensure that each observation records exactly one building.
+
+### ?
+
+### ? 
+
+
+
+
 
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
