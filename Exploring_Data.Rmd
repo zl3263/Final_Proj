@@ -7,8 +7,9 @@ output:
 
 ---
 
-##Exploratary Analysis
+This page gives a overview on investigating our dataset.
 
+## Investigation based on borough
 
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -48,4 +49,19 @@ df %>%
           orientation = 'h') %>%
   layout(title = 'Records in each Borough')
 ```
+
+## The proportion of each building classification
+
+```{r}
+
+c_df = as_tibble(table(df['building_classification']))
+```
+
+```{r}
+plot_ly(c_df, labels = ~building_classification , values = ~n, type = 'pie')
+```
+
+
+
+
 
