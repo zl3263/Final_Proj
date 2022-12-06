@@ -15,7 +15,7 @@ This page gives a overview on investigating our dataset.
 library(tidyverse)
 library(plotly)
 library(patchwork)
-library(hexbin)
+library(kableExtra)
 load("data/cleaned_data.RData")
 ```
 
@@ -64,6 +64,17 @@ According to the histogram plot and box plot, we can see that the order of mean 
 Both number and mean value of rentals in Manhattan take the head in five boroughs.
 
 # Neighborhood with top mean value
+```{r}
+df %>% 
+  filter(borough == 'Manhattan') %>% 
+  group_by(neighborhood) %>% 
+  summarise(mean_value = mean(full_market_value)) %>% 
+  arrange(desc(mean_value)) %>%
+  filter(mean_value >= 38299876) %>%
+  knitr::kable() %>% 
+  kable_styling(bootstrap_options = c("striped"))%>%
+  kableExtra::kable_styling(font_size = 14)
+```
 
 
 ## The proportion of each building classification
