@@ -45,7 +45,20 @@ library(tidyverse)
 library(plotly)
 library(patchwork)
 
-load("E:/2023_autumn/DataScience/Final_Proj/data/cleaned_data.RData")
+#load("E:/2023_autumn/DataScience/Final_Proj/data/cleaned_data.RData")
+# why?
+load("data/cleaned_data.RData")
+transformed_rental_income=
+  transformed_rental_income %>%
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>%
+  mutate(
+  borough = case_when(
+    borough == "1" ~ "Manhattan",
+    borough == "2" ~ "Bronx",
+    borough == "3" ~ "Brooklyn",
+    borough == "4" ~ "Queens",
+    borough == "5" ~ "Staten Island")
+  ) 
 ```
 
 ## Observations and Variables
@@ -82,7 +95,11 @@ save(Manhattan_data, file = "data/Manhattan_latlonmap.RData")
 
 #
 
-load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
+#load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
+#again?
+load("data/Manhattan_latlonmap.RData")
+
+
 colnames(Manhattan_data) = c("address1","times","latlona")
 Manhattan_data = Manhattan_data %>%
   unnest(cols = latlona) %>%
@@ -92,7 +109,9 @@ save(Manhattan_data, file = "data/Manhattan_latlonmap.RData")
 ```
 
 ```{r message=FALSE, warning=FALSE}
-load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
+#load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
+# again
+load("data/Manhattan_latlonmap.RData")
 
 ```
 

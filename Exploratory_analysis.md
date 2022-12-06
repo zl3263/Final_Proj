@@ -17,6 +17,7 @@ Exploratory
 ``` r
 library(tidyverse)
 library(corrplot)
+library(sf)
 ```
 
 In the origin data, each properties are compared with three comparable
@@ -35,7 +36,7 @@ comparable_rental_income_raw = read_csv("data/DOF__Cooperative_Comparable_Rental
 ```
 
     ## Rows: 44960 Columns: 60
-    ## ── Column specification ─────────────────────
+    ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr (16): Boro-Block-Lot, Address, Neighborhood, Building Classification, Bo...
     ## dbl (44): Total Units, Year Built, Gross SqFt, Estimated Gross Income, Gross...
@@ -140,8 +141,103 @@ transformed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,
 transformed_rental_income = transformed_rental_income %>% 
   na.omit() 
 
-save(transformed_rental_income, file = "data/cleaned_data.RData")
+#save(transformed_rental_income, file = "data/cleaned_data.RData")
 ```
+
+\<\<\<\<\<\<\< HEAD \### add zoning info for the dataset Because our
+data only include `boro_block_lot`, which is the tax identification of a
+building, if we need to mark the building on the map, we need to map the
+zoning of the building on the map.
+
+``` r
+taxlot_to_zoning = read_csv("data/taxlot_to_zoning.csv") %>%
+  janitor::clean_names() %>%
+  mutate(
+    boro_block = as.numeric(borough_code * 100000 + tax_block)
+  ) %>%
+  select(boro_block,zoning_district_1) %>%
+  distinct(boro_block, .keep_all = TRUE)
+```
+
+    ## Warning: One or more parsing issues, see `problems()` for details
+
+    ## Rows: 858266 Columns: 16
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (7): Zoning District 1, Zoning District 2, Commercial Overlay 1, Special...
+    ## dbl (4): Borough Code, Tax Block, Tax Lot, BBL
+    ## lgl (5): Zoning District 3, Zoning District 4, Commercial Overlay 2, Special...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+expanded_df = 
+  tibble(boro_block = 1:600000) %>%
+  full_join(taxlot_to_zoning,by = "boro_block")
+
+transformed_rental_income =
+  transformed_rental_income %>%
+  mutate(
+    block_id = as.numeric(substr(boro_block_lot,3,7)),
+    boro_block = as.numeric(paste0(substr(boro_block_lot,1,1),substr(boro_block_lot,3,7))),
+    zoning = expanded_df$zoning_district_1[boro_block]
+  )
+```
+
+### Somehow, we need the location of each block.
+
+Without copying file from `Shiny_Map`, directly use it…
+
+``` r
+ave_location = function(geom,id){
+  mean(geom[[1]][[1]][,id])
+}
+
+block_edge = read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
+  st_transform("NAD83") %>%
+  mutate(
+    ave_long = map_dbl(geometry,~ave_location(.x,1)),
+    ave_lat = map_dbl(geometry,~ave_location(.x,2)),
+    boro_block = as.numeric(BORO) * 100000 + as.numeric(BLOCK)
+  ) %>%
+  as_tibble() %>%
+  select(boro_block,ave_long,ave_lat) %>%
+  arrange(boro_block) %>%
+  na.omit() %>%
+  group_by(boro_block) %>%
+  summarise(
+    long = mean(ave_long),
+    lat = mean(ave_lat)
+  )
+  
+expanded_df = 
+  tibble(boro_block = 1:600000) %>%
+  full_join(block_edge)
+```
+
+    ## Joining, by = "boro_block"
+
+``` r
+transformed_rental_income =
+  transformed_rental_income %>%
+  mutate(
+    longitude = expanded_df$long[boro_block],
+    latitude = expanded_df$lat[boro_block]
+  ) %>%
+  select(boro_block_lot,boro_block,block_id,longitude,latitude,zoning,everything())
+
+
+save(transformed_rental_income, file = "data/cleaned_data.RData")
+# because shiny can only access its own directory....
+save(transformed_rental_income, file = "Shiny_Map/cleaned_data.RData")
+```
+
+### Data description
+
+Boro-Block-Lot: Borough-Block-Lot(BBL) location
+
+======= \>\>\>\>\>\>\> fc467d4eeb1c197de8ad79f4ab148fe015311a80
 
 ``` r
 df = 
@@ -190,7 +286,7 @@ plot_borough =
 plot_borough
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 summary on all rentals
 
@@ -212,7 +308,7 @@ plot_borough =
 plot_borough
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 Neighbourhoods with highest full market value(mean_value \> 29000000):
 
@@ -241,7 +337,7 @@ plot_neighbor =
 plot_neighbor
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 plot_neighbor_1 = 
@@ -268,7 +364,7 @@ plot_neighbor_1 =
 plot_neighbor_1
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 plot_neighbor_2 = 
@@ -295,7 +391,7 @@ plot_neighbor_2 =
 plot_neighbor_2
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 plot_neighbor_3 = 
@@ -322,7 +418,7 @@ plot_neighbor_3 =
 plot_neighbor_3
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 transformed_rental_income %>% 
@@ -341,7 +437,7 @@ transformed_rental_income %>%
   )
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 comparable_rental_income_raw %>% 
@@ -360,7 +456,7 @@ comparable_rental_income_raw %>%
   )
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 comparable_rental_income_raw %>% 
@@ -379,7 +475,7 @@ comparable_rental_income_raw %>%
   )
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 comparable_rental_income_raw %>% 
@@ -398,7 +494,7 @@ comparable_rental_income_raw %>%
   )
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 comparable_rental_income_raw %>% 
@@ -417,7 +513,7 @@ comparable_rental_income_raw %>%
   )
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 Correlation plots
 
@@ -430,7 +526,7 @@ corr = data.frame(lapply(lapply(rentalincom_c1_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 ``` r
 rentalincom_c2_1 = 
@@ -441,7 +537,7 @@ corr = data.frame(lapply(lapply(rentalincom_c2_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ``` r
 rentalincom_c3_1 = 
@@ -452,7 +548,7 @@ corr = data.frame(lapply(lapply(rentalincom_c3_1, as.factor), as.numeric))
 corrplot(cor(corr), type = "lower")
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ``` r
 comparable_rental_income_raw %>% 
@@ -471,4 +567,4 @@ comparable_rental_income_raw %>%
   )
 ```
 
-![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](Exploratory_analysis_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->

@@ -5,7 +5,7 @@ account: nuc-rental-income
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7806144
-bundleId: 6589977
+bundleId: 6596218
 url: https://nuc-rental-income.shinyapps.io/shiny_map/
-when: 1670183833.53163
-lastSyncTime: 1670183833.53164
+when: 1670280154.25915
+lastSyncTime: 1670280154.25916
