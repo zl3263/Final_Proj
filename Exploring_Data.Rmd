@@ -9,6 +9,7 @@ output:
 
 ##Exploratary Analysis
 
+
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(plotly)
@@ -32,15 +33,19 @@ df =
 ```
 
 
-```{r eval=FALSE}
+```{r }
 df %>% 
   mutate(borough = fct_reorder(borough, full_market_value)) %>% 
   group_by(borough) %>%
-  
   summarise(
     observations = n()
   ) %>%
-  plot_ly(y = ~borough, x = ~observations, color = ~borough, type = "bar", colors = "viridis",orientation = 'h') %>%
+  plot_ly(y = ~borough, 
+          x = ~observations, 
+          color = ~borough, 
+          type = "bar", 
+          colors = "viridis",
+          orientation = 'h') %>%
   layout(title = 'Records in each Borough')
 ```
 

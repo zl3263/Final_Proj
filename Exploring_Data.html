@@ -36,6 +36,13 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.10.0/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -344,7 +351,7 @@ div.tocify {
   <a href="Modeling.html">Modeling</a>
 </li>
 <li>
-  <a href="Map.html">Map</a>
+  <a href="https://nuc-rental-income.shinyapps.io/shiny_map/">Browse by Map</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -391,7 +398,38 @@ div.tocify {
 </div>
 
 
-<p><em>Add code here</em></p>
+<p>##Exploratary Analysis</p>
+<pre class="r"><code>library(tidyverse)
+library(plotly)
+library(patchwork)
+
+load(&quot;data/cleaned_data.RData&quot;)</code></pre>
+<pre class="r"><code>df = 
+  transformed_rental_income %&gt;% 
+  separate(boro_block_lot, into = c(&quot;borough&quot;, &quot;block&quot;, &quot;lot&quot;), sep = &quot;-&quot;) %&gt;% 
+  mutate(
+    borough = case_when(
+      borough == &quot;1&quot; ~ &quot;Manhattan&quot;,
+      borough == &quot;2&quot; ~ &quot;Bronx&quot;,
+      borough == &quot;3&quot; ~ &quot;Brooklyn&quot;,
+      borough == &quot;4&quot; ~ &quot;Queens&quot;,
+      borough == &quot;5&quot; ~ &quot;Staten Island&quot;)
+    )</code></pre>
+<pre class="r"><code>df %&gt;% 
+  mutate(borough = fct_reorder(borough, full_market_value)) %&gt;% 
+  group_by(borough) %&gt;%
+  summarise(
+    observations = n()
+  ) %&gt;%
+  plot_ly(y = ~borough, 
+          x = ~observations, 
+          color = ~borough, 
+          type = &quot;bar&quot;, 
+          colors = &quot;viridis&quot;,
+          orientation = &#39;h&#39;) %&gt;%
+  layout(title = &#39;Records in each Borough&#39;)</code></pre>
+<div id="htmlwidget-14dee90e71e6b61fda7c" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-14dee90e71e6b61fda7c">{"x":{"visdat":{"e5331fc22021":["function () ","plotlyVisDat"]},"cur_data":"e5331fc22021","attrs":{"e5331fc22021":{"y":{},"x":{},"orientation":"h","color":{},"colors":"viridis","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Records in each Borough","xaxis":{"domain":[0,1],"automargin":true,"title":"observations"},"yaxis":{"domain":[0,1],"automargin":true,"title":"borough","type":"category","categoryorder":"array","categoryarray":["Staten Island","Bronx","Brooklyn","Queens","Manhattan"]},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"y":["Staten Island"],"x":[863],"orientation":"h","type":"bar","name":"Staten Island","marker":{"color":"rgba(68,1,84,1)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,1)"},"error_y":{"color":"rgba(68,1,84,1)"},"error_x":{"color":"rgba(68,1,84,1)"},"xaxis":"x","yaxis":"y","frame":null},{"y":["Bronx"],"x":[15330],"orientation":"h","type":"bar","name":"Bronx","marker":{"color":"rgba(59,82,139,1)","line":{"color":"rgba(59,82,139,1)"}},"textfont":{"color":"rgba(59,82,139,1)"},"error_y":{"color":"rgba(59,82,139,1)"},"error_x":{"color":"rgba(59,82,139,1)"},"xaxis":"x","yaxis":"y","frame":null},{"y":["Brooklyn"],"x":[30166],"orientation":"h","type":"bar","name":"Brooklyn","marker":{"color":"rgba(33,144,141,1)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,1)"},"error_y":{"color":"rgba(33,144,141,1)"},"error_x":{"color":"rgba(33,144,141,1)"},"xaxis":"x","yaxis":"y","frame":null},{"y":["Queens"],"x":[33308],"orientation":"h","type":"bar","name":"Queens","marker":{"color":"rgba(93,200,99,1)","line":{"color":"rgba(93,200,99,1)"}},"textfont":{"color":"rgba(93,200,99,1)"},"error_y":{"color":"rgba(93,200,99,1)"},"error_x":{"color":"rgba(93,200,99,1)"},"xaxis":"x","yaxis":"y","frame":null},{"y":["Manhattan"],"x":[91296],"orientation":"h","type":"bar","name":"Manhattan","marker":{"color":"rgba(253,231,37,1)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,1)"},"error_y":{"color":"rgba(253,231,37,1)"},"error_x":{"color":"rgba(253,231,37,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 
 
 
