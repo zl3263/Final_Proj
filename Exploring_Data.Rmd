@@ -7,4 +7,45 @@ output:
 
 ---
 
-*Add code here*
+##Exploratary Analysis
+
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(plotly)
+library(patchwork)
+
+load("data/cleaned_data.RData")
+```
+
+```{r}
+df = 
+  transformed_rental_income %>% 
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>% 
+  mutate(
+    borough = case_when(
+      borough == "1" ~ "Manhattan",
+      borough == "2" ~ "Bronx",
+      borough == "3" ~ "Brooklyn",
+      borough == "4" ~ "Queens",
+      borough == "5" ~ "Staten Island")
+    )
+```
+
+
+```{r }
+df %>% 
+  mutate(borough = fct_reorder(borough, full_market_value)) %>% 
+  group_by(borough) %>%
+  summarise(
+    observations = n()
+  ) %>%
+  plot_ly(y = ~borough, 
+          x = ~observations, 
+          color = ~borough, 
+          type = "bar", 
+          colors = "viridis",
+          orientation = 'h') %>%
+  layout(title = 'Records in each Borough')
+```
+
