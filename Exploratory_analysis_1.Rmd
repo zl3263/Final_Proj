@@ -115,25 +115,19 @@ transformed_rental_income = transformed_rental_income %>%
 save(transformed_rental_income, file = "data/cleaned_data.RData")
 ```
 
-
-### Data description
-
-Boro-Block-Lot: Borough-Block-Lot(BBL) location
-
 ```{r}
-comparable_rental_income_raw %>% distinct(neighborhood)
-comparable_rental_income_raw %>% distinct(year_built)
+df = 
+  transformed_rental_income %>% 
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>% 
+  mutate(
+    borough = case_when(
+      borough == "1" ~ "Manhattan",
+      borough == "2" ~ "Bronx",
+      borough == "3" ~ "Brooklyn",
+      borough == "4" ~ "Queens",
+      borough == "5" ~ "Staten Island")
+    )
 ```
-
-Gross SqFt: Gross square footage of the building
-Estimated Gross Income: Estimated Income per SquareFoot * Gross SquareFoot
-Gross Income per SqFt: Estimated income per squarefoot of median comparable
-Estimated Expense: Estimated Expense per SquareFoot * Gross SquareFoot
-Expense per SqFt: Estimated expense per squarefoot of median comparab
-Net Operating Income: Estimated Gross Income-Estimated Expense
-Full Market Value: Current year’s total market value of the land and building
-Market Value per SqFt: Full Market Value/ Gross SquareFoot
-Distance from Co-op in miles: calculated distance from comparable to the subject
 
 ## plots
 
@@ -170,17 +164,7 @@ plot_borough
 summary on all rentals
 ```{r}
 plot_borough = 
-  transformed_rental_income %>% 
-  drop_na() %>% 
-  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>% 
-  mutate(
-    borough = case_when(
-      borough == "1" ~ "Manhattan",
-      borough == "2" ~ "Bronx",
-      borough == "3" ~ "Brooklyn",
-      borough == "4" ~ "Queens",
-      borough == "5" ~ "Staten Island")) %>% 
-  drop_na() %>% 
+  df %>% 
   group_by(borough) %>% 
   summarise(mean_value = mean(full_market_value),
             value_sd  = sd(full_market_value)) %>% 
