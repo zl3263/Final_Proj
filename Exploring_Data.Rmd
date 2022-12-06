@@ -15,7 +15,7 @@ This page gives a overview on investigating our dataset.
 library(tidyverse)
 library(plotly)
 library(patchwork)
-
+library(hexbin)
 load("data/cleaned_data.RData")
 ```
 
@@ -49,6 +49,27 @@ df %>%
           orientation = 'h') %>%
   layout(title = 'Records in each Borough')
 ```
+
+
+```{r}
+df %>% 
+  group_by(borough) %>%
+  summarise(
+    mean_value = mean(full_market_value)
+  ) %>%
+  mutate(borough = fct_reorder(borough, mean_value)) %>% 
+  plot_ly(y = ~borough, 
+          x = ~mean_value, 
+          color = ~borough, 
+          type = "bar", 
+          colors = "viridis",
+          orientation = 'h') %>%
+  layout(title = 'Mean Values of each Borough')
+```
+
+According to the histogram plot, we can see that the order of mean value is Manhattan, Queens, Brooklyn, Bronx and Staten Island from the highest to the lowest.
+Both number and mean value of rentals in Manhattan take the head.
+
 
 ## The proportion of each building classification
 
