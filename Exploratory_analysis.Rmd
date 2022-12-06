@@ -80,27 +80,27 @@ so I would like to separate one and 3 comparables with into four subset with sam
 delete `distance_from_co_op_in_miles*` to make the variables consistent to each other.
 
 ```{r}
-namelist = comparable_rental_income %>%
+namelist = comparable_rental_income_raw %>%
   select(-c("distance_from_co_op_in_miles","distance_from_co_op_in_miles_1","distance_from_co_op_in_miles_2")) %>%
   colnames()
 
 ## to be optimized 
 
-rentalincom_ori = comparable_rental_income %>%
-  select(append(namelist[1:16],"report_year"))
+rentalincom_ori = comparable_rental_income_raw %>%
+  select(append(namelist[1:14],"report_year"))
 
 std_colname = colnames(rentalincom_ori)
 
-rentalincom_c1 = comparable_rental_income %>%
-  select(append(namelist[17:32],"report_year"))
+rentalincom_c1 = comparable_rental_income_raw %>%
+  select(append(namelist[15:28],"report_year"))
 colnames(rentalincom_c1) = std_colname
 
-rentalincom_c2 = comparable_rental_income %>%
-  select(append(namelist[33:48],"report_year"))
+rentalincom_c2 = comparable_rental_income_raw %>%
+  select(append(namelist[29:42],"report_year"))
 colnames(rentalincom_c2) = std_colname
   
-rentalincom_c3 = comparable_rental_income %>%
-  select(append(namelist[49:64],"report_year"))
+rentalincom_c3 = comparable_rental_income_raw %>%
+  select(append(namelist[43:56],"report_year"))
 colnames(rentalincom_c3) = std_colname
 
 transformed_rental_income = rbind(rentalincom_ori,rentalincom_c1,rentalincom_c2,rentalincom_c3)
@@ -115,25 +115,19 @@ transformed_rental_income = transformed_rental_income %>%
 save(transformed_rental_income, file = "data/cleaned_data.RData")
 ```
 
-
-### Data description
-
-Boro-Block-Lot: Borough-Block-Lot(BBL) location
-
 ```{r}
-comparable_rental_income_raw %>% distinct(neighborhood)
-comparable_rental_income_raw %>% distinct(year_built)
+df = 
+  transformed_rental_income %>% 
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>% 
+  mutate(
+    borough = case_when(
+      borough == "1" ~ "Manhattan",
+      borough == "2" ~ "Bronx",
+      borough == "3" ~ "Brooklyn",
+      borough == "4" ~ "Queens",
+      borough == "5" ~ "Staten Island")
+    )
 ```
-
-Gross SqFt: Gross square footage of the building
-Estimated Gross Income: Estimated Income per SquareFoot * Gross SquareFoot
-Gross Income per SqFt: Estimated income per squarefoot of median comparable
-Estimated Expense: Estimated Expense per SquareFoot * Gross SquareFoot
-Expense per SqFt: Estimated expense per squarefoot of median comparab
-Net Operating Income: Estimated Gross Income-Estimated Expense
-Full Market Value: Current year’s total market value of the land and building
-Market Value per SqFt: Full Market Value/ Gross SquareFoot
-Distance from Co-op in miles: calculated distance from comparable to the subject
 
 ## plots
 
@@ -141,6 +135,7 @@ Overview of key variables
 
 Which borough has the highest full_market_value?
 
+the first rental only
 ```{r}
 plot_borough = 
   comparable_rental_income %>% 
@@ -148,8 +143,8 @@ plot_borough =
   group_by(borough) %>% 
   summarise(mean_value = mean(full_market_value)) %>% 
   mutate(borough = fct_reorder(borough,mean_value)) %>% 
-  ggplot(aes(x = borough, y = mean_value))+
-  geom_point()+
+  ggplot(aes(x = borough, y = mean_value, fill = mean_value))+
+  geom_bar(stat = 'identity')+
   labs(
     title = "Borough vs value",
     x = "Borough",
@@ -159,28 +154,28 @@ plot_borough =
     name = "Classification", 
     discrete = TRUE
   )+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))+ 
+  coord_flip()+
+  theme_bw()
 
 plot_borough
 ```
 
+summary on all rentals
 ```{r}
 plot_borough = 
-  transformed_rental_income %>% 
-  drop_na() %>% 
-  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>% 
-  mutate(
-    borough = case_when(
-      borough == "1" ~ "Manhattan",
-      borough == "2" ~ "Bronx",
-      borough == "3" ~ "Brooklyn",
-      borough == "4" ~ "Queens",
-      borough == "5" ~ "Staten Island")) %>% 
-  drop_na() %>% 
+  df %>% 
   group_by(borough) %>% 
-  summarise(mean_value = mean(full_market_value)) %>% 
-  ggplot(aes(x = borough, y = mean_value))+
-  geom_point()
+  summarise(mean_value = mean(full_market_value),
+            value_sd  = sd(full_market_value)) %>% 
+  mutate(borough = fct_reorder(borough,mean_value)) %>% 
+  ggplot(aes(x = borough, y = mean_value, fill = borough))+ 
+  geom_bar(stat = 'identity')+
+  scale_fill_manual(values=c("#D9B489", "#D49F3A", "#BC3D1C", "#4C372D", "#E8E3B9"))+
+  coord_flip()+
+
+  theme_bw()
+
 
 plot_borough
 ```
@@ -208,7 +203,7 @@ plot_neighbor =
     name = "Classification", 
     discrete = TRUE
   )+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 
 plot_neighbor
 ```
@@ -233,7 +228,7 @@ plot_neighbor_1 =
     name = "Classification", 
     discrete = TRUE
   )+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 
 plot_neighbor_1
 ```
@@ -258,7 +253,7 @@ plot_neighbor_2 =
     name = "Classification", 
     discrete = TRUE
   )+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 
 plot_neighbor_2
 ```
@@ -276,16 +271,34 @@ plot_neighbor_3 =
   theme_bw()+ 
   labs(
     title = "Neighborhood vs value",
- 
+    x = "Neighborhood",
     y = "Mean Value"
   )+ 
   viridis::scale_color_viridis(
     name = "Classification", 
     discrete = TRUE
   )+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 
 plot_neighbor_3
+```
+
+
+```{r}
+transformed_rental_income %>% 
+  drop_na() %>% 
+  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  geom_point(alpha = .3, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Total Market Value vs Year",
+    x = "Year the building was built",
+    y = "Total Market Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
 ```
 
 ```{r}
@@ -304,24 +317,6 @@ comparable_rental_income_raw %>%
     discrete = TRUE
   )
 ```
-
-```{r}
-comparable_rental_income %>% 
-  drop_na() %>% 
-  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
-  geom_point(alpha = .8, size = 0.8)+ 
-  theme_bw()+ 
-  labs(
-    title = "Total Market Value vs Year",
-    x = "Year the building was built",
-    y = "Total Market Value"
-  )+ 
-  viridis::scale_color_viridis(
-    name = "Classification", 
-    discrete = TRUE
-  )
-```
-
 
 ```{r}
 comparable_rental_income_raw %>% 
@@ -359,7 +354,7 @@ comparable_rental_income_raw %>%
 
 ```{r}
 comparable_rental_income_raw %>% 
-  
+  drop_na() %>% 
   ggplot(aes(x = year_built_3, y = full_market_value_3,color = building_classification_3))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
