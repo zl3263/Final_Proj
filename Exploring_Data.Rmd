@@ -33,7 +33,7 @@ df =
     )
 ```
 
-
+# Focus on amount and value
 ```{r }
 df %>% 
   mutate(borough = fct_reorder(borough, full_market_value)) %>% 
@@ -53,22 +53,17 @@ df %>%
 
 ```{r}
 df %>% 
-  group_by(borough) %>%
-  summarise(
-    mean_value = mean(full_market_value)
-  ) %>%
-  mutate(borough = fct_reorder(borough, mean_value)) %>% 
-  plot_ly(y = ~borough, 
-          x = ~mean_value, 
-          color = ~borough, 
-          type = "bar", 
-          colors = "viridis",
-          orientation = 'h') %>%
-  layout(title = 'Mean Values of each Borough')
+  mutate(borough = fct_reorder(borough, full_market_value)) %>% 
+  plot_ly(y = ~log(full_market_value), color = ~borough, type = "box", colors = "viridis") %>%
+  layout(
+    xaxis = list(title = 'Borough'),
+    yaxis = list(title = 'log(Market value)')
+  )
 ```
+According to the histogram plot and box plot, we can see that the order of mean value is Manhattan, Queens, Brooklyn, Bronx and Staten Island from the highest to the lowest.
+Both number and mean value of rentals in Manhattan take the head in five boroughs.
 
-According to the histogram plot, we can see that the order of mean value is Manhattan, Queens, Brooklyn, Bronx and Staten Island from the highest to the lowest.
-Both number and mean value of rentals in Manhattan take the head.
+# Neighborhood with top mean value
 
 
 ## The proportion of each building classification
