@@ -21,7 +21,7 @@ library(tidyverse)
     ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
     ## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
     ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
-    ## ✔ tidyr   1.2.0      ✔ stringr 1.4.1 
+    ## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
     ## ✔ readr   2.1.2      ✔ forcats 0.5.2 
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
@@ -31,17 +31,13 @@ library(tidyverse)
 library(corrplot)
 ```
 
-    ## Warning: 程辑包'corrplot'是用R版本4.2.2 来建造的
-
     ## corrplot 0.92 loaded
 
 ``` r
 library(sf)
 ```
 
-    ## Warning: 程辑包'sf'是用R版本4.2.2 来建造的
-
-    ## Linking to GEOS 3.9.3, GDAL 3.5.2, PROJ 8.2.1; sf_use_s2() is TRUE
+    ## Linking to GEOS 3.10.2, GDAL 3.4.2, PROJ 8.2.1; sf_use_s2() is TRUE
 
 In the origin data, each properties are compared with three comparable
 rentals. So in total, information of four building(sets) forms one
@@ -285,107 +281,3 @@ save(transformed_rental_income, file = "data/cleaned_data.RData")
 # because shiny can only access its own directory....
 save(transformed_rental_income, file = "Shiny_Map/cleaned_data.RData")
 ```
-
-## plots
-
-\#built year vs value
-
-``` r
-comparable_rental_income_raw %>% 
-  
-  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
-  geom_point(alpha = .8, size = 0.8)+ 
-  theme_bw()+ 
-  labs(
-    title = "Total Market Value vs Year",
-    x = "Year the building was built",
-    y = "Total Market Value"
-  )+ 
-  viridis::scale_color_viridis(
-    name = "Classification", 
-    discrete = TRUE
-  )
-```
-
-![](preprocessing1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-
-``` r
-plot_neighbor = 
-  comparable_rental_income_raw %>% 
-  drop_na() %>% 
-  group_by(neighborhood) %>% 
-  summarise(mean_value = mean(full_market_value)) %>% 
-  mutate(neighborhood = fct_reorder(neighborhood,mean_value)) %>% 
-  filter(mean_value > 29000000) %>% 
-  ggplot(aes(x = neighborhood, y = mean_value))+
-  geom_point(alpha = .8, size = 0.8)+ 
-  theme_bw()+ 
-  labs(
-    title = "Neighborhood vs value",
-    x = "Neighborhood",
-    y = "Mean Value"
-  )+ 
-  viridis::scale_color_viridis(
-    name = "Classification", 
-    discrete = TRUE
-  )+
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1))
-
-plot_neighbor
-```
-
-![](preprocessing1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
-
-``` r
-comparable_rental_income_raw %>% 
-  
-  ggplot(aes(x = estimated_gross_income, y = estimated_expense,color = building_classification))+
-  geom_point(alpha = .8, size = 0.8)+ 
-  theme_bw()+ 
-  labs(
-    title = "Expense vs Income",
-    x = "Estimated Income",
-    y = "Estimated Expense"
-  )+ 
-  viridis::scale_color_viridis(
-    name = "Classification", 
-    discrete = TRUE
-  )
-```
-
-![](preprocessing1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-correlation
-
-``` r
-rentalincom_c1_1 = 
-  rentalincom_c1 %>%
-  drop_na()
-# Plot the correlation
-corr = data.frame(lapply(lapply(rentalincom_c1_1, as.factor), as.numeric))
-corrplot(cor(corr), type = "lower")
-```
-
-![](preprocessing1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
-
-``` r
-rentalincom_c2_1 = 
-  rentalincom_c2 %>%
-  drop_na()
-# Plot the correlation
-corr = data.frame(lapply(lapply(rentalincom_c2_1, as.factor), as.numeric))
-corrplot(cor(corr), type = "lower")
-```
-
-![](preprocessing1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
-
-``` r
-rentalincom_c3_1 = 
-  rentalincom_c3 %>%
-  drop_na()
-# Plot the correlation
-corr = data.frame(lapply(lapply(rentalincom_c3_1, as.factor), as.numeric))
-corrplot(cor(corr), type = "lower")
-```
-
-![](preprocessing1_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
-\`\`\`
