@@ -9,8 +9,6 @@ output:
 
 This page gives a overview on investigating our dataset.
 
-## Investigation based on borough
-
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(plotly)
@@ -65,7 +63,7 @@ df %>%
 According to the histogram plot and box plot, we can see that the order of mean value is Manhattan, Queens, Brooklyn, Bronx and Staten Island from the highest to the lowest.
 Both number and mean value of rentals in Manhattan take the head in five boroughs.
 
-# Neighborhood with top 5 mean value
+# Neighborhoods with top 5 mean value
 # Manhattan
 ```{r}
 df %>% 
