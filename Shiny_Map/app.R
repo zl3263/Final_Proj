@@ -13,6 +13,7 @@ library(terra)
 # Now avaliable on https://nuc-rental-income.shinyapps.io/shiny_map/
 #setwd("Shiny_Map")
 load("cleaned_data.RData")
+load("heatmap.RData")
 
 #block_edge = geojsonio::geojson_read("zoning_boundary.json",what  = "sp")
 #block_edge =  geojsonio::geojson_read("E:/Data_Science/Final_Proj/data/2000 Census Blocks.geojson",what  = "sp") 
@@ -119,10 +120,9 @@ server <- function(input, output) {
       filter(BORO==1) %>%
       sf_geojson()
       
-    heatmap = rast(ncol=200, nrow=200, xmin=-74.23, xmax=-73.75, ymin=40.5, ymax=40.9)
-    values(heatmap) <- runif(ncell(heatmap))
-    heatmap=raster(heatmap)
-    pal <- colorNumeric("viridis", values(heatmap))
+    
+
+    pal <- colorNumeric("viridis", values(heatmap),na.color = "transparent")
     
     
     output$map <- renderLeaflet({
@@ -165,7 +165,7 @@ server <- function(input, output) {
       }
       else if(input$heatmap_option == 2){
         leafletProxy("map") %>%
-          addRasterImage(heatmap,colors = pal,opacity = 0.2)
+          addRasterImage(heatmap,colors = pal,opacity = 0.3)
       }
     })
     
