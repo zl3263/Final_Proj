@@ -7,6 +7,8 @@ library(sf)
 library(shinyWidgets)
 library(geojsonio)
 library(geojsonsf)
+library(raster)
+library(terra)
 
 # Now avaliable on https://nuc-rental-income.shinyapps.io/shiny_map/
 #setwd("Shiny_Map")
@@ -72,6 +74,16 @@ ui <- bootstrapPage(
       width = "30%"
     ),
     radioButtons(
+      "heatmap_option",
+      label = "Select heatmap",
+      choices = list(
+        "None" = 1,
+        "Test" = 2
+      ),
+      selected = 1,
+      inline = TRUE
+    ),
+    radioButtons(
       "display_option",
       label = "Select display option",
       choices = list(
@@ -107,18 +119,24 @@ server <- function(input, output) {
       filter(BORO==1) %>%
       sf_geojson()
       
+    heatmap = rast(ncol=200, nrow=200, xmin=-74.23, xmax=-73.75, ymin=40.5, ymax=40.9)
+    values(heatmap) <- runif(ncell(heatmap))
+    heatmap=raster(heatmap)
+    pal <- colorNumeric("viridis", values(heatmap))
+    
+    
     output$map <- renderLeaflet({
       leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
-      addProviderTiles("CartoDB.Positron") %>%
-      setView(lng = -73.974, lat = 40.762, zoom = 12) %>%
-      #addPolygons(
-      #  smoothFactor = 0.3,
-      #  color = "#444444",
-      #  weight=1,
-      #  fillColor = "transparent",
-      #  label = ~paste(as.character(BORO),"-",as.character(BLOCK))
-      #)
-      addGeoJSON(block_edge_new, weight = 1, color = "#444444", fillColor = "transparent")
+        addProviderTiles("CartoDB.Positron") %>%
+        setView(lng = -73.974, lat = 40.762, zoom = 12) %>%
+        #addPolygons(
+        #  smoothFactor = 0.3,
+        #  color = "#444444",
+        #  weight=1,
+        #  fillColor = "transparent",
+        #  label = ~paste(as.character(BORO),"-",as.character(BLOCK))
+        #) 
+        addGeoJSON(block_edge_new, weight = 1, color = "#444444", fillColor = "transparent")
     })
     output$test <- renderText({
       "Please select block"
@@ -126,7 +144,7 @@ server <- function(input, output) {
     output$record <- renderDataTable({
       transformed_rental_income %>%
         filter(boro_block == 100011) %>%
-        select(
+        dplyr::select(
           boro_block,
           address,
           neighborhood,
@@ -139,6 +157,20 @@ server <- function(input, output) {
           report_year
         ) 
     })
+    
+    observe({
+      if(input$heatmap_option == 1){
+        leafletProxy("map") %>%
+          clearImages()
+      }
+      else if(input$heatmap_option == 2){
+        leafletProxy("map") %>%
+          addRasterImage(heatmap,colors = pal,opacity = 0.2)
+      }
+    })
+    
+    
+    
     observe({
       selected_boro = as.numeric(input$selected_boro)
       display_option = as.numeric(input$display_option)
@@ -228,7 +260,7 @@ server <- function(input, output) {
             report_year >= input$report_year[1],
             report_year <= input$report_year[2]
           ) %>%
-          select(
+          dplyr::select(
             boro_block,
             address,
             neighborhood,
