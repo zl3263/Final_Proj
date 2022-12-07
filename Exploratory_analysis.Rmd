@@ -502,13 +502,4 @@ comparable_rental_income_raw %>%
 
 ```
 
-```{r}
-
-c_df = as_tibble(table(df['building_classification']))
-```
-
-```{r}
-plot_ly(c_df, labels = ~building_classification , values = ~n, type = 'pie')
-```
-
 
