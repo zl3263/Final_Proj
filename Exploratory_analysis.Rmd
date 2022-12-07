@@ -365,7 +365,8 @@ plot_neighbor_3
 ```{r}
 transformed_rental_income %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  mutate(classification = substr(building_classification, 4, 12)) %>% 
+  ggplot(aes(x = year_built, y = full_market_value,color = classification))+
   geom_point(alpha = .3, size = 0.8)+ 
   theme_bw()+ 
   labs(
@@ -382,7 +383,8 @@ transformed_rental_income %>%
 ```{r}
 comparable_rental_income_raw %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  mutate(classification = substr(building_classification, 4, 12)) %>% 
+  ggplot(aes(x = year_built, y = full_market_value,color = classification))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
   labs(
@@ -399,7 +401,8 @@ comparable_rental_income_raw %>%
 ```{r}
 comparable_rental_income_raw %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built_1, y = full_market_value_1, color = building_classification_1))+
+  mutate(classification_1 = substr(building_classification_1, 4, 12)) %>% 
+  ggplot(aes(x = year_built_1, y = full_market_value_1, color = classification_1))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
   labs(
@@ -416,7 +419,8 @@ comparable_rental_income_raw %>%
 ```{r}
 comparable_rental_income_raw %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built_2, y = full_market_value_2,color = building_classification_2))+
+  mutate(classification_2 = substr(building_classification_2, 4, 12)) %>% 
+  ggplot(aes(x = year_built_2, y = full_market_value_2,color = classification_2))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
   labs(
@@ -433,7 +437,8 @@ comparable_rental_income_raw %>%
 ```{r}
 comparable_rental_income_raw %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built_3, y = full_market_value_3,color = building_classification_3))+
+  mutate(classification_3 = substr(building_classification_3, 4, 12)) %>% 
+  ggplot(aes(x = year_built_3, y = full_market_value_3,color = classification_3))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
   labs(
