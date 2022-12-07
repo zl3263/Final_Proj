@@ -16,6 +16,8 @@ library(tidyverse)
 library(plotly)
 library(patchwork)
 library(kableExtra)
+library(GGally)
+library(corrplot)
 load("data/cleaned_data.RData")
 ```
 
@@ -131,15 +133,6 @@ df %>%
 ## The proportion of each building classification
 
 ```{r}
-
-c_df = as_tibble(table(df['building_classification']))
-```
-
-```{r}
-plot_ly(c_df, labels = ~building_classification , values = ~n, type = 'pie')
-```
-
-```{r}
 ddf = 
   df %>% 
   mutate(classification = substr(building_classification, 4, 12))
@@ -148,7 +141,55 @@ cc_df = as_tibble(table(ddf['classification']))
 ```
 
 ```{r}
-plot_ly(cc_df, labels = ~classification , values = ~n, type = 'pie')
+plot_ly(cc_df, labels = ~classification , values = ~n, textposition = 'inside', marker = list(colors = c("#E8E3B9", "679289")), type = 'pie')
+```
+
+# Overview on the trend of total value over years
+
+```{r}
+ddf %>% 
+  ggplot(aes(x = year_built, y = full_market_value,color = classification))+
+  geom_point(alpha = .5, size = 0.8)+ 
+  theme_bw()+ 
+  labs(
+    title = "Total Market Value vs Year",
+    x = "Year the building was built",
+    y = "Total Market Value"
+  )+ 
+  viridis::scale_color_viridis(
+    name = "Classification", 
+    discrete = TRUE
+  )
+  
+```
+
+# Stratified by Borough
+```{r}
+line_df = ddf %>% 
+  group_by(borough, year_built) %>% 
+  summarise(mean_value_year = mean(full_market_value)) %>% 
+  ggplot(aes(x = year_built, y = mean_value_year, color = borough))+
+  geom_line()+ 
+  theme_bw()+
+  facet_wrap(~borough, ncol=3)+ 
+  scale_colour_manual(values=c("#D9B489", "#D49F3A", "#BC3D1C", "#4C372D", "#E8E3B9"))
+
+fig <- ggplotly(line_df)
+
+fig
+
+```
+
+
+
+# Overview on the correlation between variables
+```{r}
+dddf = 
+  ddf %>% 
+  select(-report_year, -boro_block, -lot, -building_classification, -address, -zoning)
+# Plot the correlation
+corr = data.frame(lapply(lapply(dddf, as.factor), as.numeric))
+corrplot(cor(corr), type = "lower", method = 'color', tl.col = "black",tl.cex=0.8, tl.srt=50)
 ```
 
 
