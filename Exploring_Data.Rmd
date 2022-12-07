@@ -143,6 +143,7 @@ cc_df = as_tibble(table(ddf['classification']))
 ```{r}
 plot_ly(cc_df, labels = ~classification , values = ~n, textposition = 'inside', marker = list(colors = c("#E8E3B9", "679289")), type = 'pie')
 ```
+There are much more buildings with elevator than walk-up ones.
 
 # Overview on the trend of total value over years
 
@@ -162,6 +163,7 @@ ddf %>%
   )
   
 ```
+Obviously, the mean value of walk-up buildings is lower than the elevator ones.
 
 # Stratified by Borough
 ```{r}
@@ -179,7 +181,8 @@ fig <- ggplotly(line_df)
 fig
 
 ```
-
+Only rentals in Manhattan shows an increasing trend of mean values.
+The mean values of rentals in Staten Island keep stable in the pass decades and we did not see dramatic fluctuations just like other four boroughs.
 
 
 # Overview on the correlation between variables
