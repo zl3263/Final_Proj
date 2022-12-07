@@ -39,6 +39,7 @@ This dataset contains the income and expense statements of condominium and compa
 
 
 
+## To be removed 
 
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -80,32 +81,32 @@ address to lat and long
 ```{r eval=FALSE}
 Manhattan_data = transformed_rental_income %>%
   filter(
-    borough == "Manhattan"
+    borough == "Staten Island"
   ) %>% 
   group_by(address) %>%
   summarise(
     times = n()
   ) %>%
   mutate(
-    address = paste(address,"Manhattan",sep = ",")
+    address = paste(address,"Staten Island",sep = ",")
   )
 
 Manhattan_data$latlona = map(.x = Manhattan_data$address, ~ geocode(.x, output = "latlona", source = "google"))
-save(Manhattan_data, file = "data/Manhattan_latlonmap.RData")
+save(Manhattan_data, file = "data/Staten_Island_latlonmap.RData")
 
 #
 
 #load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
 #again?
-load("data/Manhattan_latlonmap.RData")
+load("data/Staten_Island_latlonmap.RData")
 
 
 colnames(Manhattan_data) = c("address1","times","latlona")
-Manhattan_data = Manhattan_data %>%
+Staten_Island_data = Manhattan_data %>%
   unnest(cols = latlona) %>%
   select(-address)
-colnames(Manhattan_data) = c("address","times","lon","lat")
-save(Manhattan_data, file = "data/Manhattan_latlonmap.RData")
+colnames(Staten_Island_data) = c("address","times","lon","lat")
+save(Staten_Island_data, file = "data/Staten_Island_latlonmap.RData")
 ```
 
 ```{r message=FALSE, warning=FALSE}
