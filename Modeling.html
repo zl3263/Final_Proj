@@ -391,11 +391,15 @@ div.tocify {
 </div>
 
 
-<p><em>Add code here</em></p>
-
-
-
-</div>
+<div id="Model Selection" class="section level1">
+		<h3>Model Selection</h3>
+		<p>We need to forecast the monthly housing rent based on 17 characteristic values. This is a regression problem. In this paper, we have tried the following different models for training and prediction, and selected several models with better effects for model fusion to get the final model.</p>		
+		<h4>（1）LightGBM</h4>
+		<h4>（2）XGBoost</h4>
+		<p>The algorithm measures the regression model by calculating the root mean square error of the predicted value and the real monthly rent. The smaller the root mean square error is, the better the regression model is. The calculation formula of root mean square error is as follows:
+Where, n is the number of samples; - Forecast monthly rent; X - actual monthly rent;
+We bring the training set data into different models to get the prediction results and compare them with the original target data (rent) to calculate RMSE:
+</p>
 </div>
 
 </div>
