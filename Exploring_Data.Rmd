@@ -206,7 +206,6 @@ Kurtosis value: it can be used to measure the steepness of the probability distr
 
 View the rent distribution curve and draw a curve distribution diagram and rent scatter diagram、
 
-![1.png](https://pic.jitudisk.com/public/2022/12/08/2082b744e551e.png)
 
 First, observe the rent data. It can be seen that this data is in  line with the normal distribution, but the skewness value is too large.  We found a big tail. The "rent" value distribution has obvious skewness, so we will correct it later.
 
@@ -214,7 +213,7 @@ First, observe the rent data. It can be seen that this data is in  line with the
 
 Next, let's take a look at the impact of some important attributes  on the results The histogram is used to show the data distribution. Generally speaking, it refers to which piece of data accounts for a high proportion or  number of occurrences, and which piece has a low probability of  occurrence. The following figure shows the occurrence of 18 attributes
 
-![2.png](https://pic.jitudisk.com/public/2022/12/08/5dbb2d328b88d.png)
+![](https://pic.jitudisk.com/public/2022/12/08/5dbb2d328b88d.png)
 
 Continuous variables include: community name (Cname),  rent_quantity, total floors, position, subway_station, distance, rent,  and the rest are discrete variables.
 
@@ -222,21 +221,21 @@ Continuous variables include: community name (Cname),  rent_quantity, total floo
 
 Box diagram of bedroom number and rent
 
-![3.png](https://pic.jitudisk.com/public/2022/12/08/08c88f05ff5e1.png)
+![](https://pic.jitudisk.com/public/2022/12/08/08c88f05ff5e1.png)
 
 Box diagram of living room number and rent
 
-![4.png](https://pic.jitudisk.com/public/2022/12/08/2d906371c4a89.png)
+![](https://pic.jitudisk.com/public/2022/12/08/2d906371c4a89.png)
 
 Box diagram of area and subway_line
 
-![5.png](https://pic.jitudisk.com/public/2022/12/08/b9ecaff2d2f03.png)
+![](https://pic.jitudisk.com/public/2022/12/08/b9ecaff2d2f03.png)
 
 (4) Correlation analysis
 
 Analyze the correlation degree between different factors affecting  housing price and housing price, and analyze the correlation degree  through the correlation graph. Qualitative and visual analysis of the correlation between different  factors affecting housing price and housing price with bar chart
 
-![6.png](https://pic.jitudisk.com/public/2022/12/08/1dffa8519c533.png)
+![](https://pic.jitudisk.com/public/2022/12/08/1dffa8519c533.png)
 
 ### Data cleaning
 
@@ -244,15 +243,15 @@ Because the data may be incomplete, noisy, random, and have complex data structu
 
 Outlier processing
 
-![7.png](https://pic.jitudisk.com/public/2022/12/08/8ad3f3e6874a5.png)![8.png](https://pic.jitudisk.com/public/2022/12/08/21a684dbdd7cd.png)
+![](https://pic.jitudisk.com/public/2022/12/08/8ad3f3e6874a5.png)![](https://pic.jitudisk.com/public/2022/12/08/21a684dbdd7cd.png)
 
 ### Deviation correction
 
-![9.png](https://pic.jitudisk.com/public/2022/12/08/432a06bc060cc.png)
+![](https://pic.jitudisk.com/public/2022/12/08/432a06bc060cc.png)
 
 Normal distribution transformation: the tail behind is too long,  and it needs to be corrected (logarithmic transformation of data)
 
-![10.png](https://pic.jitudisk.com/public/2022/12/08/0ef458bf19af7.png)![11.png](https://pic.jitudisk.com/public/2022/12/08/fc2481b41ed03.png)![12.png](https://pic.jitudisk.com/public/2022/12/08/f4e557c13620b.png)
+![](https://pic.jitudisk.com/public/2022/12/08/0ef458bf19af7.png)![](https://pic.jitudisk.com/public/2022/12/08/fc2481b41ed03.png)![](https://pic.jitudisk.com/public/2022/12/08/f4e557c13620b.png)
 
 For attributes with too large missing data, you can choose to  discard them, and for attribute data with small missing data, you can  fill them:
 
@@ -288,7 +287,7 @@ all_ data["area"] = all_ data["area"].fillna(int(mode_area))
 
 all_ data["position"] = all_ data["position"].fillna(int(mode_position))
 
-![13.png](https://pic.jitudisk.com/public/2022/12/08/e97944febd565.png)
+![](https://pic.jitudisk.com/public/2022/12/08/e97944febd565.png)
 
 ### Characteristic engineering
 
