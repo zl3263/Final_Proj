@@ -1,0 +1,163 @@
+---
+title: "How to choose rental buildings?"
+output: html_document
+date: "2022-12-08"
+---
+
+
+```{r}
+# load packages and data
+library(tidyverse)
+library(plotly)
+
+load("E:/2023_autumn/DataScience/Final_Proj/data/cleaned_data.RData")
+load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
+```
+
+```{r}
+transformed_rental_income=
+  transformed_rental_income %>%
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>%
+  mutate(
+  borough = case_when(
+    borough == "1" ~ "Manhattan",
+    borough == "2" ~ "Bronx",
+    borough == "3" ~ "Brooklyn",
+    borough == "4" ~ "Queens",
+    borough == "5" ~ "Staten Island")
+  ) %>% 
+  filter(
+    borough == "Manhattan"
+  )
+
+Manhattan_data = Manhattan_data %>%
+  separate(address, into = c("address", "toremove"), sep = ",") %>%
+  select(-toremove)
+
+transformed_rental_income = 
+  left_join(transformed_rental_income, Manhattan_data, by = "address")
+```
+
+```{r}
+## Columbia university lat lon 40.80754 -73.96257
+## Hammer health science building lat lon 40.84252 -73.94243 
+
+for_map =  transformed_rental_income %>% 
+  filter(report_year > 2019) %>%
+  select(-c(latitude,longitude)) 
+
+income_sqft_M = for_map %>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~gross_income_per_sq_ft,
+    mode = 'markers',
+    alpha = 0.5,
+    hovertext = ~gross_income_per_sq_ft,
+    hoverinfo = 'text'
+  ) %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 10,
+      center = list(lat = 40.81, lon = -73.96)
+    )
+  )
+
+income_sqft_M
+```
+```{r}
+yearsbuild_M = for_map %>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~year_built,
+    mode = 'markers',
+    alpha = 0.5,
+    hovertext = ~year_built,
+    hoverinfo = 'text',
+    colors = c('red','yellow','green')
+  ) %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 10,
+      center = list(lat = 40.81, lon = -73.96)
+    )
+  )
+
+yearsbuild_M
+```
+
+what about the price in columbia university and columbia university ivery medical center?
+
+```{r}
+latCU = 40.80754
+lonCU = -73.96257
+latCUIMC = 40.84252
+lonCUIMC = -73.94243
+
+near_columbia = for_map %>%
+  filter(
+    lat >  latCU - 0.01,
+    lat < latCU + 0.01,
+    lon > lonCU -0.005,
+    lon < lonCU + 0.005
+    ) %>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~gross_income_per_sq_ft,
+    mode = 'markers',
+    alpha = 1,
+    hovertext = ~address,
+    text = ~gross_income_per_sq_ft,
+    meta = ~building_classification,
+    hovertemplate = "%{hovertext} <br> %{meta} <br>gross_income_per_sq_ft: %{text}",
+    hoverinfo = 'text',
+    colors = "Spectral"
+  )  %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 13,
+      center = list(lat = latCU, lon = lonCU)
+    )
+  )
+
+
+near_CUIMC = for_map %>% 
+  filter(
+    lat >  latCUIMC - 0.01,
+    lat < latCUIMC + 0.01,
+    lon > lonCUIMC -0.005,
+    lon < lonCUIMC + 0.005    
+  )%>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~gross_income_per_sq_ft,
+    mode = 'markers',
+    alpha = 1,
+    hovertext = ~address,
+    text = ~gross_income_per_sq_ft,
+    meta = ~building_classification,
+    hovertemplate = "%{hovertext} <br> %{meta} <br>gross_income_per_sq_ft: %{text}",
+    hoverinfo = 'text',
+    colors = "Spectral"
+  ) %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 13,
+      center = list(lat = latCUIMC, lon = lonCUIMC)
+    )
+  )
+
+subplot(near_columbia, near_CUIMC, nrows = 1, titleY = TRUE, titleX = TRUE, margin = 0.01) 
+```
+
+```{r}
+
+```
+
