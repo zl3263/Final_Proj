@@ -1,0 +1,11 @@
+name: index_predictor
+title:
+username:
+account: nuc-rental-income
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7854186
+bundleId: 6614356
+url: https://nuc-rental-income.shinyapps.io/index_predictor/
+when: 1670566266.46775
+lastSyncTime: 1670566266.46777

@@ -32,7 +32,20 @@ To attain the price information of buildings, we use the dataset published by th
 
 This dataset contains the income and expense statements of condominium and comparable rental buildings in NYC that helps people estimate the marked value of their own buildings. In each observations, a condominium/cooperative is compared with three rental buildings that have similar physical and geographical features.  We equaly treat these two kind of buildings and transformed the data shape to ensure that each observation records exactly one building.
 
-### ?
+### Sources for data
 
-### ? 
+This data is a forecast of apartment rent competition data, which is  from Kaggle. The apartment rent is predicted by apartment information published on  the Internet, such as room layout, quantity, text description, photos,  price, etc. The apartments are located in New York City.
 
+The data is from the forecast apartment rent competition:  (https://data.cityofnewyork.us/City-Government/DOF-Cooperative-Comparable-Citywide-/myei-c3fa)
+
+
+
+## Analysis purpose
+
+Use the historical data with monthly rent tags to establish different models, realize the prediction of monthly housing rent based on basic  housing information, and provide an objective measurement standard for  the city's rental market.
+
+
+
+## Analyze the problem
+
+This project will use the training set data as the sample training  model, use different models to predict the rent according to the  prediction set data, compare the performance of different models  according to the result error, and hope to determine the model  applicable to the monthly housing rent prediction.

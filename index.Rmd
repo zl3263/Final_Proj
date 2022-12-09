@@ -5,3 +5,7 @@ output:
 
 ---
 The index page
+
+
+
+<iframe height="400" width="100%" frameborder="no" src="https://nuc-rental-income.shinyapps.io/index_predictor/"> </iframe>
