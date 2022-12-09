@@ -9,6 +9,7 @@ library(geojsonio)
 library(geojsonsf)
 library(raster)
 library(terra)
+library(rgdal)
 
 # Now avaliable on https://nuc-rental-income.shinyapps.io/shiny_map/
 #setwd("Shiny_Map")
