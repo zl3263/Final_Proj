@@ -15,7 +15,7 @@
 
 <title>Untitled</title>
 
-<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.18/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
@@ -183,8 +183,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -192,16 +192,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -319,737 +312,416 @@ $(document).ready(function () {
 </div>
 
 
-<pre class="r"><code>zoning = read_csv(&#39;./data/taxlot_to_zoning.csv&#39;) %&gt;%
-  janitor::clean_names()</code></pre>
 <pre class="r"><code>load(&#39;./data/cleaned_data.RData&#39;)
 
 data_1 = transformed_rental_income %&gt;%
   separate(boro_block_lot, into = c(&quot;borough&quot;, &quot;block&quot;, &quot;lot&quot;), sep = &quot;-&quot;) %&gt;%
-  unite(col = &quot;bbl&quot;, c(&quot;borough&quot;, &quot;block&quot;, &quot;lot&quot;), sep = &quot;&quot;, remove = FALSE) %&gt;%
-  mutate(bbl = as.numeric(bbl))
+  filter(!building_classification %in% c(&#39;C8-WALK-UP&#39;,&#39;D2-ELEVATOR&#39;)) %&gt;% # delete factors with too small quantity
+  mutate(borough = factor(borough),
+         neighborhood = factor(neighborhood),
+         building_classification = factor(building_classification))
+  #select(-block, -lot, -zoning, -boro_block, -block_id, -address)
 
-joined_data = data_1 %&gt;% left_join(zoning, by = &quot;bbl&quot;) %&gt;% drop_na(zoning_district_1)
+# joined_data = data_1 %&gt;% left_join(zoning, by = &quot;bbl&quot;) %&gt;% drop_na(zoning_district_1)
 
-dist_zo = joined_data %&gt;%
-  distinct(zoning_district_1) 
 
-dist_ne = joined_data %&gt;%
-  distinct(neighborhood) 
 
-dist_bc = joined_data %&gt;%
-  distinct(building_classification)
+# dist_zo = transformed_rental_income %&gt;%
+#   distinct(zoning) 
+# 
+# dist_ne = transformed_rental_income %&gt;%
+#   distinct(neighborhood) 
+# 
+# dist_bc = transformed_rental_income %&gt;%
+#    distinct(building_classification)
+# 
+# bc = transformed_rental_income %&gt;%
+#   select(building_classification) %&gt;% Hmisc::describe()
+# 
+# bc
 
-Hmisc::describe(joined_data)
 
-joined_data = joined_data %&gt;%
+# joined_data = joined_data %&gt;%
+#   mutate(
+#     zoning = factor(zoning_district_1, levels = dist_zo$zoning_district_1, labels = dist_zo$zoning_district_1),
+#     neighborhood = factor(neighborhood, levels = dist_ne$neighborhood, labels = dist_ne$neighborhood),
+#     building_classification = factor(building_classification, levels = dist_bc$building_classification, labels = dist_bc$building_classification)
+#   ) 
+
+
+
+p1 = data_1 %&gt;%
+  ggplot(aes(x = latitude)) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#F0E442&quot;,
+                 alpha = 0.75,
+                 bins = 10)</code></pre>
+<pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#F0E442&quot;, :
+## Ignoring unknown parameters: `bins`</code></pre>
+<pre class="r"><code>p2 = data_1 %&gt;%
+  ggplot(aes(x = longitude)) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#0072B2&quot;,
+                 alpha = 0.75,
+                 bins = 10)</code></pre>
+<pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#0072B2&quot;, :
+## Ignoring unknown parameters: `bins`</code></pre>
+<pre class="r"><code>p3 = data_1 %&gt;%
+  ggplot(aes(x = log(total_units))) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#CC79A7&quot;,
+                 alpha = 0.75,
+                 bins = 10)</code></pre>
+<pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#CC79A7&quot;, :
+## Ignoring unknown parameters: `bins`</code></pre>
+<pre class="r"><code>p4 = data_1 %&gt;%
+  ggplot(aes(x = year_built)) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#D55E00&quot;,
+                 alpha = 0.75,
+                 bins = 10)</code></pre>
+<pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#D55E00&quot;, :
+## Ignoring unknown parameters: `bins`</code></pre>
+<pre class="r"><code>p5 = data_1 %&gt;%
+  ggplot(aes(x = log(gross_sq_ft))) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#56B4E9&quot;,
+                 alpha = 0.75,
+                 bins = 10)</code></pre>
+<pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#56B4E9&quot;, :
+## Ignoring unknown parameters: `bins`</code></pre>
+<pre class="r"><code>p6 = data_1 %&gt;%
+  ggplot(aes(x = log(estimated_gross_income))) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#009E73&quot;,
+                 alpha = 0.75,
+                 bins = 10)</code></pre>
+<pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#009E73&quot;, :
+## Ignoring unknown parameters: `bins`</code></pre>
+<pre class="r"><code># normality test
+p1 + p2 + p3 + p4 + p5 + p6 </code></pre>
+<p><img src="preliminary_modeling_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<pre class="r"><code>#### log_estimated_gross_income
+
+data_egi = data_1 %&gt;%
   mutate(
-    zoning = factor(zoning_district_1, levels = dist_zo$zoning_district_1, labels = dist_zo$zoning_district_1),
-    neighborhood = factor(neighborhood, levels = dist_ne$neighborhood, labels = dist_ne$neighborhood),
-    building_classification = factor(building_classification, levels = dist_bc$building_classification, labels = dist_bc$building_classification)
-  ) </code></pre>
-<pre class="r"><code>#### estimated_gross_income
+    log_total_units = log(total_units),
+    log_gross_sq_ft = log(gross_sq_ft),
+    log_estimated_gross_income = log(estimated_gross_income)
+  ) %&gt;%
+  select(latitude, longitude, building_classification, borough,
+         log_total_units, year_built, log_gross_sq_ft,  
+         log_estimated_gross_income)
 
-data_egi = joined_data %&gt;%
-  select(zoning, neighborhood, building_classification, 
-         total_units, year_built, gross_sq_ft, 
-         estimated_gross_income)
+io_eg = lm(log_estimated_gross_income ~ 1, data = data_egi)
 
-io_eg = lm(estimated_gross_income ~ 1, data = data_egi)
-
-all_eg = lm(estimated_gross_income ~ ., data = data_egi)
+all_eg = lm(log_estimated_gross_income ~ ., data = data_egi)
 
 egi_fit = step(io_eg, direction = &quot;both&quot;, scope = formula(all_eg), trace = 0)
 
 equatiomatic::extract_eq(egi_fit, use_coefs = TRUE)</code></pre>
 <p><span class="math display">\[
-\operatorname{estimated\_gross\_income} = \alpha +
-\beta_{1}(\operatorname{gross\_sq\_ft}) +
-\beta_{2}(\operatorname{neighborhood}_{\operatorname{SOUTHBRIDGE}}) +
-\beta_{3}(\operatorname{neighborhood}_{\operatorname{CIVIC\ CENTER}}) +
-\beta_{4}(\operatorname{neighborhood}_{\operatorname{TRIBECA}}) +
-\beta_{5}(\operatorname{neighborhood}_{\operatorname{CHINATOWN}}) +
-\beta_{6}(\operatorname{neighborhood}_{\operatorname{SOHO}}) +
-\beta_{7}(\operatorname{neighborhood}_{\operatorname{LOWER\ EAST\
-SIDE}}) + \beta_{8}(\operatorname{neighborhood}_{\operatorname{ALPHABET\
-CITY}}) + \beta_{9}(\operatorname{neighborhood}_{\operatorname{EAST\
-VILLAGE}}) +
-\beta_{10}(\operatorname{neighborhood}_{\operatorname{LITTLE\ ITALY}}) +
-\beta_{11}(\operatorname{neighborhood}_{\operatorname{GREENWICH\
-VILLAGE-CENTRAL}}) +
-\beta_{12}(\operatorname{neighborhood}_{\operatorname{GREENWICH\
-VILLAGE-WEST}}) +
-\beta_{13}(\operatorname{neighborhood}_{\operatorname{CHELSEA}}) +
-\beta_{14}(\operatorname{neighborhood}_{\operatorname{JAVITS\ CENTER}})
-+ \beta_{15}(\operatorname{neighborhood}_{\operatorname{FASHION}}) +
-\beta_{16}(\operatorname{neighborhood}_{\operatorname{FLATIRON}}) +
-\beta_{17}(\operatorname{neighborhood}_{\operatorname{MURRAY\ HILL}}) +
-\beta_{18}(\operatorname{neighborhood}_{\operatorname{GRAMERCY}}) +
-\beta_{19}(\operatorname{neighborhood}_{\operatorname{KIPS\ BAY}}) +
-\beta_{20}(\operatorname{neighborhood}_{\operatorname{MIDTOWN\ WEST}}) +
-\beta_{21}(\operatorname{neighborhood}_{\operatorname{CLINTON}}) +
-\beta_{22}(\operatorname{neighborhood}_{\operatorname{UPPER\ WEST\ SIDE\
-(59-79)}}) +
-\beta_{23}(\operatorname{neighborhood}_{\operatorname{UPPER\ WEST\ SIDE\
-(79-96)}}) +
-\beta_{24}(\operatorname{neighborhood}_{\operatorname{MIDTOWN\ CBD}}) +
-\beta_{25}(\operatorname{neighborhood}_{\operatorname{MIDTOWN\ EAST}}) +
-\beta_{26}(\operatorname{neighborhood}_{\operatorname{FLUSHING-NORTH}})
-+ \beta_{27}(\operatorname{neighborhood}_{\operatorname{UPPER\ EAST\
-SIDE\ (59-79)}}) +
-\beta_{28}(\operatorname{neighborhood}_{\operatorname{UPPER\ EAST\ SIDE\
-(79-96)}}) +
-\beta_{29}(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE/JEROME\
-PARK}}) +
-\beta_{30}(\operatorname{neighborhood}_{\operatorname{HARLEM-CENTRAL}})
-+ \beta_{31}(\operatorname{neighborhood}_{\operatorname{UPPER\ EAST\
-SIDE\ (96-110)}}) +
-\beta_{32}(\operatorname{neighborhood}_{\operatorname{HARLEM-EAST}}) +
-\beta_{33}(\operatorname{neighborhood}_{\operatorname{MANHATTAN\
-VALLEY}}) + \beta_{34}(\operatorname{neighborhood}_{\operatorname{UPPER\
-WEST\ SIDE\ (96-116)}}) +
-\beta_{35}(\operatorname{neighborhood}_{\operatorname{MORNINGSIDE\
-HEIGHTS}}) +
-\beta_{36}(\operatorname{neighborhood}_{\operatorname{HARLEM-WEST}}) +
-\beta_{37}(\operatorname{neighborhood}_{\operatorname{HARLEM-UPPER}}) +
-\beta_{38}(\operatorname{neighborhood}_{\operatorname{WASHINGTON\
-HEIGHTS\ LOWER}}) +
-\beta_{39}(\operatorname{neighborhood}_{\operatorname{WASHINGTON\
-HEIGHTS\ UPPER}}) +
-\beta_{40}(\operatorname{neighborhood}_{\operatorname{INWOOD}}) +
-\beta_{41}(\operatorname{neighborhood}_{\operatorname{MOTT\ HAVEN/PORT\
-MORRIS}}) +
-\beta_{42}(\operatorname{neighborhood}_{\operatorname{MORRISANIA/LONGWOOD}})
+\operatorname{\widehat{log\_estimated\_gross\_income}} = 4.04 +
+0.96(\operatorname{\log\_gross\_sq\_ft}) -
+0.54(\operatorname{borough}_{\operatorname{2}}) -
+0.9(\operatorname{borough}_{\operatorname{3}}) -
+0.51(\operatorname{borough}_{\operatorname{4}}) -
+1.34(\operatorname{borough}_{\operatorname{5}}) -
+2.39(\operatorname{latitude}) +
+0.03(\operatorname{building\_classification}_{\operatorname{C4-WALK-UP}})
 +
-\beta_{43}(\operatorname{neighborhood}_{\operatorname{MELROSE/CONCOURSE}})
+0.21(\operatorname{building\_classification}_{\operatorname{C5-WALK-UP}})
 +
-\beta_{44}(\operatorname{neighborhood}_{\operatorname{HIGHBRIDGE/MORRIS\
-HEIGHTS}}) +
-\beta_{45}(\operatorname{neighborhood}_{\operatorname{HUNTS\ POINT}}) +
-\beta_{46}(\operatorname{neighborhood}_{\operatorname{MOUNT\ HOPE/MOUNT\
-EDEN}}) + \beta_{47}(\operatorname{neighborhood}_{\operatorname{CROTONA\
-PARK}}) + \beta_{48}(\operatorname{neighborhood}_{\operatorname{EAST\
-TREMONT}}) +
-\beta_{49}(\operatorname{neighborhood}_{\operatorname{BATHGATE}}) +
-\beta_{50}(\operatorname{neighborhood}_{\operatorname{BELMONT}}) +
-\beta_{51}(\operatorname{neighborhood}_{\operatorname{FORDHAM}}) +
-\beta_{52}(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE\
-HTS/UNIV\ HTS}}) +
-\beta_{53}(\operatorname{neighborhood}_{\operatorname{BEDFORD\
-PARK/NORWOOD}}) +
-\beta_{54}(\operatorname{neighborhood}_{\operatorname{WOODLAWN}}) +
-\beta_{55}(\operatorname{neighborhood}_{\operatorname{CASTLE\
-HILL/UNIONPORT}}) +
-\beta_{56}(\operatorname{neighborhood}_{\operatorname{SOUNDVIEW}}) +
-\beta_{57}(\operatorname{neighborhood}_{\operatorname{PARKCHESTER}}) +
-\beta_{58}(\operatorname{neighborhood}_{\operatorname{WESTCHESTER}}) +
-\beta_{59}(\operatorname{neighborhood}_{\operatorname{SCHUYLERVILLE/PELHAM\
-BAY}}) + \beta_{60}(\operatorname{neighborhood}_{\operatorname{MORRIS\
-PARK/VAN\ NEST}}) +
-\beta_{61}(\operatorname{neighborhood}_{\operatorname{PELHAM\ PARKWAY\
-SOUTH}}) +
-\beta_{62}(\operatorname{neighborhood}_{\operatorname{BRONXDALE}}) +
-\beta_{63}(\operatorname{neighborhood}_{\operatorname{PELHAM\ PARKWAY\
-NORTH}}) +
-\beta_{64}(\operatorname{neighborhood}_{\operatorname{WILLIAMSBRIDGE}})
-+ \beta_{65}(\operatorname{neighborhood}_{\operatorname{WAKEFIELD}}) +
-\beta_{66}(\operatorname{neighborhood}_{\operatorname{CO-OP\ CITY}}) +
-\beta_{67}(\operatorname{neighborhood}_{\operatorname{BAYCHESTER}}) +
-\beta_{68}(\operatorname{neighborhood}_{\operatorname{COUNTRY\ CLUB}}) +
-\beta_{69}(\operatorname{neighborhood}_{\operatorname{RIVERDALE}}) +
-\beta_{70}(\operatorname{neighborhood}_{\operatorname{VAN\ CORTLANDT\
-PARK}}) +
-\beta_{71}(\operatorname{neighborhood}_{\operatorname{FIELDSTON}}) +
-\beta_{72}(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-METROTECH}})
-+ \beta_{73}(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON\
-MALL}}) + \beta_{74}(\operatorname{neighborhood}_{\operatorname{BOERUM\
-HILL}}) +
-\beta_{75}(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON\
-FERRY}}) +
-\beta_{76}(\operatorname{neighborhood}_{\operatorname{BROOKLYN\
-HEIGHTS}}) +
-\beta_{77}(\operatorname{neighborhood}_{\operatorname{COBBLE\ HILL}}) +
-\beta_{78}(\operatorname{neighborhood}_{\operatorname{SUNSET\ PARK}}) +
-\beta_{79}(\operatorname{neighborhood}_{\operatorname{BOROUGH\ PARK}}) +
-\beta_{80}(\operatorname{neighborhood}_{\operatorname{PARK\ SLOPE}}) +
-\beta_{81}(\operatorname{neighborhood}_{\operatorname{PARK\ SLOPE\
-SOUTH}}) +
-\beta_{82}(\operatorname{neighborhood}_{\operatorname{WINDSOR\
-TERRACE}}) +
-\beta_{83}(\operatorname{neighborhood}_{\operatorname{PROSPECT\
-HEIGHTS}}) +
-\beta_{84}(\operatorname{neighborhood}_{\operatorname{CROWN\ HEIGHTS}})
+0.03(\operatorname{building\_classification}_{\operatorname{C6-WALK-UP}})
++ 0(\operatorname{building\_classification}_{\operatorname{C7-WALK-UP}})
 +
-\beta_{85}(\operatorname{neighborhood}_{\operatorname{FLATBUSH-NORTH}})
+0.23(\operatorname{building\_classification}_{\operatorname{C9-WALK-UP}})
 +
-\beta_{86}(\operatorname{neighborhood}_{\operatorname{FLATBUSH-LEFFERTS\
-GARDEN}}) + \beta_{87}(\operatorname{neighborhood}_{\operatorname{OCEAN\
-HILL}}) + \beta_{88}(\operatorname{neighborhood}_{\operatorname{BEDFORD\
-STUYVESANT}}) +
-\beta_{89}(\operatorname{neighborhood}_{\operatorname{CLINTON\ HILL}}) +
-\beta_{90}(\operatorname{neighborhood}_{\operatorname{FORT\ GREENE}}) +
-\beta_{91}(\operatorname{neighborhood}_{\operatorname{NAVY\ YARD}}) +
-\beta_{92}(\operatorname{neighborhood}_{\operatorname{WILLIAMSBURG-SOUTH}})
+0.19(\operatorname{building\_classification}_{\operatorname{D0-ELEVATOR}})
 +
-\beta_{93}(\operatorname{neighborhood}_{\operatorname{WILLIAMSBURG-CENTRAL}})
+0.01(\operatorname{building\_classification}_{\operatorname{D1-ELEVATOR}})
 +
-\beta_{94}(\operatorname{neighborhood}_{\operatorname{WILLIAMSBURG-EAST}})
+0.16(\operatorname{building\_classification}_{\operatorname{D3-ELEVATOR}})
 +
-\beta_{95}(\operatorname{neighborhood}_{\operatorname{WILLIAMSBURG-NORTH}})
-+ \beta_{96}(\operatorname{neighborhood}_{\operatorname{BAYSIDE}}) +
-\beta_{97}(\operatorname{neighborhood}_{\operatorname{GREENPOINT}}) +
-\beta_{98}(\operatorname{neighborhood}_{\operatorname{BUSHWICK}}) +
-\beta_{99}(\operatorname{neighborhood}_{\operatorname{BROWNSVILLE}}) +
-\beta_{100}(\operatorname{neighborhood}_{\operatorname{CYPRESS\ HILLS}})
-+ \beta_{101}(\operatorname{neighborhood}_{\operatorname{EAST\ NEW\
-YORK}}) +
-\beta_{102}(\operatorname{neighborhood}_{\operatorname{FLATBUSH-EAST}})
+0.11(\operatorname{building\_classification}_{\operatorname{D4-ELEVATOR}})
 +
-\beta_{103}(\operatorname{neighborhood}_{\operatorname{FLATBUSH-CENTRAL}})
-+ \beta_{104}(\operatorname{neighborhood}_{\operatorname{KENSINGTON}}) +
-\beta_{105}(\operatorname{neighborhood}_{\operatorname{OCEAN\
-PARKWAY-NORTH}}) +
-\beta_{106}(\operatorname{neighborhood}_{\operatorname{BAY\ RIDGE}}) +
-\beta_{107}(\operatorname{neighborhood}_{\operatorname{DYKER\ HEIGHTS}})
-+ \beta_{108}(\operatorname{neighborhood}_{\operatorname{BENSONHURST}})
-+ \beta_{109}(\operatorname{neighborhood}_{\operatorname{BATH\ BEACH}})
-+ \beta_{110}(\operatorname{neighborhood}_{\operatorname{GRAVESEND}}) +
-\beta_{111}(\operatorname{neighborhood}_{\operatorname{OCEAN\
-PARKWAY-SOUTH}}) +
-\beta_{112}(\operatorname{neighborhood}_{\operatorname{MIDWOOD}}) +
-\beta_{113}(\operatorname{neighborhood}_{\operatorname{MADISON}}) +
-\beta_{114}(\operatorname{neighborhood}_{\operatorname{CONEY\ ISLAND}})
-+ \beta_{115}(\operatorname{neighborhood}_{\operatorname{BRIGHTON\
-BEACH}}) +
-\beta_{116}(\operatorname{neighborhood}_{\operatorname{SHEEPSHEAD\
-BAY}}) + \beta_{117}(\operatorname{neighborhood}_{\operatorname{MARINE\
-PARK}}) +
-\beta_{118}(\operatorname{neighborhood}_{\operatorname{FLATLANDS}}) +
-\beta_{119}(\operatorname{neighborhood}_{\operatorname{CANARSIE}}) +
-\beta_{120}(\operatorname{neighborhood}_{\operatorname{OLD\ MILL\
-BASIN}}) +
-\beta_{121}(\operatorname{neighborhood}_{\operatorname{BERGEN\ BEACH}})
-+ \beta_{122}(\operatorname{neighborhood}_{\operatorname{MANHATTAN\
-BEACH}}) + \beta_{123}(\operatorname{neighborhood}_{\operatorname{LONG\
-ISLAND\ CITY}}) +
-\beta_{124}(\operatorname{neighborhood}_{\operatorname{SUNNYSIDE}}) +
-\beta_{125}(\operatorname{neighborhood}_{\operatorname{WOODSIDE}}) +
-\beta_{126}(\operatorname{neighborhood}_{\operatorname{ASTORIA}}) +
-\beta_{127}(\operatorname{neighborhood}_{\operatorname{JACKSON\
-HEIGHTS}}) +
-\beta_{128}(\operatorname{neighborhood}_{\operatorname{ELMHURST}}) +
-\beta_{129}(\operatorname{neighborhood}_{\operatorname{EAST\ ELMHURST}})
-+ \beta_{130}(\operatorname{neighborhood}_{\operatorname{CORONA}}) +
-\beta_{131}(\operatorname{neighborhood}_{\operatorname{REGO\ PARK}}) +
-\beta_{132}(\operatorname{neighborhood}_{\operatorname{FOREST\ HILLS}})
-+ \beta_{133}(\operatorname{neighborhood}_{\operatorname{FLUSHING\
-MEADOW\ PARK}}) +
-\beta_{134}(\operatorname{neighborhood}_{\operatorname{MASPETH}}) +
-\beta_{135}(\operatorname{neighborhood}_{\operatorname{MIDDLE\
-VILLAGE}}) + \beta_{136}(\operatorname{neighborhood}_{\operatorname{KEW\
-GARDENS}}) +
-\beta_{137}(\operatorname{neighborhood}_{\operatorname{GLENDALE}}) +
-\beta_{138}(\operatorname{neighborhood}_{\operatorname{WHITESTONE}}) +
-\beta_{139}(\operatorname{neighborhood}_{\operatorname{BEECHHURST}}) +
-\beta_{140}(\operatorname{neighborhood}_{\operatorname{FLUSHING-SOUTH}})
-+ \beta_{141}(\operatorname{neighborhood}_{\operatorname{HILLCREST}}) +
-\beta_{142}(\operatorname{neighborhood}_{\operatorname{FRESH\ MEADOWS}})
-+ \beta_{143}(\operatorname{neighborhood}_{\operatorname{OAKLAND\
-GARDENS}}) +
-\beta_{144}(\operatorname{neighborhood}_{\operatorname{HOLLIS\ HILLS}})
-+ \beta_{145}(\operatorname{neighborhood}_{\operatorname{QUEENS\
-VILLAGE}}) +
-\beta_{146}(\operatorname{neighborhood}_{\operatorname{DOUGLASTON}}) +
-\beta_{147}(\operatorname{neighborhood}_{\operatorname{LITTLE\ NECK}}) +
-\beta_{148}(\operatorname{neighborhood}_{\operatorname{GLEN\ OAKS}}) +
-\beta_{149}(\operatorname{neighborhood}_{\operatorname{FLORAL\ PARK}}) +
-\beta_{150}(\operatorname{neighborhood}_{\operatorname{WOODHAVEN}}) +
-\beta_{151}(\operatorname{neighborhood}_{\operatorname{RICHMOND\ HILL}})
-+ \beta_{152}(\operatorname{neighborhood}_{\operatorname{BRIARWOOD}}) +
-\beta_{153}(\operatorname{neighborhood}_{\operatorname{JAMAICA}}) +
-\beta_{154}(\operatorname{neighborhood}_{\operatorname{JAMAICA\ HILLS}})
-+ \beta_{155}(\operatorname{neighborhood}_{\operatorname{JAMAICA\
-ESTATES}}) +
-\beta_{156}(\operatorname{neighborhood}_{\operatorname{HOLLIS}}) +
-\beta_{157}(\operatorname{neighborhood}_{\operatorname{SOUTH\ JAMAICA}})
-+ \beta_{158}(\operatorname{neighborhood}_{\operatorname{HOLLISWOOD}}) +
-\beta_{159}(\operatorname{neighborhood}_{\operatorname{HOWARD\ BEACH}})
-+ \beta_{160}(\operatorname{neighborhood}_{\operatorname{SO.\
-JAMAICA-BAISLEY\ PARK}}) +
-\beta_{161}(\operatorname{neighborhood}_{\operatorname{SPRINGFIELD\
-GARDENS}}) +
-\beta_{162}(\operatorname{neighborhood}_{\operatorname{LAURELTON}}) +
-\beta_{163}(\operatorname{neighborhood}_{\operatorname{FAR\ ROCKAWAY}})
-+ \beta_{164}(\operatorname{neighborhood}_{\operatorname{ARVERNE}}) +
-\beta_{165}(\operatorname{neighborhood}_{\operatorname{HAMMELS}}) +
-\beta_{166}(\operatorname{neighborhood}_{\operatorname{ROCKAWAY\ PARK}})
-+ \beta_{167}(\operatorname{neighborhood}_{\operatorname{BELLE\
-HARBOR}}) + \beta_{168}(\operatorname{neighborhood}_{\operatorname{NEW\
-BRIGHTON-ST.\ GEORGE}}) +
-\beta_{169}(\operatorname{neighborhood}_{\operatorname{NEW\ BRIGHTON}})
-+ \beta_{170}(\operatorname{neighborhood}_{\operatorname{WEST\ NEW\
-BRIGHTON}}) +
-\beta_{171}(\operatorname{neighborhood}_{\operatorname{LIVINGSTON}}) +
-\beta_{172}(\operatorname{neighborhood}_{\operatorname{CLOVE\ LAKES}}) +
-\beta_{173}(\operatorname{neighborhood}_{\operatorname{GRYMES\ HILL}}) +
-\beta_{174}(\operatorname{neighborhood}_{\operatorname{ARROCHAR-SHORE\
-ACRES}}) +
-\beta_{175}(\operatorname{neighborhood}_{\operatorname{CONCORD-FOX\
-HILLS}}) +
-\beta_{176}(\operatorname{neighborhood}_{\operatorname{ROSEBANK}}) +
-\beta_{177}(\operatorname{neighborhood}_{\operatorname{DONGAN\ HILLS}})
-+ \beta_{178}(\operatorname{neighborhood}_{\operatorname{GRANT\ CITY}})
-+ \beta_{179}(\operatorname{neighborhood}_{\operatorname{GREAT\ KILLS}})
-+ \beta_{180}(\operatorname{neighborhood}_{\operatorname{GREAT\
-KILLS-BAY\ TERRACE}}) +
-\beta_{181}(\operatorname{neighborhood}_{\operatorname{CIVIC CENTER}}) +
-\beta_{182}(\operatorname{neighborhood}_{\operatorname{LOWER EAST
-SIDE}}) +
-\beta_{183}(\operatorname{neighborhood}_{\operatorname{ALPHABET CITY}})
-+ \beta_{184}(\operatorname{neighborhood}_{\operatorname{EAST VILLAGE}})
-+ \beta_{185}(\operatorname{neighborhood}_{\operatorname{LITTLE ITALY}})
-+ \beta_{186}(\operatorname{neighborhood}_{\operatorname{GREENWICH
-VILLAGE-CENTRAL}}) +
-\beta_{187}(\operatorname{neighborhood}_{\operatorname{GREENWICH
-VILLAGE-WEST}}) +
-\beta_{188}(\operatorname{neighborhood}_{\operatorname{JAVITS CENTER}})
-+ \beta_{189}(\operatorname{neighborhood}_{\operatorname{MURRAY HILL}})
-+ \beta_{190}(\operatorname{neighborhood}_{\operatorname{KIPS BAY}}) +
-\beta_{191}(\operatorname{neighborhood}_{\operatorname{MIDTOWN WEST}}) +
-\beta_{192}(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE
-(59-79)}}) +
-\beta_{193}(\operatorname{neighborhood}_{\operatorname{UPPER WEST SIDE
-(79-96)}}) +
-\beta_{194}(\operatorname{neighborhood}_{\operatorname{MIDTOWN CBD}}) +
-\beta_{195}(\operatorname{neighborhood}_{\operatorname{MIDTOWN EAST}}) +
-\beta_{196}(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE
-(59-79)}}) +
-\beta_{197}(\operatorname{neighborhood}_{\operatorname{ROOSEVELT
-ISLAND}}) + \beta_{198}(\operatorname{neighborhood}_{\operatorname{UPPER
-EAST SIDE (79-96)}}) +
-\beta_{199}(\operatorname{neighborhood}_{\operatorname{UPPER EAST SIDE
-(96-110)}}) +
-\beta_{200}(\operatorname{neighborhood}_{\operatorname{MANHATTAN
-VALLEY}}) + \beta_{201}(\operatorname{neighborhood}_{\operatorname{UPPER
-WEST SIDE (96-116)}}) +
-\beta_{202}(\operatorname{neighborhood}_{\operatorname{MORNINGSIDE
-HEIGHTS}}) +
-\beta_{203}(\operatorname{neighborhood}_{\operatorname{WASHINGTON
-HEIGHTS LOWER}}) +
-\beta_{204}(\operatorname{neighborhood}_{\operatorname{WASHINGTON
-HEIGHTS UPPER}}) +
-\beta_{205}(\operatorname{neighborhood}_{\operatorname{MOTT HAVEN/PORT
-MORRIS}}) +
-\beta_{206}(\operatorname{neighborhood}_{\operatorname{HIGHBRIDGE/MORRIS
-HEIGHTS}}) +
-\beta_{207}(\operatorname{neighborhood}_{\operatorname{HUNTS POINT}}) +
-\beta_{208}(\operatorname{neighborhood}_{\operatorname{MOUNT HOPE/MOUNT
-EDEN}}) + \beta_{209}(\operatorname{neighborhood}_{\operatorname{CROTONA
-PARK}}) + \beta_{210}(\operatorname{neighborhood}_{\operatorname{EAST
-TREMONT}}) +
-\beta_{211}(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE
-HTS/UNIV HTS}}) +
-\beta_{212}(\operatorname{neighborhood}_{\operatorname{KINGSBRIDGE/JEROME
-PARK}}) + \beta_{213}(\operatorname{neighborhood}_{\operatorname{BEDFORD
-PARK/NORWOOD}}) +
-\beta_{214}(\operatorname{neighborhood}_{\operatorname{CASTLE
-HILL/UNIONPORT}}) +
-\beta_{215}(\operatorname{neighborhood}_{\operatorname{SCHUYLERVILLE/PELHAM
-BAY}}) + \beta_{216}(\operatorname{neighborhood}_{\operatorname{MORRIS
-PARK/VAN NEST}}) +
-\beta_{217}(\operatorname{neighborhood}_{\operatorname{PELHAM PARKWAY
-SOUTH}}) + \beta_{218}(\operatorname{neighborhood}_{\operatorname{PELHAM
-PARKWAY NORTH}}) +
-\beta_{219}(\operatorname{neighborhood}_{\operatorname{CO-OP CITY}}) +
-\beta_{220}(\operatorname{neighborhood}_{\operatorname{COUNTRY CLUB}}) +
-\beta_{221}(\operatorname{neighborhood}_{\operatorname{CITY ISLAND}}) +
-\beta_{222}(\operatorname{neighborhood}_{\operatorname{VAN CORTLANDT
-PARK}}) +
-\beta_{223}(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON
-MALL}}) + \beta_{224}(\operatorname{neighborhood}_{\operatorname{BOERUM
-HILL}}) +
-\beta_{225}(\operatorname{neighborhood}_{\operatorname{DOWNTOWN-FULTON
-FERRY}}) +
-\beta_{226}(\operatorname{neighborhood}_{\operatorname{BROOKLYN
-HEIGHTS}}) +
-\beta_{227}(\operatorname{neighborhood}_{\operatorname{COBBLE HILL}}) +
-\beta_{228}(\operatorname{neighborhood}_{\operatorname{CARROLL
-GARDENS}}) + \beta_{229}(\operatorname{neighborhood}_{\operatorname{RED
-HOOK}}) + \beta_{230}(\operatorname{neighborhood}_{\operatorname{SUNSET
-PARK}}) + \beta_{231}(\operatorname{neighborhood}_{\operatorname{BOROUGH
-PARK}}) + \beta_{232}(\operatorname{neighborhood}_{\operatorname{PARK
-SLOPE}}) + \beta_{233}(\operatorname{neighborhood}_{\operatorname{PARK
-SLOPE SOUTH}}) +
-\beta_{234}(\operatorname{neighborhood}_{\operatorname{GOWANUS}}) +
-\beta_{235}(\operatorname{neighborhood}_{\operatorname{WINDSOR
-TERRACE}}) +
-\beta_{236}(\operatorname{neighborhood}_{\operatorname{PROSPECT
-HEIGHTS}}) +
-\beta_{237}(\operatorname{neighborhood}_{\operatorname{CROWN HEIGHTS}})
+0.18(\operatorname{building\_classification}_{\operatorname{D5-ELEVATOR}})
 +
-\beta_{238}(\operatorname{neighborhood}_{\operatorname{FLATBUSH-LEFFERTS
-GARDEN}}) + \beta_{239}(\operatorname{neighborhood}_{\operatorname{OCEAN
-HILL}}) + \beta_{240}(\operatorname{neighborhood}_{\operatorname{BEDFORD
-STUYVESANT}}) +
-\beta_{241}(\operatorname{neighborhood}_{\operatorname{CLINTON HILL}}) +
-\beta_{242}(\operatorname{neighborhood}_{\operatorname{FORT GREENE}}) +
-\beta_{243}(\operatorname{neighborhood}_{\operatorname{NAVY YARD}}) +
-\beta_{244}(\operatorname{neighborhood}_{\operatorname{CYPRESS HILLS}})
-+ \beta_{245}(\operatorname{neighborhood}_{\operatorname{EAST NEW
-YORK}}) + \beta_{246}(\operatorname{neighborhood}_{\operatorname{OCEAN
-PARKWAY-NORTH}}) +
-\beta_{247}(\operatorname{neighborhood}_{\operatorname{BAY RIDGE}}) +
-\beta_{248}(\operatorname{neighborhood}_{\operatorname{DYKER HEIGHTS}})
-+ \beta_{249}(\operatorname{neighborhood}_{\operatorname{BATH BEACH}}) +
-\beta_{250}(\operatorname{neighborhood}_{\operatorname{OCEAN
-PARKWAY-SOUTH}}) +
-\beta_{251}(\operatorname{neighborhood}_{\operatorname{CONEY ISLAND}}) +
-\beta_{252}(\operatorname{neighborhood}_{\operatorname{BRIGHTON BEACH}})
-+ \beta_{253}(\operatorname{neighborhood}_{\operatorname{SHEEPSHEAD
-BAY}}) + \beta_{254}(\operatorname{neighborhood}_{\operatorname{MARINE
-PARK}}) + \beta_{255}(\operatorname{neighborhood}_{\operatorname{OLD
-MILL BASIN}}) +
-\beta_{256}(\operatorname{neighborhood}_{\operatorname{BERGEN BEACH}}) +
-\beta_{257}(\operatorname{neighborhood}_{\operatorname{MANHATTAN
-BEACH}}) + \beta_{258}(\operatorname{neighborhood}_{\operatorname{LONG
-ISLAND CITY}}) +
-\beta_{259}(\operatorname{neighborhood}_{\operatorname{JACKSON
-HEIGHTS}}) + \beta_{260}(\operatorname{neighborhood}_{\operatorname{EAST
-ELMHURST}}) +
-\beta_{261}(\operatorname{neighborhood}_{\operatorname{REGO PARK}}) +
-\beta_{262}(\operatorname{neighborhood}_{\operatorname{FOREST HILLS}}) +
-\beta_{263}(\operatorname{neighborhood}_{\operatorname{FLUSHING MEADOW
-PARK}}) + \beta_{264}(\operatorname{neighborhood}_{\operatorname{MIDDLE
-VILLAGE}}) + \beta_{265}(\operatorname{neighborhood}_{\operatorname{KEW
-GARDENS}}) +
-\beta_{266}(\operatorname{neighborhood}_{\operatorname{FRESH MEADOWS}})
-+ \beta_{267}(\operatorname{neighborhood}_{\operatorname{OAKLAND
-GARDENS}}) +
-\beta_{268}(\operatorname{neighborhood}_{\operatorname{HOLLIS HILLS}}) +
-\beta_{269}(\operatorname{neighborhood}_{\operatorname{QUEENS VILLAGE}})
-+ \beta_{270}(\operatorname{neighborhood}_{\operatorname{LITTLE NECK}})
-+ \beta_{271}(\operatorname{neighborhood}_{\operatorname{GLEN OAKS}}) +
-\beta_{272}(\operatorname{neighborhood}_{\operatorname{FLORAL PARK}}) +
-\beta_{273}(\operatorname{neighborhood}_{\operatorname{RICHMOND HILL}})
-+ \beta_{274}(\operatorname{neighborhood}_{\operatorname{JAMAICA
-HILLS}}) +
-\beta_{275}(\operatorname{neighborhood}_{\operatorname{JAMAICA
-ESTATES}}) +
-\beta_{276}(\operatorname{neighborhood}_{\operatorname{SOUTH JAMAICA}})
-+ \beta_{277}(\operatorname{neighborhood}_{\operatorname{HOWARD BEACH}})
-+ \beta_{278}(\operatorname{neighborhood}_{\operatorname{SO.
-JAMAICA-BAISLEY PARK}}) +
-\beta_{279}(\operatorname{neighborhood}_{\operatorname{SPRINGFIELD
-GARDENS}}) + \beta_{280}(\operatorname{neighborhood}_{\operatorname{FAR
-ROCKAWAY}}) +
-\beta_{281}(\operatorname{neighborhood}_{\operatorname{ROCKAWAY PARK}})
-+ \beta_{282}(\operatorname{neighborhood}_{\operatorname{BELLE HARBOR}})
-+ \beta_{283}(\operatorname{neighborhood}_{\operatorname{NEW
-BRIGHTON-ST. GEORGE}}) +
-\beta_{284}(\operatorname{neighborhood}_{\operatorname{CLOVE LAKES}}) +
-\beta_{285}(\operatorname{neighborhood}_{\operatorname{GRYMES HILL}}) +
-\beta_{286}(\operatorname{neighborhood}_{\operatorname{ARROCHAR-SHORE
-ACRES}}) +
-\beta_{287}(\operatorname{neighborhood}_{\operatorname{CONCORD-FOX
-HILLS}}) + \beta_{288}(\operatorname{neighborhood}_{\operatorname{DONGAN
-HILLS}}) + \beta_{289}(\operatorname{neighborhood}_{\operatorname{GRANT
-CITY}}) + \beta_{290}(\operatorname{neighborhood}_{\operatorname{GREAT
-KILLS}}) + \beta_{291}(\operatorname{neighborhood}_{\operatorname{GREAT
-KILLS-BAY TERRACE}}) +
-\beta_{292}(\operatorname{neighborhood}_{\operatorname{CITY\ ISLAND}}) +
-\beta_{293}(\operatorname{neighborhood}_{\operatorname{CARROLL\
-GARDENS}}) + \beta_{294}(\operatorname{neighborhood}_{\operatorname{RED\
-HOOK}}) +
-\beta_{295}(\operatorname{neighborhood}_{\operatorname{ROOSEVELT\
-ISLAND}}) +
-\beta_{296}(\operatorname{neighborhood}_{\operatorname{OZONE\ PARK}}) +
-\beta_{297}(\operatorname{neighborhood}_{\operatorname{SOUTH\ OZONE\
-PARK}}) + \beta_{298}(\operatorname{neighborhood}_{\operatorname{PORT\
-RICHMOND}}) +
-\beta_{299}(\operatorname{neighborhood}_{\operatorname{STAPLETON}}) +
-\beta_{300}(\operatorname{neighborhood}_{\operatorname{OAKWOOD-BEACH}})
-+ \beta_{301}(\operatorname{neighborhood}_{\operatorname{THROGS NECK}})
-+ \beta_{302}(\operatorname{neighborhood}_{\operatorname{WYCKOFF
-HEIGHTS}}) +
-\beta_{303}(\operatorname{neighborhood}_{\operatorname{SPRING CREEK}}) +
-\beta_{304}(\operatorname{neighborhood}_{\operatorname{GERRITSEN
-BEACH}}) + \beta_{305}(\operatorname{neighborhood}_{\operatorname{OZONE
-PARK}}) +
-\beta_{306}(\operatorname{neighborhood}_{\operatorname{STAPLETON-CLIFTON}})
-+ \beta_{307}(\operatorname{neighborhood}_{\operatorname{OAKWOOD}}) +
-\beta_{308}(\operatorname{neighborhood}_{\operatorname{SPRING\ CREEK}})
-+ \beta_{309}(\operatorname{neighborhood}_{\operatorname{CAMBRIA\
-HEIGHTS}}) +
-\beta_{310}(\operatorname{neighborhood}_{\operatorname{BULLS\ HEAD}}) +
-\beta_{311}(\operatorname{neighborhood}_{\operatorname{ST.\ ALBANS}}) +
-\beta_{312}(\operatorname{neighborhood}_{\operatorname{WYCKOFF\
-HEIGHTS}}) +
-\beta_{313}(\operatorname{neighborhood}_{\operatorname{BUSH\ TERMINAL}})
-+ \beta_{314}(\operatorname{neighborhood}_{\operatorname{COLLEGE\
-POINT}}) + \beta_{315}(\operatorname{neighborhood}_{\operatorname{BRONX\
-PARK}}) +
-\beta_{316}(\operatorname{neighborhood}_{\operatorname{CONCORD}}) +
-\beta_{317}(\operatorname{neighborhood}_{\operatorname{MIDLAND\ BEACH}})
-+ \beta_{318}(\operatorname{neighborhood}_{\operatorname{NEW\ DORP}}) +
-\beta_{319}(\operatorname{neighborhood}_{\operatorname{ROSEDALE}}) +
-\beta_{320}(\operatorname{neighborhood}_{\operatorname{THROGS\ NECK}}) +
-\beta_{321}(\operatorname{neighborhood}_{\operatorname{COBBLE\
-HILL-WEST}}) +
-\beta_{322}(\operatorname{neighborhood}_{\operatorname{WESTERLEIGH}}) +
-\beta_{323}(\operatorname{neighborhood}_{\operatorname{BRONX PARK}}) +
-\beta_{324}(\operatorname{neighborhood}_{\operatorname{CAMBRIA
-HEIGHTS}}) + \beta_{325}(\operatorname{neighborhood}_{\operatorname{NEW
-BRIGHTON}}) +
-\beta_{326}(\operatorname{neighborhood}_{\operatorname{GRASMERE}}) +
-\beta_{327}(\operatorname{neighborhood}_{\operatorname{ELTINGVILLE}}) +
-\beta_{328}(\operatorname{neighborhood}_{\operatorname{TOMPKINSVILLE}})
-+ \beta_{329}(\operatorname{neighborhood}_{\operatorname{DONGAN\
-HILLS-OLD\ TOWN}}) +
-\beta_{330}(\operatorname{neighborhood}_{\operatorname{SEAGATE}}) +
-\beta_{331}(\operatorname{neighborhood}_{\operatorname{CASTLETON\
-CORNERS}}) +
-\beta_{332}(\operatorname{neighborhood}_{\operatorname{GERRITSEN\
-BEACH}}) +
-\beta_{333}(\operatorname{neighborhood}_{\operatorname{SILVER\ LAKE}}) +
-\beta_{334}(\operatorname{neighborhood}_{\operatorname{ST. ALBANS}}) +
-\beta_{335}(\operatorname{neighborhood}_{\operatorname{ARROCHAR}}) +
-\beta_{336}(\operatorname{zoning}_{\operatorname{R8}}) +
-\beta_{337}(\operatorname{zoning}_{\operatorname{C6-4}}) +
-\beta_{338}(\operatorname{zoning}_{\operatorname{R7-2}}) +
-\beta_{339}(\operatorname{zoning}_{\operatorname{C5-3}}) +
-\beta_{340}(\operatorname{zoning}_{\operatorname{C6-3A}}) +
-\beta_{341}(\operatorname{zoning}_{\operatorname{C6-2A}}) +
-\beta_{342}(\operatorname{zoning}_{\operatorname{C6-1}}) +
-\beta_{343}(\operatorname{zoning}_{\operatorname{C6-4A}}) +
-\beta_{344}(\operatorname{zoning}_{\operatorname{M1-5/R7X}}) +
-\beta_{345}(\operatorname{zoning}_{\operatorname{M1-5/R9X}}) +
-\beta_{346}(\operatorname{zoning}_{\operatorname{C6-2}}) +
-\beta_{347}(\operatorname{zoning}_{\operatorname{R8A}}) +
-\beta_{348}(\operatorname{zoning}_{\operatorname{R7A}}) +
-\beta_{349}(\operatorname{zoning}_{\operatorname{R8B}}) +
-\beta_{350}(\operatorname{zoning}_{\operatorname{R7B}}) +
-\beta_{351}(\operatorname{zoning}_{\operatorname{C4-4A}}) +
-\beta_{352}(\operatorname{zoning}_{\operatorname{C1-6A}}) +
-\beta_{353}(\operatorname{zoning}_{\operatorname{C6-2G}}) +
-\beta_{354}(\operatorname{zoning}_{\operatorname{M1-5/R7D}}) +
-\beta_{355}(\operatorname{zoning}_{\operatorname{M1-5B}}) +
-\beta_{356}(\operatorname{zoning}_{\operatorname{R6}}) +
-\beta_{357}(\operatorname{zoning}_{\operatorname{M1-5/R9A}}) +
-\beta_{358}(\operatorname{zoning}_{\operatorname{C1-7}}) +
-\beta_{359}(\operatorname{zoning}_{\operatorname{R10}}) +
-\beta_{360}(\operatorname{zoning}_{\operatorname{C6-2M}}) +
-\beta_{361}(\operatorname{zoning}_{\operatorname{C2-6}}) +
-\beta_{362}(\operatorname{zoning}_{\operatorname{C1-6}}) +
-\beta_{363}(\operatorname{zoning}_{\operatorname{C4-5}}) +
-\beta_{364}(\operatorname{zoning}_{\operatorname{M1-6}}) +
-\beta_{365}(\operatorname{zoning}_{\operatorname{M1-5}}) +
-\beta_{366}(\operatorname{zoning}_{\operatorname{R6A}}) +
-\beta_{367}(\operatorname{zoning}_{\operatorname{C1-7A}}) +
-\beta_{368}(\operatorname{zoning}_{\operatorname{C2-6A}}) +
-\beta_{369}(\operatorname{zoning}_{\operatorname{C6-4M}}) +
-\beta_{370}(\operatorname{zoning}_{\operatorname{C2-7A}}) +
-\beta_{371}(\operatorname{zoning}_{\operatorname{M1-6D}}) +
-\beta_{372}(\operatorname{zoning}_{\operatorname{C6-3X}}) +
-\beta_{373}(\operatorname{zoning}_{\operatorname{C5-2}}) +
-\beta_{374}(\operatorname{zoning}_{\operatorname{C6-4.5}}) +
-\beta_{375}(\operatorname{zoning}_{\operatorname{M1-5M}}) +
-\beta_{376}(\operatorname{zoning}_{\operatorname{C1-9A}}) +
-\beta_{377}(\operatorname{zoning}_{\operatorname{R9A}}) +
-\beta_{378}(\operatorname{zoning}_{\operatorname{C2-8}}) +
-\beta_{379}(\operatorname{zoning}_{\operatorname{C4-5A}}) +
-\beta_{380}(\operatorname{zoning}_{\operatorname{C1-9}}) +
-\beta_{381}(\operatorname{zoning}_{\operatorname{C5-2.5}}) +
-\beta_{382}(\operatorname{zoning}_{\operatorname{C1-8A}}) +
-\beta_{383}(\operatorname{zoning}_{\operatorname{C2-8A}}) +
-\beta_{384}(\operatorname{zoning}_{\operatorname{C6-6.5}}) +
-\beta_{385}(\operatorname{zoning}_{\operatorname{C6-6}}) +
-\beta_{386}(\operatorname{zoning}_{\operatorname{C5-1}}) +
-\beta_{387}(\operatorname{zoning}_{\operatorname{R10H}}) +
-\beta_{388}(\operatorname{zoning}_{\operatorname{C6-7}}) +
-\beta_{389}(\operatorname{zoning}_{\operatorname{C2-7}}) +
-\beta_{390}(\operatorname{zoning}_{\operatorname{C1-8}}) +
-\beta_{391}(\operatorname{zoning}_{\operatorname{R10A}}) +
-\beta_{392}(\operatorname{zoning}_{\operatorname{C4-7}}) +
-\beta_{393}(\operatorname{zoning}_{\operatorname{C4-6A}}) +
-\beta_{394}(\operatorname{zoning}_{\operatorname{R9}}) +
-\beta_{395}(\operatorname{zoning}_{\operatorname{C5-P}}) +
-\beta_{396}(\operatorname{zoning}_{\operatorname{R5}}) +
-\beta_{397}(\operatorname{zoning}_{\operatorname{R9X}}) +
-\beta_{398}(\operatorname{zoning}_{\operatorname{C1-8X}}) +
-\beta_{399}(\operatorname{zoning}_{\operatorname{C6-3}}) +
-\beta_{400}(\operatorname{zoning}_{\operatorname{R7-1}}) +
-\beta_{401}(\operatorname{zoning}_{\operatorname{C5-1A}}) +
-\beta_{402}(\operatorname{zoning}_{\operatorname{C8-4}}) +
-\beta_{403}(\operatorname{zoning}_{\operatorname{C4-4D}}) +
-\beta_{404}(\operatorname{zoning}_{\operatorname{C4-4}}) +
-\beta_{405}(\operatorname{zoning}_{\operatorname{R7D}}) +
-\beta_{406}(\operatorname{zoning}_{\operatorname{R7X}}) +
-\beta_{407}(\operatorname{zoning}_{\operatorname{M1-1/R7-2}}) +
-\beta_{408}(\operatorname{zoning}_{\operatorname{R1-2}}) +
-\beta_{409}(\operatorname{zoning}_{\operatorname{C4-2}}) +
-\beta_{410}(\operatorname{zoning}_{\operatorname{R8X}}) +
-\beta_{411}(\operatorname{zoning}_{\operatorname{C4-5X}}) +
-\beta_{412}(\operatorname{zoning}_{\operatorname{R4A}}) +
-\beta_{413}(\operatorname{zoning}_{\operatorname{R5A}}) +
-\beta_{414}(\operatorname{zoning}_{\operatorname{R5B}}) +
-\beta_{415}(\operatorname{zoning}_{\operatorname{R4-1}}) +
-\beta_{416}(\operatorname{zoning}_{\operatorname{R5D}}) +
-\beta_{417}(\operatorname{zoning}_{\operatorname{R4}}) +
-\beta_{418}(\operatorname{zoning}_{\operatorname{C3A}}) +
-\beta_{419}(\operatorname{zoning}_{\operatorname{R2}}) +
-\beta_{420}(\operatorname{zoning}_{\operatorname{R6B}}) +
-\beta_{421}(\operatorname{zoning}_{\operatorname{M2-1}}) +
-\beta_{422}(\operatorname{zoning}_{\operatorname{C5-2A}}) +
-\beta_{423}(\operatorname{zoning}_{\operatorname{C8-2}}) +
-\beta_{424}(\operatorname{zoning}_{\operatorname{C4-3}}) +
-\beta_{425}(\operatorname{zoning}_{\operatorname{M1-2/R6A}}) +
-\beta_{426}(\operatorname{zoning}_{\operatorname{R2A}}) +
-\beta_{427}(\operatorname{zoning}_{\operatorname{R3-2}}) +
-\beta_{428}(\operatorname{zoning}_{\operatorname{R3X}}) +
-\beta_{429}(\operatorname{zoning}_{\operatorname{R4B}}) +
-\beta_{430}(\operatorname{zoning}_{\operatorname{R3-1}}) +
-\beta_{431}(\operatorname{zoning}_{\operatorname{M3-1}}) +
-\beta_{432}(\operatorname{zoning}_{\operatorname{R1-2A}}) +
-\beta_{433}(\operatorname{zoning}_{\operatorname{C8-1}}) +
-\beta_{434}(\operatorname{zoning}_{\operatorname{R3A}}) +
-\beta_{435}(\operatorname{zoning}_{\operatorname{C6-4X}}) +
-\beta_{436}(\operatorname{zoning}_{\operatorname{C5-4}}) +
-\beta_{437}(\operatorname{zoning}_{\operatorname{BPC}}) +
-\beta_{438}(\operatorname{zoning}_{\operatorname{R9-1}}) +
-\beta_{439}(\operatorname{zoning}_{\operatorname{M2-4}}) +
-\beta_{440}(\operatorname{zoning}_{\operatorname{C4-6}}) +
-\beta_{441}(\operatorname{zoning}_{\operatorname{M1-5/R7-2}}) +
-\beta_{442}(\operatorname{zoning}_{\operatorname{M1-2}}) +
-\beta_{443}(\operatorname{zoning}_{\operatorname{M1-1}}) +
-\beta_{444}(\operatorname{zoning}_{\operatorname{M1-2/R6}}) +
-\beta_{445}(\operatorname{zoning}_{\operatorname{C4-2A}}) +
-\beta_{446}(\operatorname{zoning}_{\operatorname{M1-5/R10}}) +
-\beta_{447}(\operatorname{zoning}_{\operatorname{M1-6/R10}}) +
-\beta_{448}(\operatorname{zoning}_{\operatorname{C6-5}}) +
-\beta_{449}(\operatorname{zoning}_{\operatorname{M1-2/R8A}}) +
-\beta_{450}(\operatorname{zoning}_{\operatorname{C4-3A}}) +
-\beta_{451}(\operatorname{zoning}_{\operatorname{M1-4/R7-2}}) +
-\beta_{452}(\operatorname{zoning}_{\operatorname{M1-3/R7X}}) +
-\beta_{453}(\operatorname{zoning}_{\operatorname{M1-4/R7A}}) +
-\beta_{454}(\operatorname{zoning}_{\operatorname{C6-9}}) +
-\beta_{455}(\operatorname{zoning}_{\operatorname{C6-1G}}) +
-\beta_{456}(\operatorname{zoning}_{\operatorname{C6-5.5}}) +
-\beta_{457}(\operatorname{zoning}_{\operatorname{M1-4}}) +
-\beta_{458}(\operatorname{zoning}_{\operatorname{C4-5D}}) +
-\beta_{459}(\operatorname{zoning}_{\operatorname{C6-7T}}) +
-\beta_{460}(\operatorname{zoning}_{\operatorname{C8-3}}) +
-\beta_{461}(\operatorname{zoning}_{\operatorname{M1-4/R6B}}) +
-\beta_{462}(\operatorname{zoning}_{\operatorname{M1-2D}}) +
-\beta_{463}(\operatorname{zoning}_{\operatorname{C4-1}}) +
-\beta_{464}(\operatorname{zoning}_{\operatorname{M1-2/R6B}}) +
-\beta_{465}(\operatorname{zoning}_{\operatorname{M1-5/R8A}}) +
-\beta_{466}(\operatorname{zoning}_{\operatorname{M1-5/R9-1}}) +
-\beta_{467}(\operatorname{zoning}_{\operatorname{M1-1D}}) +
-\beta_{468}(\operatorname{zoning}_{\operatorname{M1-2/R7A}}) +
-\beta_{469}(\operatorname{zoning}_{\operatorname{M1-2/R5D}}) +
-\beta_{470}(\operatorname{zoning}_{\operatorname{R7-3}}) +
-\beta_{471}(\operatorname{zoning}_{\operatorname{C4-4L}}) +
-\beta_{472}(\operatorname{zoning}_{\operatorname{M1-4/R8A}}) +
-\beta_{473}(\operatorname{zoning}_{\operatorname{M1-3/R8}}) +
-\beta_{474}(\operatorname{building\_classification}_{\operatorname{D0\ \
--ELEVATOR}}) +
-\beta_{475}(\operatorname{building\_classification}_{\operatorname{C6\ \
--WALK-UP}}) +
-\beta_{476}(\operatorname{building\_classification}_{\operatorname{C8\ \
--WALK-UP}}) +
-\beta_{477}(\operatorname{building\_classification}_{\operatorname{D4-ELEVATOR}})
+0.3(\operatorname{building\_classification}_{\operatorname{D6-ELEVATOR}})
 +
-\beta_{478}(\operatorname{building\_classification}_{\operatorname{C6-WALK-UP}})
+0.09(\operatorname{building\_classification}_{\operatorname{D7-ELEVATOR}})
 +
-\beta_{479}(\operatorname{building\_classification}_{\operatorname{D4  -ELEVATOR}})
+0.25(\operatorname{building\_classification}_{\operatorname{D8-ELEVATOR}})
 +
-\beta_{480}(\operatorname{building\_classification}_{\operatorname{D0  -ELEVATOR}})
-+
-\beta_{481}(\operatorname{building\_classification}_{\operatorname{C6  -WALK-UP}})
-+
-\beta_{482}(\operatorname{building\_classification}_{\operatorname{C8  -WALK-UP}})
-+
-\beta_{483}(\operatorname{building\_classification}_{\operatorname{D0-ELEVATOR}})
-+
-\beta_{484}(\operatorname{building\_classification}_{\operatorname{C8-WALK-UP}})
-+ \beta_{485}(\operatorname{building\_classification}_{\operatorname{D5\
-\ -ELEVATOR}}) +
-\beta_{486}(\operatorname{building\_classification}_{\operatorname{D6\ \
--ELEVATOR}}) +
-\beta_{487}(\operatorname{building\_classification}_{\operatorname{D9\ \
--ELEVATOR}}) +
-\beta_{488}(\operatorname{building\_classification}_{\operatorname{D8\ \
--ELEVATOR}}) +
-\beta_{489}(\operatorname{building\_classification}_{\operatorname{D1\ \
--ELEVATOR}}) +
-\beta_{490}(\operatorname{building\_classification}_{\operatorname{D3\ \
--ELEVATOR}}) +
-\beta_{491}(\operatorname{building\_classification}_{\operatorname{D7\ \
--ELEVATOR}}) +
-\beta_{492}(\operatorname{building\_classification}_{\operatorname{C1\ \
--WALK-UP}}) +
-\beta_{493}(\operatorname{building\_classification}_{\operatorname{C7\ \
--WALK-UP}}) +
-\beta_{494}(\operatorname{building\_classification}_{\operatorname{C4\ \
--WALK-UP}}) +
-\beta_{495}(\operatorname{building\_classification}_{\operatorname{C5\ \
--WALK-UP}}) +
-\beta_{496}(\operatorname{building\_classification}_{\operatorname{D2\ \
--ELEVATOR}}) +
-\beta_{497}(\operatorname{building\_classification}_{\operatorname{D1-ELEVATOR}})
-+
-\beta_{498}(\operatorname{building\_classification}_{\operatorname{C1-WALK-UP}})
-+ \beta_{499}(\operatorname{building\_classification}_{\operatorname{C9\
-\ -WALK-UP}}) +
-\beta_{500}(\operatorname{building\_classification}_{\operatorname{D5  -ELEVATOR}})
-+
-\beta_{501}(\operatorname{building\_classification}_{\operatorname{D7  -ELEVATOR}})
-+
-\beta_{502}(\operatorname{building\_classification}_{\operatorname{D6  -ELEVATOR}})
-+
-\beta_{503}(\operatorname{building\_classification}_{\operatorname{D8  -ELEVATOR}})
-+
-\beta_{504}(\operatorname{building\_classification}_{\operatorname{D1  -ELEVATOR}})
-+
-\beta_{505}(\operatorname{building\_classification}_{\operatorname{D3  -ELEVATOR}})
-+
-\beta_{506}(\operatorname{building\_classification}_{\operatorname{C1  -WALK-UP}})
-+
-\beta_{507}(\operatorname{building\_classification}_{\operatorname{D9  -ELEVATOR}})
-+
-\beta_{508}(\operatorname{building\_classification}_{\operatorname{C7  -WALK-UP}})
-+
-\beta_{509}(\operatorname{building\_classification}_{\operatorname{C4  -WALK-UP}})
-+
-\beta_{510}(\operatorname{building\_classification}_{\operatorname{C5  -WALK-UP}})
-+
-\beta_{511}(\operatorname{building\_classification}_{\operatorname{D2  -ELEVATOR}})
-+
-\beta_{512}(\operatorname{building\_classification}_{\operatorname{C9  -WALK-UP}})
-+
-\beta_{513}(\operatorname{building\_classification}_{\operatorname{C7-WALK-UP}})
-+
-\beta_{514}(\operatorname{building\_classification}_{\operatorname{C4-WALK-UP}})
-+
-\beta_{515}(\operatorname{building\_classification}_{\operatorname{D6-ELEVATOR}})
-+
-\beta_{516}(\operatorname{building\_classification}_{\operatorname{D7-ELEVATOR}})
-+
-\beta_{517}(\operatorname{building\_classification}_{\operatorname{D8-ELEVATOR}})
-+
-\beta_{518}(\operatorname{building\_classification}_{\operatorname{D9-ELEVATOR}})
-+
-\beta_{519}(\operatorname{building\_classification}_{\operatorname{D5-ELEVATOR}})
-+
-\beta_{520}(\operatorname{building\_classification}_{\operatorname{D3-ELEVATOR}})
-+
-\beta_{521}(\operatorname{building\_classification}_{\operatorname{C5-WALK-UP}})
-+
-\beta_{522}(\operatorname{building\_classification}_{\operatorname{D2-ELEVATOR}})
-+
-\beta_{523}(\operatorname{building\_classification}_{\operatorname{C9-WALK-UP}})
-+ \beta_{524}(\operatorname{year\_built}) +
-\beta_{525}(\operatorname{total\_units})
+0.17(\operatorname{building\_classification}_{\operatorname{D9-ELEVATOR}})
+- 1.3(\operatorname{longitude}) + 0(\operatorname{year\_built}) -
+0.01(\operatorname{\log\_total\_units})
 \]</span></p>
+<pre class="r"><code>summary(egi_fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = log_estimated_gross_income ~ log_gross_sq_ft + borough + 
+##     latitude + building_classification + longitude + year_built + 
+##     log_total_units, data = data_egi)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.38072 -0.17397  0.02015  0.19430  1.38319 
+## 
+## Coefficients:
+##                                      Estimate Std. Error  t value Pr(&gt;|t|)    
+## (Intercept)                         4.042e+00  2.541e+00    1.591   0.1117    
+## log_gross_sq_ft                     9.640e-01  2.134e-03  451.708  &lt; 2e-16 ***
+## borough2                           -5.371e-01  3.508e-03 -153.109  &lt; 2e-16 ***
+## borough3                           -8.975e-01  3.713e-03 -241.750  &lt; 2e-16 ***
+## borough4                           -5.055e-01  4.324e-03 -116.892  &lt; 2e-16 ***
+## borough5                           -1.336e+00  1.123e-02 -118.939  &lt; 2e-16 ***
+## latitude                           -2.386e+00  2.358e-02 -101.197  &lt; 2e-16 ***
+## building_classificationC4-WALK-UP   3.396e-02  4.410e-03    7.701 1.36e-14 ***
+## building_classificationC5-WALK-UP   2.138e-01  7.182e-03   29.777  &lt; 2e-16 ***
+## building_classificationC6-WALK-UP   3.485e-02  3.248e-03   10.730  &lt; 2e-16 ***
+## building_classificationC7-WALK-UP  -4.009e-04  4.102e-03   -0.098   0.9221    
+## building_classificationC9-WALK-UP   2.315e-01  5.497e-03   42.117  &lt; 2e-16 ***
+## building_classificationD0-ELEVATOR  1.920e-01  8.581e-03   22.378  &lt; 2e-16 ***
+## building_classificationD1-ELEVATOR  5.152e-03  2.856e-03    1.804   0.0712 .  
+## building_classificationD3-ELEVATOR  1.574e-01  3.685e-03   42.706  &lt; 2e-16 ***
+## building_classificationD4-ELEVATOR  1.067e-01  3.208e-03   33.266  &lt; 2e-16 ***
+## building_classificationD5-ELEVATOR  1.809e-01  6.276e-03   28.831  &lt; 2e-16 ***
+## building_classificationD6-ELEVATOR  3.025e-01  4.255e-03   71.094  &lt; 2e-16 ***
+## building_classificationD7-ELEVATOR  9.323e-02  4.010e-03   23.247  &lt; 2e-16 ***
+## building_classificationD8-ELEVATOR  2.530e-01  9.554e-03   26.483  &lt; 2e-16 ***
+## building_classificationD9-ELEVATOR  1.734e-01  4.550e-03   38.112  &lt; 2e-16 ***
+## longitude                          -1.298e+00  2.780e-02  -46.688  &lt; 2e-16 ***
+## year_built                          5.660e-04  3.804e-05   14.882  &lt; 2e-16 ***
+## log_total_units                    -1.285e-02  2.316e-03   -5.547 2.90e-08 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.2886 on 170555 degrees of freedom
+## Multiple R-squared:  0.9295, Adjusted R-squared:  0.9295 
+## F-statistic: 9.779e+04 on 23 and 170555 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>performance::check_model(egi_fit)</code></pre>
+<p><img src="preliminary_modeling_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>## estimated_gross_income
+
+data_egi_nl = data_1 %&gt;%
+  mutate(
+    log_total_units = log(total_units),
+    log_gross_sq_ft = log(gross_sq_ft),
+    log_estimated_gross_income = log(estimated_gross_income)
+  ) 
+
+# Hmisc::describe(data_egi_nl)
+
+io_eg_nl = lm(estimated_gross_income ~ 1, data = data_egi_nl)
+
+all_eg_nl =  lm(estimated_gross_income ~  building_classification
+     + borough + log_total_units + year_built + log_gross_sq_ft, data = data_egi_nl)
+
+egi_fit_nl = step(io_eg_nl, direction = &quot;both&quot;, scope = formula(all_eg_nl), trace = 0)
+
+equatiomatic::extract_eq(egi_fit_nl, use_coefs = TRUE)</code></pre>
+<p><span class="math display">\[
+\operatorname{\widehat{estimated\_gross\_income}} = -39848051.94 +
+2555409.65(\operatorname{\log\_gross\_sq\_ft}) -
+52403.26(\operatorname{building\_classification}_{\operatorname{C4-WALK-UP}})
++
+424496.3(\operatorname{building\_classification}_{\operatorname{C5-WALK-UP}})
+-
+359150.55(\operatorname{building\_classification}_{\operatorname{C6-WALK-UP}})
+-
+422820.57(\operatorname{building\_classification}_{\operatorname{C7-WALK-UP}})
+-
+1472734.12(\operatorname{building\_classification}_{\operatorname{C9-WALK-UP}})
+-
+1983186.29(\operatorname{building\_classification}_{\operatorname{D0-ELEVATOR}})
+-
+2763099.68(\operatorname{building\_classification}_{\operatorname{D1-ELEVATOR}})
+-
+2786984.62(\operatorname{building\_classification}_{\operatorname{D3-ELEVATOR}})
+-
+2203285.66(\operatorname{building\_classification}_{\operatorname{D4-ELEVATOR}})
+-
+1646438.72(\operatorname{building\_classification}_{\operatorname{D5-ELEVATOR}})
+-
+885754.6(\operatorname{building\_classification}_{\operatorname{D6-ELEVATOR}})
+-
+2644436.49(\operatorname{building\_classification}_{\operatorname{D7-ELEVATOR}})
++
+604573.42(\operatorname{building\_classification}_{\operatorname{D8-ELEVATOR}})
+-
+1889853.07(\operatorname{building\_classification}_{\operatorname{D9-ELEVATOR}})
+- 2258420.45(\operatorname{borough}_{\operatorname{2}}) -
+1679702.6(\operatorname{borough}_{\operatorname{3}}) -
+2258622.82(\operatorname{borough}_{\operatorname{4}}) -
+1729013.51(\operatorname{borough}_{\operatorname{5}}) +
+7921.17(\operatorname{year\_built}) +
+469223.02(\operatorname{\log\_total\_units})
+\]</span></p>
+<pre class="r"><code>summary(egi_fit_nl)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = estimated_gross_income ~ log_gross_sq_ft + building_classification + 
+##     borough + year_built + log_total_units, data = data_egi_nl)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+##  -7259199  -1046380   -183266    675252 201362191 
+## 
+## Coefficients:
+##                                      Estimate Std. Error  t value Pr(&gt;|t|)    
+## (Intercept)                        -3.985e+07  7.223e+05  -55.171  &lt; 2e-16 ***
+## log_gross_sq_ft                     2.555e+06  2.100e+04  121.689  &lt; 2e-16 ***
+## building_classificationC4-WALK-UP  -5.240e+04  4.346e+04   -1.206    0.228    
+## building_classificationC5-WALK-UP   4.245e+05  7.122e+04    5.960 2.52e-09 ***
+## building_classificationC6-WALK-UP  -3.592e+05  3.218e+04  -11.159  &lt; 2e-16 ***
+## building_classificationC7-WALK-UP  -4.228e+05  4.049e+04  -10.441  &lt; 2e-16 ***
+## building_classificationC9-WALK-UP  -1.473e+06  5.260e+04  -27.998  &lt; 2e-16 ***
+## building_classificationD0-ELEVATOR -1.983e+06  8.385e+04  -23.652  &lt; 2e-16 ***
+## building_classificationD1-ELEVATOR -2.763e+06  2.814e+04  -98.176  &lt; 2e-16 ***
+## building_classificationD3-ELEVATOR -2.787e+06  3.645e+04  -76.454  &lt; 2e-16 ***
+## building_classificationD4-ELEVATOR -2.203e+06  3.158e+04  -69.768  &lt; 2e-16 ***
+## building_classificationD5-ELEVATOR -1.646e+06  6.140e+04  -26.814  &lt; 2e-16 ***
+## building_classificationD6-ELEVATOR -8.858e+05  4.179e+04  -21.197  &lt; 2e-16 ***
+## building_classificationD7-ELEVATOR -2.644e+06  3.958e+04  -66.809  &lt; 2e-16 ***
+## building_classificationD8-ELEVATOR  6.046e+05  9.427e+04    6.413 1.43e-10 ***
+## building_classificationD9-ELEVATOR -1.890e+06  4.487e+04  -42.121  &lt; 2e-16 ***
+## borough2                           -2.258e+06  2.687e+04  -84.038  &lt; 2e-16 ***
+## borough3                           -1.680e+06  2.123e+04  -79.124  &lt; 2e-16 ***
+## borough4                           -2.259e+06  2.243e+04 -100.704  &lt; 2e-16 ***
+## borough5                           -1.729e+06  1.008e+05  -17.155  &lt; 2e-16 ***
+## year_built                          7.921e+03  3.738e+02   21.189  &lt; 2e-16 ***
+## log_total_units                     4.692e+05  2.282e+04   20.564  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2868000 on 170557 degrees of freedom
+## Multiple R-squared:  0.4838, Adjusted R-squared:  0.4838 
+## F-statistic:  7613 on 21 and 170557 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>pred_df = data_egi_nl %&gt;%
+  modelr::add_predictions(model = egi_fit_nl) 
+
+latitude = pred_df$latitude
+
+longitude = pred_df$longitude
+
+pred_Y = pred_df$pred
+
+loess_val = loess(pred_Y ~ latitude + longitude)
+
+loess_val</code></pre>
+<pre><code>## Call:
+## loess(formula = pred_Y ~ latitude + longitude)
+## 
+## Number of Observations: 170579 
+## Equivalent Number of Parameters: 10.38 
+## Residual Standard Error: 2677000</code></pre>
+<div id="trained_df-data_egi_nl" class="section level1">
+<h1>trained_df = data_egi_nl %&gt;%</h1>
+</div>
+<div id="filterreport_year-2017" class="section level1">
+<h1>filter(report_year &lt; 2017) %&gt;%</h1>
+</div>
+<div id="selectreport_year-estimated_gross_income"
+class="section level1">
+<h1>select(report_year, estimated_gross_income)</h1>
+</div>
+<div id="section" class="section level1">
+<h1></h1>
+</div>
+<div id="combine_df---trained_df" class="section level1">
+<h1>combine_df &lt;- trained_df %&gt;%</h1>
+</div>
+<div id="left_joinpred_df-by-report_year" class="section level1">
+<h1>left_join(pred_df, by = “report_year”)</h1>
+</div>
+<div id="section-1" class="section level1">
+<h1></h1>
+</div>
+<div id="section-2" class="section level1">
+<h1></h1>
+</div>
+<div id="combine_df" class="section level1">
+<h1>combine_df %&gt;%</h1>
+</div>
+<div id="ggplotaesx-report_year-y-estimated_gross_income"
+class="section level1">
+<h1>ggplot(aes(x = report_year, y = estimated_gross_income)) +</h1>
+</div>
+<div id="geom_point" class="section level1">
+<h1>geom_point() +</h1>
+</div>
+<div id="geom_line" class="section level1">
+<h1>geom_line() +</h1>
+</div>
+<div id="geom_lineaesy-pred" class="section level1">
+<h1>geom_line(aes(y = pred)) +</h1>
+</div>
+<div id="geom_pointaesy-pred" class="section level1">
+<h1>geom_point(aes(y = pred))</h1>
+<pre class="r"><code>?loess()</code></pre>
+<pre><code>## 打开httpd帮助服务器… 好了</code></pre>
+<pre class="r"><code>edit(loess)</code></pre>
+<pre><code>## function (formula, data, weights, subset, na.action, model = FALSE, 
+##     span = 0.75, enp.target, degree = 2L, parametric = FALSE, 
+##     drop.square = FALSE, normalize = TRUE, family = c(&quot;gaussian&quot;, 
+##         &quot;symmetric&quot;), method = c(&quot;loess&quot;, &quot;model.frame&quot;), control = loess.control(...), 
+##     ...) 
+## {
+##     family &lt;- match.arg(family)
+##     method &lt;- match.arg(method)
+##     mf &lt;- match.call(expand.dots = FALSE)
+##     mf$model &lt;- mf$span &lt;- mf$enp.target &lt;- mf$degree &lt;- mf$parametric &lt;- mf$drop.square &lt;- mf$normalize &lt;- mf$family &lt;- mf$method &lt;- mf$control &lt;- mf$... &lt;- NULL
+##     mf[[1L]] &lt;- quote(stats::model.frame)
+##     mf &lt;- eval(mf, parent.frame())
+##     if (match.arg(method) == &quot;model.frame&quot;) 
+##         return(mf)
+##     mt &lt;- attr(mf, &quot;terms&quot;)
+##     y &lt;- model.response(mf, &quot;numeric&quot;)
+##     w &lt;- model.weights(mf) %||% rep_len(1, length(y))
+##     nmx &lt;- as.character(attr(mt, &quot;variables&quot;))[-(1L:2)]
+##     x &lt;- mf[, nmx, drop = FALSE]
+##     if (any(sapply(x, is.factor))) 
+##         stop(&quot;predictors must all be numeric&quot;)
+##     x &lt;- as.matrix(x)
+##     D &lt;- ncol(x)
+##     nmx &lt;- setNames(nm = colnames(x))
+##     drop.square &lt;- match(nmx, nmx[drop.square], 0L) &gt; 0L
+##     parametric &lt;- match(nmx, nmx[parametric], 0L) &gt; 0L
+##     if (!match(degree, 0L:2L, 0L)) 
+##         stop(&quot;&#39;degree&#39; must be 0, 1 or 2&quot;)
+##     iterations &lt;- if (family == &quot;gaussian&quot;) 
+##         1L
+##     else control$iterations
+##     if (!missing(enp.target)) 
+##         if (!missing(span)) 
+##             warning(&quot;both &#39;span&#39; and &#39;enp.target&#39; specified: &#39;span&#39; will be used&quot;)
+##         else {
+##             tau &lt;- switch(degree + 1L, 1, D + 1, (D + 1) * (D + 
+##                 2)/2) - sum(drop.square)
+##             span &lt;- 1.2 * tau/enp.target
+##         }
+##     if (!is.list(control) || !is.character(control$surface) || 
+##         !is.character(control$statistics) || !is.character(control$trace.hat) || 
+##         !is.numeric(control$cell) || !is.numeric(iterations)) 
+##         stop(&quot;invalid &#39;control&#39; argument&quot;)
+##     fit &lt;- simpleLoess(y, x, w, span, degree = degree, parametric = parametric, 
+##         drop.square = drop.square, normalize = normalize, statistics = control$statistics, 
+##         surface = control$surface, cell = control$cell, iterations = iterations, 
+##         iterTrace = control$iterTrace, trace.hat = control$trace.hat)
+##     fit$call &lt;- match.call()
+##     fit$terms &lt;- mt
+##     fit$xnames &lt;- nmx
+##     fit$x &lt;- x
+##     fit$y &lt;- y
+##     fit$weights &lt;- w
+##     if (model) 
+##         fit$model &lt;- mf
+##     fit$na.action &lt;- attr(mf, &quot;na.action&quot;)
+##     fit
+## }
+## &lt;environment: namespace:stats&gt;</code></pre>
+</div>
 
 
 
