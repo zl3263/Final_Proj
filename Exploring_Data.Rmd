@@ -4,6 +4,7 @@ output:
   html_document:
     toc: true
     toc_float: true
+    self_contained: no
 
 ---
 
@@ -195,3 +196,118 @@ corrplot(cor(corr), type = "lower", method = 'color', tl.col = "black",tl.cex=0.
 
 
 
+# Data science final
+
+### Data Discovery (EDA)
+
+Skewness value: it can be used to measure the asymmetry of probability distribution of random variables.
+
+Kurtosis value: it can be used to measure the steepness of the probability distribution of random variables.
+
+View the rent distribution curve and draw a curve distribution diagram and rent scatter diagram、
+
+![1.png](https://pic.jitudisk.com/public/2022/12/08/2082b744e551e.png)
+
+First, observe the rent data. It can be seen that this data is in  line with the normal distribution, but the skewness value is too large.  We found a big tail. The "rent" value distribution has obvious skewness, so we will correct it later.
+
+(2) View the data histogram of each property of the apartment
+
+Next, let's take a look at the impact of some important attributes  on the results The histogram is used to show the data distribution. Generally speaking, it refers to which piece of data accounts for a high proportion or  number of occurrences, and which piece has a low probability of  occurrence. The following figure shows the occurrence of 18 attributes
+
+![2.png](https://pic.jitudisk.com/public/2022/12/08/5dbb2d328b88d.png)
+
+Continuous variables include: community name (Cname),  rent_quantity, total floors, position, subway_station, distance, rent,  and the rest are discrete variables.
+
+(3) For discrete variables, we use boxplot to represent (box plot) Discrete variables include time, floor, space, state, bedroom_num, hall_num, toilet _num Rent_style, area, subway_line, decoration.
+
+Box diagram of bedroom number and rent
+
+![3.png](https://pic.jitudisk.com/public/2022/12/08/08c88f05ff5e1.png)
+
+Box diagram of living room number and rent
+
+![4.png](https://pic.jitudisk.com/public/2022/12/08/2d906371c4a89.png)
+
+Box diagram of area and subway_line
+
+![5.png](https://pic.jitudisk.com/public/2022/12/08/b9ecaff2d2f03.png)
+
+(4) Correlation analysis
+
+Analyze the correlation degree between different factors affecting  housing price and housing price, and analyze the correlation degree  through the correlation graph. Qualitative and visual analysis of the correlation between different  factors affecting housing price and housing price with bar chart
+
+![6.png](https://pic.jitudisk.com/public/2022/12/08/1dffa8519c533.png)
+
+### Data cleaning
+
+Because the data may be incomplete, noisy, random, and have complex data structures, it is necessary to preliminarily sort out the data,  clean the incomplete data, make preliminary description and analysis,  select variables related to data mining, or change variables.
+
+Outlier processing
+
+![7.png](https://pic.jitudisk.com/public/2022/12/08/8ad3f3e6874a5.png)![8.png](https://pic.jitudisk.com/public/2022/12/08/21a684dbdd7cd.png)
+
+### Deviation correction
+
+![9.png](https://pic.jitudisk.com/public/2022/12/08/432a06bc060cc.png)
+
+Normal distribution transformation: the tail behind is too long,  and it needs to be corrected (logarithmic transformation of data)
+
+![10.png](https://pic.jitudisk.com/public/2022/12/08/0ef458bf19af7.png)![11.png](https://pic.jitudisk.com/public/2022/12/08/fc2481b41ed03.png)![12.png](https://pic.jitudisk.com/public/2022/12/08/f4e557c13620b.png)
+
+For attributes with too large missing data, you can choose to  discard them, and for attribute data with small missing data, you can  fill them:
+
+(1) Delete the missing data (decoration situation, state, rent_style)
+
+all_ data. drop(['decoration situation'], axis=1, inplace=True)
+
+all_ data. drop(['state'], axis=1, inplace=True)
+
+all_ data. drop(['rent_style'], axis=1, inplace=True)
+
+(2) The three columns of "subway line", "subway station" and  "distance" represent the subway situation near the house. According to  different data types, the distance column filled with "1" represents  unlimited distance, and the first two columns filled with "0" represent  no subway station and subway line
+
+all_ data["distance"]=all_ data["distance"].fillna(1)
+
+all_ data["subway_line"]=all_ data["subway_line"].fillna(0)
+
+all_ data["subway_station"]=all_ data["subway_station"].fillna(0)
+
+(3) The number of rented houses in the community contains a small  number of vacancies, which shall be filled with the average value
+
+mean_ val = all_ data["rent_quantity"].mean()
+
+all_ data["rent_quantity"] = all_ data["rent_quantity"].fillna(mean_val)
+
+(4) There are few vacant values of "position" and "area", which are category variables and filled with mode.
+
+mode_ area = all_ data["area"].mode()
+
+mode_ position = all_ data["position"].mode()
+
+all_ data["area"] = all_ data["area"].fillna(int(mode_area))
+
+all_ data["position"] = all_ data["position"].fillna(int(mode_position))
+
+![13.png](https://pic.jitudisk.com/public/2022/12/08/e97944febd565.png)
+
+### Characteristic engineering
+
+Feature engineering refers to the process of transforming the  original data into the training data of the model. Its purpose is to  obtain better features of the training data and make the machine  learning model approach this upper limit. Feature engineering can improve the performance of models, sometimes  even on simple models.
+
+#### According to the meaning of the original feature, we build a new  feature based on the original feature through feature transformation for later model training and numerical prediction. The specific method is  as follows:
+
+a. Total number of bedrooms=number of bedrooms+number of  halls+number of bathrooms. In order to avoid linear correlation of four  variables, the number of halls is deleted.
+
+b. Proportion of bedrooms: number of bedrooms/number of halls,  number of bedrooms/number of bathrooms, number of halls/number of  bathrooms
+
+c. House orientation: because the house area is not a number and  contains multiple directions, the house area is converted into eight  dummy variables, representing whether the house has eight orientations,  namely east, west, south, north, northeast, southeast, northwest and  southwest
+
+d. Average rent: the houses are grouped according to the name, area and location of the community, and the average group rent is  calculated. Three new average rent columns are generated corresponding  to the name, area and location of the community
+
+Because some variables are category variables, they are converted  to string types. Then, the total data set after preprocessing is divided into training set and test set for model training and prediction.
+
+### Result analysis
+
+In this paper, the factors and indicators that affect housing  prices are taken as input variables, and LightNGB and XGBoost models are used for modeling. The prediction results are compared with the actual  results, and then the model is optimized by considering the  characteristic engineering and model parameters such as adjusting the  number of input variables, and modeling again to obtain new prediction  results. Finally, compare the results of several models, draw  conclusions, and interpret the practical significance of the prediction  results. By comparing the error between the prediction results of  LightGBM model and XGBoost series model, we can find that the error of  the prediction results of LightGBM model is the smallest, while the  error of the prediction results of XGBoost model is larger, indicating  that LightGBM model is better than XGBoost model in the fitting of house prices.
+
+According to the prediction results and actual results of various  models, house prices are still on the rise. We should realize that for a stable developing economy, the steady rise of house prices is a normal  phenomenon. As long as the growth rate of house prices is basically the  same as the growth of GDP and the improvement of people's income, we can think that the real estate industry is operating within a reasonable  range, The housing price level is affordable, but the current housing  price in China is obviously much higher than the income level of our  people. Ordinary wage earners often have to spend their savings for  generations to buy a house, which makes people have to reduce their  daily consumption to reduce spending, resulting in a decline in market  consumption demand. The economic system relies too much on the real  estate industry, which will lead to insufficient consumption as a whole  and affect the healthy development of the real economy, More young  people choose to leave the first tier cities because they cannot afford  the high housing prices, and the high housing prices are also a major  factor leading to the rising cost of living in the first tier cities.  Under such adverse factors, more and more young people will not choose  to stay in the first tier cities for development, which will make it  difficult for the first tier cities to continue to develop.
