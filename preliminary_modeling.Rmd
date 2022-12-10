@@ -1,32 +1,72 @@
 ---
-title: "Untitled"
-author: "qz2492"
-date: "2022-12-04"
-output: html_document
+title: "Regression Analysis"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    always_allow_html: true
+    css: style.css
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
 library(glmnet)
 library(patchwork)
+
+knitr::opts_chunk$set(
+  fig.height = 6,
+  fig.width = 8
+)
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis",
+  digits = 3
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
 ```
 
+## Predicting Model For Estimated Gross Income 
 
-```{r}
+### Data
+
+Through previous data exploration and data analysis, we have learned that there are some variables in our data set strongly associated with the estimated gross income. 
+
+Therefore, we decided to dig deeper and use some of these variables to predict estimated gross income.
+
+The variables involved are as followed:
+
+\ ·`estimated_gross_income`**` _(dependent)_: Estimated income from the building
+
+\ ·`latitude`: latitude of the building
+
+\ ·`longitude`:  longitude of the building
+
+\ ·`type`: Walk-up/Elevators
+
+\ ·`borough`: 1 ~ Manhattan, 2 ~ The Bronx, 3 ~ Brooklyn, 4 ~ Queens, 5 ~ Staten Island
+
+\ ·`total_units`: Total number of units in the building
+
+\ ·`year_built`: The year the building was built
+
+\ .`gross_sq_ft`: Gross square footage of the building
+
+However, in the preliminary analysis, we found that some of them do not meet the normal distribution, so we use logarithm operation and the
+their distribution are fixed:
+```{r load data, warning = FALSE}
 load('./data/cleaned_data.RData')
-
-
 
 data_1 = transformed_rental_income %>%
   separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>%
   separate(building_classification, into = c("code", "type", "type_1"), sep = "-") %>%
   mutate(borough = factor(borough),
-         neighborhood = factor(neighborhood),
          type = factor(type)) 
   
-
-
 # make density plots of every variable to check its normality
 
 p1 = data_1 %>%
@@ -78,8 +118,11 @@ p1 + p2 + p3 + p4 + p5 + p6
 ```
 
 
+### Fitting Model
 
-```{r}
+We decide to use `latitude` and `longtitude` with _lowess_ (locally weighted regression scatter plot smoothing) for smoothing model, so other 5 variables are fitted initially.
+
+```{r logarithm operation}
 #### log_estimated_gross_income
 
 data_egi = data_1 %>%
@@ -87,84 +130,54 @@ data_egi = data_1 %>%
     log_total_units = log(total_units),
     log_gross_sq_ft = log(gross_sq_ft),
     log_estimated_gross_income = log(estimated_gross_income)
-  ) 
+  ) %>%
+  select(log_estimated_gross_income, type, borough,
+         log_total_units, year_built ,log_gross_sq_ft)
+```
 
+To find the best model, we used stepwise regression procedure. That is to say, we start with no predictors, then sequentially add the most contributive predictors (like forward selection). After adding each new variable, remove any variables that no longer provide an improvement in the model fit (like backward selection) 
+
+**Model without predictors**
+```{r}
 # intercept only model
 io_eg = lm(log_estimated_gross_income ~ 1, data = data_egi)
+```
 
+$$
+\widehat{log\_estimated\_gross\_income} = 13.9425
+$$
+
+**Model with all of the predictors**
+```{r}
 # model with all predictors
-all_eg = lm(log_estimated_gross_income ~  type
-     + borough + log_total_units + year_built + log_gross_sq_ft, data = data_egi)
+all_eg = lm(log_estimated_gross_income ~ ., data = data_egi)
+# formula
+equatiomatic::extract_eq(all_eg, use_coefs = TRUE, coef_digits = 4)
 
+```
+
+**The best model**
+```{r}
 # stepwise procedure
 egi_fit = step(io_eg, direction = "both", scope = formula(all_eg), trace = 0)
 
-```
-
-```{r}
 # formula
-equatiomatic::extract_eq(egi_fit, use_coefs = TRUE)
+equatiomatic::extract_eq(egi_fit, use_coefs = TRUE, coef_digits = 4)
 ```
 
+**Coefficients for best model**
 ```{r}
-summary(egi_fit)
+egi_fit %>% broom::tidy() %>% knitr::kable(digits = 4)
 ```
 
+**Model checking**
 ```{r}
 # check the model
-performance::check_model(egi_fit)
+performance::check_model(egi_fit, check = c("outliers", "qq", "normality"))
 ```
 
-```{r}
-## estimated_gross_income
+From above we know that `log_total_units` is left out in the fitting procedure, and the checking plots indicate that our model is well done for the sake of normality and outliers.
 
-data_egi_nl = data_1 %>%
-  mutate(
-    log_total_units = log(total_units),
-    log_gross_sq_ft = log(gross_sq_ft),
-    log_estimated_gross_income = log(estimated_gross_income)
-  ) 
-
-# intercept only model
-io_eg_nl = lm(estimated_gross_income ~ 1, data = data_egi_nl)
-
-# model with all predictors
-all_eg_nl =  lm(estimated_gross_income ~  type
-     + borough + log_total_units + year_built + log_gross_sq_ft, data = data_egi_nl)
-
-# stepwise procedure
-egi_fit_nl = step(io_eg_nl, direction = "both", scope = formula(all_eg_nl), trace = 0)
-```
-
-```{r}
-# formula
-equatiomatic::extract_eq(egi_fit_nl, use_coefs = TRUE)
-```
-
-```{r}
-summary(egi_fit_nl)
-```
-
-```{r}
-# check the model
-performance::check_model(egi_fit_nl)
-```
-
-
-```{r}
-pred_df = data_egi_nl %>%
-  modelr::add_predictions(model = egi_fit_nl) 
-
-latitude = pred_df$latitude
-
-longitude = pred_df$longitude
-
-pred_Y = pred_df$pred
-
-loess_val = loess(pred_Y ~ latitude + longitude)
-
-loess_val
-```
 
 
 
