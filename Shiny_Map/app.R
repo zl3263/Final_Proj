@@ -80,7 +80,7 @@ ui <- bootstrapPage(
       label = "Select heatmap",
       choices = list(
         "None" = 1,
-        "Test" = 2
+        "Rental Income" = 2
       ),
       selected = 1,
       inline = TRUE
@@ -189,6 +189,7 @@ server <- function(input, output) {
         selected_block = 
           transformed_rental_income %>%
           filter(
+            as.integer(boro_block/100000) == selected_boro,
             year_built >= input$built_year[1],
             year_built <= input$built_year[2],
             report_year >= input$report_year[1],
