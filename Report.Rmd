@@ -24,6 +24,42 @@ This dataset contains the income and expense statements of condominium and compa
 ## Preprocessing
 
 ## EDA 
+Skewness value: it can be used to measure the asymmetry of probability distribution of random variables.
+
+Kurtosis value: it can be used to measure the steepness of the probability distribution of random variables.
+
+View the rent distribution curve and draw a curve distribution diagram and rent scatter diagram、
+
+
+First, observe the rent data. It can be seen that this data is in  line with the normal distribution, but the skewness value is too large.  We found a big tail. The "rent" value distribution has obvious skewness, so we will correct it later.
+
+(2) View the data histogram of each property of the apartment
+
+Next, let's take a look at the impact of some important attributes  on the results The histogram is used to show the data distribution. Generally speaking, it refers to which piece of data accounts for a high proportion or  number of occurrences, and which piece has a low probability of  occurrence. The following figure shows the occurrence of 18 attributes
+
+![](https://pic.jitudisk.com/public/2022/12/08/5dbb2d328b88d.png)
+
+Continuous variables include: community name (Cname),  rent_quantity, total floors, position, subway_station, distance, rent,  and the rest are discrete variables.
+
+(3) For discrete variables, we use boxplot to represent (box plot) Discrete variables include time, floor, space, state, bedroom_num, hall_num, toilet _num Rent_style, area, subway_line, decoration.
+
+Box diagram of bedroom number and rent
+
+![](https://pic.jitudisk.com/public/2022/12/08/08c88f05ff5e1.png)
+
+Box diagram of living room number and rent
+
+![](https://pic.jitudisk.com/public/2022/12/08/2d906371c4a89.png)
+
+Box diagram of area and subway_line
+
+![](https://pic.jitudisk.com/public/2022/12/08/b9ecaff2d2f03.png)
+
+(4) Correlation analysis
+
+Analyze the correlation degree between different factors affecting  housing price and housing price, and analyze the correlation degree  through the correlation graph. Qualitative and visual analysis of the correlation between different  factors affecting housing price and housing price with bar chart
+
+![](https://pic.jitudisk.com/public/2022/12/08/1dffa8519c533.png)
 
 ## Spacial & Statistical Analysis
 
