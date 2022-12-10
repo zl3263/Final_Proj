@@ -135,7 +135,7 @@ ave_location = function(geom,id){
   mean(geom[[1]][[1]][,id])
 }
 
-block_edge = read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
+block_location = read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
   st_transform("NAD83") %>%
   mutate(
     ave_long = map_dbl(geometry,~ave_location(.x,1)),
@@ -148,10 +148,12 @@ block_edge = read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
   na.omit() %>%
   group_by(boro_block) %>%
   summarise(
-    long = mean(ave_long),
-    lat = mean(ave_lat)
+    longitude = mean(ave_long),
+    latitude = mean(ave_lat)
   )
   
+save(block_edge,file = "Index_Predictor/block_location.RData")
+
 expanded_df = 
   tibble(boro_block = 1:600000) %>%
   full_join(block_edge)

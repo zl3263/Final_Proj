@@ -12,10 +12,12 @@ library(tidyverse)
 
 #setwd("Index_Predictor")
 load("modeling_result.RData")
+load("block_location.RData")
 n_neighbours=20
 
 this_year= as.numeric(substr(Sys.Date(),1,4))
 smooth_location_resid=smooth_location_resid
+block_location=block_location
 predict_rental = function(new_data){
   if(nrow(new_data)!=1){
     return("nrow must be 1")
@@ -44,7 +46,7 @@ ui <- fluidPage(
              textInput(
                "boro_block",
                label = "Boro-Block",
-               value  = "1-00001"
+               value  = "1-11"
              ),
              tags$a("which boro-block?", href="https://nuc-rental-income.shinyapps.io/shiny_map/"),
       ),
@@ -100,7 +102,10 @@ server <- function(input, output) {
     })
     
     observe({
-      boro_block = as.integer(str_remove(input$boro_block,"-"))
+      boro_block_predict = str_split(input$boro_block,"\\D")[[1]]
+      boro_block_predict = as.integer(boro_block_predict[1])*100000+as.integer(boro_block_predict[2])
+      location = block_location %>%
+        filter(boro_block ==boro_block_predict)
       is_elevator = as.logical(as.integer(input$is_elevator))
       total_units = as.numeric(input$total_units)
       year_built = as.numeric(input$year_built)
@@ -113,14 +118,15 @@ server <- function(input, output) {
         year_built = year_built,
         gross_sq_ft = gross_sq_ft,
         report_year = report_year,
-        longitude = -73.8,
-        latitude = 40.6
+        longitude = location$longitude[1],
+        latitude = location$latitude[1],
       )
       
       predicted = predict_rental(new_data)
       
       output$result <- renderText({
         paste0("Your gross income pre suqare feet is ", as.character(round(predicted,2)))
+        #as.character(location)
       })
       
     })
