@@ -314,41 +314,17 @@ $(document).ready(function () {
 
 <pre class="r"><code>load(&#39;./data/cleaned_data.RData&#39;)
 
+
+
 data_1 = transformed_rental_income %&gt;%
   separate(boro_block_lot, into = c(&quot;borough&quot;, &quot;block&quot;, &quot;lot&quot;), sep = &quot;-&quot;) %&gt;%
-  filter(!building_classification %in% c(&#39;C8-WALK-UP&#39;,&#39;D2-ELEVATOR&#39;)) %&gt;% # delete factors with too small quantity
+  separate(building_classification, into = c(&quot;code&quot;, &quot;type&quot;, &quot;type_1&quot;), sep = &quot;-&quot;) %&gt;%
   mutate(borough = factor(borough),
          neighborhood = factor(neighborhood),
-         building_classification = factor(building_classification))
-  #select(-block, -lot, -zoning, -boro_block, -block_id, -address)
-
-# joined_data = data_1 %&gt;% left_join(zoning, by = &quot;bbl&quot;) %&gt;% drop_na(zoning_district_1)
-
-
-
-# dist_zo = transformed_rental_income %&gt;%
-#   distinct(zoning) 
-# 
-# dist_ne = transformed_rental_income %&gt;%
-#   distinct(neighborhood) 
-# 
-# dist_bc = transformed_rental_income %&gt;%
-#    distinct(building_classification)
-# 
-# bc = transformed_rental_income %&gt;%
-#   select(building_classification) %&gt;% Hmisc::describe()
-# 
-# bc
-
-
-# joined_data = joined_data %&gt;%
-#   mutate(
-#     zoning = factor(zoning_district_1, levels = dist_zo$zoning_district_1, labels = dist_zo$zoning_district_1),
-#     neighborhood = factor(neighborhood, levels = dist_ne$neighborhood, labels = dist_ne$neighborhood),
-#     building_classification = factor(building_classification, levels = dist_bc$building_classification, labels = dist_bc$building_classification)
-#   ) 
-
-
+         type = factor(type)) </code></pre>
+<pre><code>## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 118600 rows [1,
+## 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].</code></pre>
+<pre class="r"><code># make density plots of every variable to check its normality
 
 p1 = data_1 %&gt;%
   ggplot(aes(x = latitude)) +
@@ -366,7 +342,8 @@ p1 = data_1 %&gt;%
                  bins = 10)</code></pre>
 <pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#0072B2&quot;, :
 ## Ignoring unknown parameters: `bins`</code></pre>
-<pre class="r"><code>p3 = data_1 %&gt;%
+<pre class="r"><code># Logarithmic operation
+p3 = data_1 %&gt;%
   ggplot(aes(x = log(total_units))) +
   geom_density(aes(y = after_stat(density)),
                  fill = &quot;#CC79A7&quot;,
@@ -382,7 +359,8 @@ p1 = data_1 %&gt;%
                  bins = 10)</code></pre>
 <pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#D55E00&quot;, :
 ## Ignoring unknown parameters: `bins`</code></pre>
-<pre class="r"><code>p5 = data_1 %&gt;%
+<pre class="r"><code># Logarithmic operation
+p5 = data_1 %&gt;%
   ggplot(aes(x = log(gross_sq_ft))) +
   geom_density(aes(y = after_stat(density)),
                  fill = &quot;#56B4E9&quot;,
@@ -390,7 +368,8 @@ p1 = data_1 %&gt;%
                  bins = 10)</code></pre>
 <pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#56B4E9&quot;, :
 ## Ignoring unknown parameters: `bins`</code></pre>
-<pre class="r"><code>p6 = data_1 %&gt;%
+<pre class="r"><code># Logarithmic operation
+p6 = data_1 %&gt;%
   ggplot(aes(x = log(estimated_gross_income))) +
   geom_density(aes(y = after_stat(density)),
                  fill = &quot;#009E73&quot;,
@@ -398,8 +377,7 @@ p1 = data_1 %&gt;%
                  bins = 10)</code></pre>
 <pre><code>## Warning in geom_density(aes(y = after_stat(density)), fill = &quot;#009E73&quot;, :
 ## Ignoring unknown parameters: `bins`</code></pre>
-<pre class="r"><code># normality test
-p1 + p2 + p3 + p4 + p5 + p6 </code></pre>
+<pre class="r"><code>p1 + p2 + p3 + p4 + p5 + p6 </code></pre>
 <p><img src="preliminary_modeling_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 <pre class="r"><code>#### log_estimated_gross_income
 
@@ -408,100 +386,58 @@ data_egi = data_1 %&gt;%
     log_total_units = log(total_units),
     log_gross_sq_ft = log(gross_sq_ft),
     log_estimated_gross_income = log(estimated_gross_income)
-  ) %&gt;%
-  select(latitude, longitude, building_classification, borough,
-         log_total_units, year_built, log_gross_sq_ft,  
-         log_estimated_gross_income)
+  ) 
 
+# intercept only model
 io_eg = lm(log_estimated_gross_income ~ 1, data = data_egi)
 
-all_eg = lm(log_estimated_gross_income ~ ., data = data_egi)
+# model with all predictors
+all_eg = lm(log_estimated_gross_income ~  type
+     + borough + log_total_units + year_built + log_gross_sq_ft, data = data_egi)
 
-egi_fit = step(io_eg, direction = &quot;both&quot;, scope = formula(all_eg), trace = 0)
-
+# stepwise procedure
+egi_fit = step(io_eg, direction = &quot;both&quot;, scope = formula(all_eg), trace = 0)</code></pre>
+<pre class="r"><code># formula
 equatiomatic::extract_eq(egi_fit, use_coefs = TRUE)</code></pre>
 <p><span class="math display">\[
-\operatorname{\widehat{log\_estimated\_gross\_income}} = 4.04 +
-0.96(\operatorname{\log\_gross\_sq\_ft}) -
-0.54(\operatorname{borough}_{\operatorname{2}}) -
-0.9(\operatorname{borough}_{\operatorname{3}}) -
-0.51(\operatorname{borough}_{\operatorname{4}}) -
-1.34(\operatorname{borough}_{\operatorname{5}}) -
-2.39(\operatorname{latitude}) +
-0.03(\operatorname{building\_classification}_{\operatorname{C4-WALK-UP}})
-+
-0.21(\operatorname{building\_classification}_{\operatorname{C5-WALK-UP}})
-+
-0.03(\operatorname{building\_classification}_{\operatorname{C6-WALK-UP}})
-+ 0(\operatorname{building\_classification}_{\operatorname{C7-WALK-UP}})
-+
-0.23(\operatorname{building\_classification}_{\operatorname{C9-WALK-UP}})
-+
-0.19(\operatorname{building\_classification}_{\operatorname{D0-ELEVATOR}})
-+
-0.01(\operatorname{building\_classification}_{\operatorname{D1-ELEVATOR}})
-+
-0.16(\operatorname{building\_classification}_{\operatorname{D3-ELEVATOR}})
-+
-0.11(\operatorname{building\_classification}_{\operatorname{D4-ELEVATOR}})
-+
-0.18(\operatorname{building\_classification}_{\operatorname{D5-ELEVATOR}})
-+
-0.3(\operatorname{building\_classification}_{\operatorname{D6-ELEVATOR}})
-+
-0.09(\operatorname{building\_classification}_{\operatorname{D7-ELEVATOR}})
-+
-0.25(\operatorname{building\_classification}_{\operatorname{D8-ELEVATOR}})
-+
-0.17(\operatorname{building\_classification}_{\operatorname{D9-ELEVATOR}})
-- 1.3(\operatorname{longitude}) + 0(\operatorname{year\_built}) -
-0.01(\operatorname{\log\_total\_units})
+\operatorname{\widehat{log\_estimated\_gross\_income}} = 1.91 +
+0.97(\operatorname{\log\_gross\_sq\_ft}) -
+0.92(\operatorname{borough}_{\operatorname{2}}) -
+0.67(\operatorname{borough}_{\operatorname{3}}) -
+0.66(\operatorname{borough}_{\operatorname{4}}) -
+0.8(\operatorname{borough}_{\operatorname{5}}) +
+0(\operatorname{year\_built}) -
+0.05(\operatorname{type}_{\operatorname{WALK}})
 \]</span></p>
 <pre class="r"><code>summary(egi_fit)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = log_estimated_gross_income ~ log_gross_sq_ft + borough + 
-##     latitude + building_classification + longitude + year_built + 
-##     log_total_units, data = data_egi)
+##     year_built + type, data = data_egi)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -2.38072 -0.17397  0.02015  0.19430  1.38319 
+## -2.36175 -0.15713  0.04168  0.21293  1.35025 
 ## 
 ## Coefficients:
-##                                      Estimate Std. Error  t value Pr(&gt;|t|)    
-## (Intercept)                         4.042e+00  2.541e+00    1.591   0.1117    
-## log_gross_sq_ft                     9.640e-01  2.134e-03  451.708  &lt; 2e-16 ***
-## borough2                           -5.371e-01  3.508e-03 -153.109  &lt; 2e-16 ***
-## borough3                           -8.975e-01  3.713e-03 -241.750  &lt; 2e-16 ***
-## borough4                           -5.055e-01  4.324e-03 -116.892  &lt; 2e-16 ***
-## borough5                           -1.336e+00  1.123e-02 -118.939  &lt; 2e-16 ***
-## latitude                           -2.386e+00  2.358e-02 -101.197  &lt; 2e-16 ***
-## building_classificationC4-WALK-UP   3.396e-02  4.410e-03    7.701 1.36e-14 ***
-## building_classificationC5-WALK-UP   2.138e-01  7.182e-03   29.777  &lt; 2e-16 ***
-## building_classificationC6-WALK-UP   3.485e-02  3.248e-03   10.730  &lt; 2e-16 ***
-## building_classificationC7-WALK-UP  -4.009e-04  4.102e-03   -0.098   0.9221    
-## building_classificationC9-WALK-UP   2.315e-01  5.497e-03   42.117  &lt; 2e-16 ***
-## building_classificationD0-ELEVATOR  1.920e-01  8.581e-03   22.378  &lt; 2e-16 ***
-## building_classificationD1-ELEVATOR  5.152e-03  2.856e-03    1.804   0.0712 .  
-## building_classificationD3-ELEVATOR  1.574e-01  3.685e-03   42.706  &lt; 2e-16 ***
-## building_classificationD4-ELEVATOR  1.067e-01  3.208e-03   33.266  &lt; 2e-16 ***
-## building_classificationD5-ELEVATOR  1.809e-01  6.276e-03   28.831  &lt; 2e-16 ***
-## building_classificationD6-ELEVATOR  3.025e-01  4.255e-03   71.094  &lt; 2e-16 ***
-## building_classificationD7-ELEVATOR  9.323e-02  4.010e-03   23.247  &lt; 2e-16 ***
-## building_classificationD8-ELEVATOR  2.530e-01  9.554e-03   26.483  &lt; 2e-16 ***
-## building_classificationD9-ELEVATOR  1.734e-01  4.550e-03   38.112  &lt; 2e-16 ***
-## longitude                          -1.298e+00  2.780e-02  -46.688  &lt; 2e-16 ***
-## year_built                          5.660e-04  3.804e-05   14.882  &lt; 2e-16 ***
-## log_total_units                    -1.285e-02  2.316e-03   -5.547 2.90e-08 ***
+##                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      1.9139438  0.0723038   26.47   &lt;2e-16 ***
+## log_gross_sq_ft  0.9731798  0.0010714  908.32   &lt;2e-16 ***
+## borough2        -0.9160340  0.0027887 -328.48   &lt;2e-16 ***
+## borough3        -0.6697263  0.0021139 -316.82   &lt;2e-16 ***
+## borough4        -0.6618684  0.0021507 -307.74   &lt;2e-16 ***
+## borough5        -0.7969028  0.0108752  -73.28   &lt;2e-16 ***
+## year_built       0.0009892  0.0000391   25.30   &lt;2e-16 ***
+## typeWALK        -0.0485254  0.0021991  -22.07   &lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.2886 on 170555 degrees of freedom
-## Multiple R-squared:  0.9295, Adjusted R-squared:  0.9295 
-## F-statistic: 9.779e+04 on 23 and 170555 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code>performance::check_model(egi_fit)</code></pre>
-<p><img src="preliminary_modeling_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+## Residual standard error: 0.3145 on 170955 degrees of freedom
+## Multiple R-squared:  0.9162, Adjusted R-squared:  0.9162 
+## F-statistic: 2.67e+05 on 7 and 170955 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code># check the model
+performance::check_model(egi_fit)</code></pre>
+<p><img src="preliminary_modeling_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <pre class="r"><code>## estimated_gross_income
 
 data_egi_nl = data_1 %&gt;%
@@ -511,93 +447,58 @@ data_egi_nl = data_1 %&gt;%
     log_estimated_gross_income = log(estimated_gross_income)
   ) 
 
-# Hmisc::describe(data_egi_nl)
-
+# intercept only model
 io_eg_nl = lm(estimated_gross_income ~ 1, data = data_egi_nl)
 
-all_eg_nl =  lm(estimated_gross_income ~  building_classification
+# model with all predictors
+all_eg_nl =  lm(estimated_gross_income ~  type
      + borough + log_total_units + year_built + log_gross_sq_ft, data = data_egi_nl)
 
-egi_fit_nl = step(io_eg_nl, direction = &quot;both&quot;, scope = formula(all_eg_nl), trace = 0)
-
+# stepwise procedure
+egi_fit_nl = step(io_eg_nl, direction = &quot;both&quot;, scope = formula(all_eg_nl), trace = 0)</code></pre>
+<pre class="r"><code># formula
 equatiomatic::extract_eq(egi_fit_nl, use_coefs = TRUE)</code></pre>
 <p><span class="math display">\[
-\operatorname{\widehat{estimated\_gross\_income}} = -39848051.94 +
-2555409.65(\operatorname{\log\_gross\_sq\_ft}) -
-52403.26(\operatorname{building\_classification}_{\operatorname{C4-WALK-UP}})
-+
-424496.3(\operatorname{building\_classification}_{\operatorname{C5-WALK-UP}})
--
-359150.55(\operatorname{building\_classification}_{\operatorname{C6-WALK-UP}})
--
-422820.57(\operatorname{building\_classification}_{\operatorname{C7-WALK-UP}})
--
-1472734.12(\operatorname{building\_classification}_{\operatorname{C9-WALK-UP}})
--
-1983186.29(\operatorname{building\_classification}_{\operatorname{D0-ELEVATOR}})
--
-2763099.68(\operatorname{building\_classification}_{\operatorname{D1-ELEVATOR}})
--
-2786984.62(\operatorname{building\_classification}_{\operatorname{D3-ELEVATOR}})
--
-2203285.66(\operatorname{building\_classification}_{\operatorname{D4-ELEVATOR}})
--
-1646438.72(\operatorname{building\_classification}_{\operatorname{D5-ELEVATOR}})
--
-885754.6(\operatorname{building\_classification}_{\operatorname{D6-ELEVATOR}})
--
-2644436.49(\operatorname{building\_classification}_{\operatorname{D7-ELEVATOR}})
-+
-604573.42(\operatorname{building\_classification}_{\operatorname{D8-ELEVATOR}})
--
-1889853.07(\operatorname{building\_classification}_{\operatorname{D9-ELEVATOR}})
-- 2258420.45(\operatorname{borough}_{\operatorname{2}}) -
-1679702.6(\operatorname{borough}_{\operatorname{3}}) -
-2258622.82(\operatorname{borough}_{\operatorname{4}}) -
-1729013.51(\operatorname{borough}_{\operatorname{5}}) +
-7921.17(\operatorname{year\_built}) +
-469223.02(\operatorname{\log\_total\_units})
+\operatorname{\widehat{estimated\_gross\_income}} = -49367301.95 +
+2737644.66(\operatorname{\log\_gross\_sq\_ft}) -
+2648037.47(\operatorname{borough}_{\operatorname{2}}) -
+2020767.65(\operatorname{borough}_{\operatorname{3}}) -
+2861723.12(\operatorname{borough}_{\operatorname{4}}) -
+2600281.36(\operatorname{borough}_{\operatorname{5}}) +
+2285628.64(\operatorname{type}_{\operatorname{WALK}}) +
+10899.35(\operatorname{year\_built}) +
+377790.32(\operatorname{\log\_total\_units})
 \]</span></p>
 <pre class="r"><code>summary(egi_fit_nl)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = estimated_gross_income ~ log_gross_sq_ft + building_classification + 
-##     borough + year_built + log_total_units, data = data_egi_nl)
+## lm(formula = estimated_gross_income ~ log_gross_sq_ft + borough + 
+##     type + year_built + log_total_units, data = data_egi_nl)
 ## 
 ## Residuals:
 ##       Min        1Q    Median        3Q       Max 
-##  -7259199  -1046380   -183266    675252 201362191 
+##  -5998636  -1112875   -245646    693082 200358040 
 ## 
 ## Coefficients:
-##                                      Estimate Std. Error  t value Pr(&gt;|t|)    
-## (Intercept)                        -3.985e+07  7.223e+05  -55.171  &lt; 2e-16 ***
-## log_gross_sq_ft                     2.555e+06  2.100e+04  121.689  &lt; 2e-16 ***
-## building_classificationC4-WALK-UP  -5.240e+04  4.346e+04   -1.206    0.228    
-## building_classificationC5-WALK-UP   4.245e+05  7.122e+04    5.960 2.52e-09 ***
-## building_classificationC6-WALK-UP  -3.592e+05  3.218e+04  -11.159  &lt; 2e-16 ***
-## building_classificationC7-WALK-UP  -4.228e+05  4.049e+04  -10.441  &lt; 2e-16 ***
-## building_classificationC9-WALK-UP  -1.473e+06  5.260e+04  -27.998  &lt; 2e-16 ***
-## building_classificationD0-ELEVATOR -1.983e+06  8.385e+04  -23.652  &lt; 2e-16 ***
-## building_classificationD1-ELEVATOR -2.763e+06  2.814e+04  -98.176  &lt; 2e-16 ***
-## building_classificationD3-ELEVATOR -2.787e+06  3.645e+04  -76.454  &lt; 2e-16 ***
-## building_classificationD4-ELEVATOR -2.203e+06  3.158e+04  -69.768  &lt; 2e-16 ***
-## building_classificationD5-ELEVATOR -1.646e+06  6.140e+04  -26.814  &lt; 2e-16 ***
-## building_classificationD6-ELEVATOR -8.858e+05  4.179e+04  -21.197  &lt; 2e-16 ***
-## building_classificationD7-ELEVATOR -2.644e+06  3.958e+04  -66.809  &lt; 2e-16 ***
-## building_classificationD8-ELEVATOR  6.046e+05  9.427e+04    6.413 1.43e-10 ***
-## building_classificationD9-ELEVATOR -1.890e+06  4.487e+04  -42.121  &lt; 2e-16 ***
-## borough2                           -2.258e+06  2.687e+04  -84.038  &lt; 2e-16 ***
-## borough3                           -1.680e+06  2.123e+04  -79.124  &lt; 2e-16 ***
-## borough4                           -2.259e+06  2.243e+04 -100.704  &lt; 2e-16 ***
-## borough5                           -1.729e+06  1.008e+05  -17.155  &lt; 2e-16 ***
-## year_built                          7.921e+03  3.738e+02   21.189  &lt; 2e-16 ***
-## log_total_units                     4.692e+05  2.282e+04   20.564  &lt; 2e-16 ***
+##                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     -4.937e+07  7.126e+05  -69.28   &lt;2e-16 ***
+## log_gross_sq_ft  2.738e+06  1.986e+04  137.85   &lt;2e-16 ***
+## borough2        -2.648e+06  2.588e+04 -102.34   &lt;2e-16 ***
+## borough3        -2.021e+06  1.961e+04 -103.06   &lt;2e-16 ***
+## borough4        -2.862e+06  1.998e+04 -143.24   &lt;2e-16 ***
+## borough5        -2.600e+06  1.008e+05  -25.79   &lt;2e-16 ***
+## typeWALK         2.286e+06  2.056e+04  111.17   &lt;2e-16 ***
+## year_built       1.090e+04  3.699e+02   29.46   &lt;2e-16 ***
+## log_total_units  3.778e+05  2.220e+04   17.02   &lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 2868000 on 170557 degrees of freedom
-## Multiple R-squared:  0.4838, Adjusted R-squared:  0.4838 
-## F-statistic:  7613 on 21 and 170557 DF,  p-value: &lt; 2.2e-16</code></pre>
+## Residual standard error: 2915000 on 170954 degrees of freedom
+## Multiple R-squared:  0.4654, Adjusted R-squared:  0.4653 
+## F-statistic: 1.86e+04 on 8 and 170954 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code># check the model
+performance::check_model(egi_fit_nl)</code></pre>
+<p><img src="preliminary_modeling_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <pre class="r"><code>pred_df = data_egi_nl %&gt;%
   modelr::add_predictions(model = egi_fit_nl) 
 
@@ -613,52 +514,9 @@ loess_val</code></pre>
 <pre><code>## Call:
 ## loess(formula = pred_Y ~ latitude + longitude)
 ## 
-## Number of Observations: 170579 
+## Number of Observations: 170963 
 ## Equivalent Number of Parameters: 10.38 
-## Residual Standard Error: 2677000</code></pre>
-<div id="trained_df-data_egi_nl" class="section level1">
-<h1>trained_df = data_egi_nl %&gt;%</h1>
-</div>
-<div id="filterreport_year-2017" class="section level1">
-<h1>filter(report_year &lt; 2017) %&gt;%</h1>
-</div>
-<div id="selectreport_year-estimated_gross_income"
-class="section level1">
-<h1>select(report_year, estimated_gross_income)</h1>
-</div>
-<div id="section" class="section level1">
-<h1></h1>
-</div>
-<div id="combine_df---trained_df" class="section level1">
-<h1>combine_df &lt;- trained_df %&gt;%</h1>
-</div>
-<div id="left_joinpred_df-by-report_year" class="section level1">
-<h1>left_join(pred_df, by = “report_year”)</h1>
-</div>
-<div id="section-1" class="section level1">
-<h1></h1>
-</div>
-<div id="section-2" class="section level1">
-<h1></h1>
-</div>
-<div id="combine_df" class="section level1">
-<h1>combine_df %&gt;%</h1>
-</div>
-<div id="ggplotaesx-report_year-y-estimated_gross_income"
-class="section level1">
-<h1>ggplot(aes(x = report_year, y = estimated_gross_income)) +</h1>
-</div>
-<div id="geom_point" class="section level1">
-<h1>geom_point() +</h1>
-</div>
-<div id="geom_line" class="section level1">
-<h1>geom_line() +</h1>
-</div>
-<div id="geom_lineaesy-pred" class="section level1">
-<h1>geom_line(aes(y = pred)) +</h1>
-</div>
-<div id="geom_pointaesy-pred" class="section level1">
-<h1>geom_point(aes(y = pred))</h1>
+## Residual Standard Error: 2600000</code></pre>
 <pre class="r"><code>?loess()</code></pre>
 <pre><code>## 打开httpd帮助服务器… 好了</code></pre>
 <pre class="r"><code>edit(loess)</code></pre>
@@ -721,7 +579,6 @@ class="section level1">
 ##     fit
 ## }
 ## &lt;environment: namespace:stats&gt;</code></pre>
-</div>
 
 
 

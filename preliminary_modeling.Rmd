@@ -16,41 +16,18 @@ library(patchwork)
 ```{r}
 load('./data/cleaned_data.RData')
 
+
+
 data_1 = transformed_rental_income %>%
   separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>%
-  filter(!building_classification %in% c('C8-WALK-UP','D2-ELEVATOR')) %>% # delete factors with too small quantity
+  separate(building_classification, into = c("code", "type", "type_1"), sep = "-") %>%
   mutate(borough = factor(borough),
          neighborhood = factor(neighborhood),
-         building_classification = factor(building_classification))
-  #select(-block, -lot, -zoning, -boro_block, -block_id, -address)
-
-# joined_data = data_1 %>% left_join(zoning, by = "bbl") %>% drop_na(zoning_district_1)
+         type = factor(type)) 
+  
 
 
-
-# dist_zo = transformed_rental_income %>%
-#   distinct(zoning) 
-# 
-# dist_ne = transformed_rental_income %>%
-#   distinct(neighborhood) 
-# 
-# dist_bc = transformed_rental_income %>%
-#    distinct(building_classification)
-# 
-# bc = transformed_rental_income %>%
-#   select(building_classification) %>% Hmisc::describe()
-# 
-# bc
-
-
-# joined_data = joined_data %>%
-#   mutate(
-#     zoning = factor(zoning_district_1, levels = dist_zo$zoning_district_1, labels = dist_zo$zoning_district_1),
-#     neighborhood = factor(neighborhood, levels = dist_ne$neighborhood, labels = dist_ne$neighborhood),
-#     building_classification = factor(building_classification, levels = dist_bc$building_classification, labels = dist_bc$building_classification)
-#   ) 
-
-
+# make density plots of every variable to check its normality
 
 p1 = data_1 %>%
   ggplot(aes(x = latitude)) +
@@ -66,6 +43,7 @@ p2 = data_1 %>%
                  alpha = 0.75,
                  bins = 10)
 
+# Logarithmic operation
 p3 = data_1 %>%
   ggplot(aes(x = log(total_units))) +
   geom_density(aes(y = after_stat(density)),
@@ -79,14 +57,14 @@ p4 = data_1 %>%
                  fill = "#D55E00",
                  alpha = 0.75,
                  bins = 10)
-
+# Logarithmic operation
 p5 = data_1 %>%
   ggplot(aes(x = log(gross_sq_ft))) +
   geom_density(aes(y = after_stat(density)),
                  fill = "#56B4E9",
                  alpha = 0.75,
                  bins = 10)
-
+# Logarithmic operation
 p6 = data_1 %>%
   ggplot(aes(x = log(estimated_gross_income))) +
   geom_density(aes(y = after_stat(density)),
@@ -95,7 +73,6 @@ p6 = data_1 %>%
                  bins = 10)
 
 
-# normality test
 p1 + p2 + p3 + p4 + p5 + p6 
 
 ```
@@ -110,23 +87,32 @@ data_egi = data_1 %>%
     log_total_units = log(total_units),
     log_gross_sq_ft = log(gross_sq_ft),
     log_estimated_gross_income = log(estimated_gross_income)
-  ) %>%
-  select(latitude, longitude, building_classification, borough,
-         log_total_units, year_built, log_gross_sq_ft,  
-         log_estimated_gross_income)
+  ) 
 
+# intercept only model
 io_eg = lm(log_estimated_gross_income ~ 1, data = data_egi)
 
-all_eg = lm(log_estimated_gross_income ~ ., data = data_egi)
+# model with all predictors
+all_eg = lm(log_estimated_gross_income ~  type
+     + borough + log_total_units + year_built + log_gross_sq_ft, data = data_egi)
 
+# stepwise procedure
 egi_fit = step(io_eg, direction = "both", scope = formula(all_eg), trace = 0)
 
+```
+
+```{r}
+# formula
 equatiomatic::extract_eq(egi_fit, use_coefs = TRUE)
+```
 
+```{r}
 summary(egi_fit)
+```
 
+```{r}
+# check the model
 performance::check_model(egi_fit)
-
 ```
 
 ```{r}
@@ -139,20 +125,30 @@ data_egi_nl = data_1 %>%
     log_estimated_gross_income = log(estimated_gross_income)
   ) 
 
-# Hmisc::describe(data_egi_nl)
-
+# intercept only model
 io_eg_nl = lm(estimated_gross_income ~ 1, data = data_egi_nl)
 
-all_eg_nl =  lm(estimated_gross_income ~  building_classification
+# model with all predictors
+all_eg_nl =  lm(estimated_gross_income ~  type
      + borough + log_total_units + year_built + log_gross_sq_ft, data = data_egi_nl)
 
+# stepwise procedure
 egi_fit_nl = step(io_eg_nl, direction = "both", scope = formula(all_eg_nl), trace = 0)
+```
 
+```{r}
+# formula
 equatiomatic::extract_eq(egi_fit_nl, use_coefs = TRUE)
+```
 
+```{r}
 summary(egi_fit_nl)
 ```
 
+```{r}
+# check the model
+performance::check_model(egi_fit_nl)
+```
 
 
 ```{r}
@@ -171,24 +167,7 @@ loess_val
 ```
 
 
-# trained_df = data_egi_nl %>%
-#   filter(report_year < 2017) %>%
-#   select(report_year, estimated_gross_income)
-# 
-# combine_df <- trained_df %>%
-#   left_join(pred_df, by = "report_year")
-# 
-# 
-# combine_df %>%
-#   ggplot(aes(x = report_year, y = estimated_gross_income)) +
-#   geom_point() +
-#   geom_line() +
-#   geom_line(aes(y = pred)) +
-#   geom_point(aes(y = pred))
-```{r}
-?loess()
-edit(loess)
-```
+
 
 
 
