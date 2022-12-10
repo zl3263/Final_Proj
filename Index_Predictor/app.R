@@ -125,7 +125,7 @@ server <- function(input, output) {
       predicted = predict_rental(new_data)
       
       output$result <- renderText({
-        paste0("Your gross income pre suqare feet is ", as.character(round(predicted,2)))
+        paste0("Your gross income per suqare feet is ", as.character(round(predicted,2)))
         #as.character(location)
       })
       

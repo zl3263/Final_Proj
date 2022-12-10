@@ -152,7 +152,7 @@ block_location = read_sf("Shiny_Map/DTM_Tax_Block_Polygon.shp") %>%
     latitude = mean(ave_lat)
   )
   
-save(block_edge,file = "Index_Predictor/block_location.RData")
+save(block_location,file = "Index_Predictor/block_location.RData")
 
 expanded_df = 
   tibble(boro_block = 1:600000) %>%

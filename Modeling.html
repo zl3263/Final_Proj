@@ -13,7 +13,7 @@
 
 <title>Regression Analysis</title>
 
-<script src="site_libs/header-attrs-2.18/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
@@ -185,8 +185,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "\e259";
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -194,9 +194,16 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "\e258";
-  font-family: 'Glyphicons Halflings';
+  content: "&#xe258;";
   border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -591,6 +598,132 @@ performance::check_model(egi_fit, check = c(&quot;outliers&quot;, &quot;qq&quot;
 <p>From above we know that <code>log_total_units</code> is left out in
 the fitting procedure, and the checking plots indicate that our model is
 well done for the sake of normality and outliers.</p>
+</div>
+</div>
+<div id="predicting-model-using-lowess-method-on-location"
+class="section level2">
+<h2>Predicting Model using LOWESS method on location</h2>
+<p>From this part, the model didn’t use the location
+(<code>longitude</code> and <code>latitude</code>) of the building.
+Obviouly, there is no linear relationship between location and gross
+income. Thus, we use lowess method to approximate the influence of
+location on rental price.</p>
+<p>Here, we are interested in the predicting the “gross income per squre
+feet” variable. The modeling process is as follows:</p>
+<ul>
+<li>Fittting a linear model without <code>longitude</code> and
+<code>latitude</code></li>
+<li>Take the residual of the model into 2-dimensional LOWESS smoothing
+with <code>longitude</code> and <code>latitude</code>.</li>
+<li>For a new datapoint, – pipe into the linear model to get the linear
+prediction – Use the smoothed model to estimate the location residual –
+Add up the two terms to get the final prediction.</li>
+</ul>
+<div id="building-the-partial-loess-model" class="section level3">
+<h3>Building the partial-LOESS model</h3>
+<p>First, we take the dataset and fit a linear model without
+<code>longitude</code> and <code>latitude</code>, and save the residual
+for the following LOESS method.</p>
+<pre class="r"><code>rm(list=ls())
+load(&quot;data/cleaned_data.RData&quot;)
+
+transformed_rental_income = 
+  transformed_rental_income %&gt;%
+  mutate(
+    is_elevator = str_detect(building_classification,&quot;ELEVATOR&quot;)
+  )
+
+linear_model = lm(gross_income_per_sq_ft~ is_elevator+total_units+year_built+report_year+gross_sq_ft, data=transformed_rental_income)
+
+transformed_rental_income = 
+  transformed_rental_income %&gt;%
+  mutate(
+    resid_linear = linear_model$residuals
+  )  %&gt;%
+  group_by(address) %&gt;%
+  summarize(
+    gross_income_per_sq_ft = mean(gross_income_per_sq_ft),
+    resid_linear = mean(resid_linear),
+    longitude = mean(longitude),
+    latitude = mean(latitude),
+    is_elevator = as.logical(mean(is_elevator)),
+    total_units = mean(total_units),
+    year_built = mean(year_built),
+    report_year = mean(report_year),
+    gross_sq_ft = mean(gross_sq_ft)
+  )</code></pre>
+<p>Then, we applied LOESS smoothing on the residual by location. Here,
+we chose <code>span = 0.05</code> because gross_income may change
+quickly just by a few blocks, and our dataset is large enough to capture
+such sudden changes. The smoothed residual is as follows:</p>
+<pre class="r"><code>lowess_surf = loess(resid_linear~latitude+longitude,data=transformed_rental_income,span = 0.05)
+
+transformed_rental_income=
+  transformed_rental_income %&gt;%
+  mutate(
+  resid_smooth = lowess_surf$fitted
+)  
+
+smooth_location_resid = transformed_rental_income %&gt;%
+  select(longitude,latitude,resid_smooth)
+
+transformed_rental_income %&gt;%
+  ggplot(aes(x=longitude,y=latitude,color=resid_smooth)) +
+  geom_point()</code></pre>
+<p><img src="Modeling_files/figure-html/unnamed-chunk-7-1.png" width="768" /></p>
+</div>
+<div id="predicting-function-and-model-validation"
+class="section level3">
+<h3>Predicting function and Model Validation</h3>
+<p>The residual of the new point is estimated by a local linear model
+with its <code>n_neighbours = 20</code> neighbours. we don’t need a
+large number of neighbors because the curve is already smoothed and
+niose is removed. Based on that, we can combine a local estimator and
+the linear model together using the following function:</p>
+<pre class="r"><code>n_neighbours = 20
+predict_rental = function(new_data){
+  if(nrow(new_data)!=1){
+    return(&quot;nrow must be 1&quot;)
+  }
+  location_resid =
+    smooth_location_resid %&gt;%
+    mutate(
+      d=(longitude-new_data$longitude)^2+(latitude-new_data$latitude)^2
+    ) %&gt;%
+    arrange(d) %&gt;% 
+    head(n_neighbours) %&gt;%
+    lm(resid_smooth~longitude+latitude,data=.) %&gt;%
+    predict(newdata = new_data)
+  
+  predict(linear_model,newdata=new_data) + location_resid
+}
+
+
+# saving the function for Index_Predictor Shiny App
+model_coef =
+  broom::tidy(linear_model) %&gt;%
+  select(term,estimate)
+
+save(predict_rental,linear_model,smooth_location_resid,model_coef,file = &quot;Index_Predictor/modeling_result.RData&quot;)</code></pre>
+<p>To validate Our model, we sample 100 records in our original dataset,
+and use the model to predict their gross income pre square feet.
+However, this is not a cross-validation since excluding these
+observations has little effect on our model due to large sample
+number.</p>
+<pre class="r"><code>n_test=100
+error = rep(0,n_test)
+
+for(i in 1:n_test){
+  test_sample=
+    transformed_rental_income %&gt;%
+    slice_sample(n=1)
+  predicted = as.numeric(predict_rental(test_sample))
+  error[i] = test_sample$gross_income_per_sq_ft[1]-predicted
+}
+tibble(error=error) %&gt;%
+  ggplot(aes(x=error)) +
+  geom_density()</code></pre>
+<p><img src="Modeling_files/figure-html/unnamed-chunk-9-1.png" width="768" /></p>
 </div>
 </div>
 
