@@ -127,13 +127,40 @@ text here
 
 one way anova to test the classification term
 ```{r}
+for_map %>%
+  group_by(building_classification) %>%
+  summarise(
+    n = n(),
+    mean = mean(gross_income_per_sq_ft),
+    sum = sum(gross_income_per_sq_ft),
+    variance = var(gross_income_per_sq_ft)
+  )
 
+for_map %>%
+  ggplot(aes(x =building_classification, y = gross_income_per_sq_ft,fill =building_classification))+
+  geom_boxplot()+
+  theme(
+        axis.text.x = element_text(angle = 90)
+      )+
+  guides(fill=F)
+```
+```{r}
+for_anova = for_map %>%
+  filter(
+  building_classification!= "C8-WALK-UP",
+  building_classification!= "C9-WALK-UP"
+  )%>%
+  select(c(building_classification,gross_income_per_sq_ft))
+  
+res = lm(gross_income_per_sq_ft ~ factor(building_classification), data = for_anova)
+anova(res)
 ```
 
 SLR to test the years build 
 
 ```{r}
-
+lm(gross_income_per_sq_ft ~ year_built, data = for_map) %>%
+  summary()
 ```
 
 
