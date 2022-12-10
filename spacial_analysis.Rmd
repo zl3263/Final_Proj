@@ -1,7 +1,10 @@
 ---
 title: "How to choose rental buildings?"
-output: html_document
-date: "2022-12-08"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+
 ---
 
 
@@ -13,6 +16,7 @@ library(plotly)
 load("E:/2023_autumn/DataScience/Final_Proj/data/cleaned_data.RData")
 load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
 ```
+## Overview
 
 ```{r}
 transformed_rental_income=
@@ -54,7 +58,8 @@ income_sqft_M = for_map %>%
     mode = 'markers',
     alpha = 0.5,
     hovertext = ~gross_income_per_sq_ft,
-    hoverinfo = 'text'
+    hoverinfo = 'text',
+    colors = "Spectral"
   ) %>%
   layout(
     mapbox = list(
@@ -64,9 +69,6 @@ income_sqft_M = for_map %>%
     )
   )
 
-income_sqft_M
-```
-```{r}
 yearsbuild_M = for_map %>%
   plot_mapbox(
     lon = ~lon,
@@ -86,10 +88,60 @@ yearsbuild_M = for_map %>%
     )
   )
 
-yearsbuild_M
+elevator_M = for_map %>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~building_classification,
+    mode = 'markers',
+    alpha = 1,
+    hovertext = ~building_classification,
+    hoverinfo = 'text'
+  ) %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 10,
+      center = list(lat = 40.81, lon = -73.96)
+    )
+  )
+
+
+subplot(income_sqft_M, yearsbuild_M,elevator_M, nrows = 1, margin = 0.01) %>% layout(showlegend = FALSE, title = 'Income/sqft - Year built - Classification')
 ```
 
-what about the price in columbia university and columbia university ivery medical center?
+```{r}
+income_sqft_M
+```
+```{r}
+yearsbuild_M
+```
+```{r}
+elevator_M
+```
+
+
+text here 
+
+### Does the building years and building classification related to rental price?
+
+one way anova to test the classification term
+```{r}
+
+```
+
+SLR to test the years build 
+
+```{r}
+
+```
+
+
+
+
+## For Columbia Students
+
+what about the price in Columbia university and Columbia university Irving medical center?
 
 ```{r}
 latCU = 40.80754
@@ -157,7 +209,4 @@ near_CUIMC = for_map %>%
 subplot(near_columbia, near_CUIMC, nrows = 1, titleY = TRUE, titleX = TRUE, margin = 0.01) 
 ```
 
-```{r}
-
-```
 
