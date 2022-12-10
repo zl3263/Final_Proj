@@ -24,6 +24,86 @@ This dataset contains the income and expense statements of condominium and compa
 ## Preprocessing
 
 ## EDA 
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(patchwork)
+library(kableExtra)
+library(GGally)
+library(corrplot)
+load("data/cleaned_data.RData")
+
+df = 
+  transformed_rental_income %>% 
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>% 
+  mutate(
+    borough = case_when(
+      borough == "1" ~ "Manhattan",
+      borough == "2" ~ "Bronx",
+      borough == "3" ~ "Brooklyn",
+      borough == "4" ~ "Queens",
+      borough == "5" ~ "Staten Island")
+    )
+
+df %>% 
+  mutate(borough = fct_reorder(borough, full_market_value)) %>% 
+  group_by(borough) %>%
+  summarise(
+    observations = n()
+  ) %>%
+  plot_ly(y = ~borough, 
+          x = ~observations, 
+          color = ~borough, 
+          type = "bar", 
+          colors = "viridis",
+          orientation = 'h') %>%
+  layout(title = 'Records in each Borough')
+```
+
+```{r}
+df %>% 
+  mutate(borough = fct_reorder(borough, full_market_value)) %>% 
+  plot_ly(y = ~log(full_market_value), color = ~borough, type = "box", colors = "viridis") %>%
+  layout(
+    xaxis = list(title = 'Borough'),
+    yaxis = list(title = 'log(Market value)')
+  )
+```
+According to the histogram plot and box plot, we can see that the order of mean value is Manhattan, Queens, Brooklyn, Bronx and Staten Island from the highest to the lowest.
+Both number and mean value of rentals in Manhattan take the head in five boroughs.
+
+Take a overview on the trends of rentals over time. (stratified by boroughs)
+```{r}
+ddf = 
+  df %>% 
+  mutate(classification = substr(building_classification, 4, 12))
+
+line_df = ddf %>% 
+  group_by(borough, year_built) %>% 
+  summarise(mean_value_year = mean(full_market_value)) %>% 
+  ggplot(aes(x = year_built, y = mean_value_year, color = borough))+
+  geom_line()+ 
+  theme_bw()+
+  facet_wrap(~borough, ncol=3)+ 
+  scale_colour_manual(values=c("#D9B489", "#D49F3A", "#BC3D1C", "#4C372D", "#E8E3B9"))
+
+fig <- ggplotly(line_df)
+
+fig
+```
+
+correlation plot between variables
+```{r}
+dddf = 
+  ddf %>% 
+  select(-report_year, -boro_block, -lot, -building_classification, -address, -zoning)
+# Plot the correlation
+corr = data.frame(lapply(lapply(dddf, as.factor), as.numeric))
+corrplot(cor(corr), type = "lower", method = 'color', tl.col = "black",tl.cex=0.8, tl.srt=50)
+```
+
+
 Skewness value: it can be used to measure the asymmetry of probability distribution of random variables.
 
 Kurtosis value: it can be used to measure the steepness of the probability distribution of random variables.
@@ -70,8 +150,8 @@ library(tidyverse)
 library(plotly)
 library(patchwork)
 
-load("E:/2023_autumn/DataScience/Final_Proj/data/cleaned_data.RData")
-load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
+load("data/cleaned_data.RData")
+load("data/Manhattan_latlonmap.RData")
 
 
 transformed_rental_income=
