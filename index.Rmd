@@ -1,11 +1,34 @@
 ---
-title: "Final Project"
+title: "Apartment Price In NYC"
 output: 
   html_document
 
 ---
-The index page
+-----------------
 
 
+
+### Welcome to our project page about exploring the apartment price in NYC
+
+Everyone who tries to move to New York City is suffering from the high rent of apartments, which inspired us to investigate the apartment rentals in this city. Find more about our works in:
+
+- [Data Source](Introduction.html) 
+- [EDA](Exploring_Data.html)
+- [Spacial and Statistical Analysis](spacial_analysis.html)
+- [Modeling](Modeling.html)
+
+
+## Screencast
+
+
+## Try Our Model
 
 <iframe height="400" width="100%" frameborder="no" src="https://nuc-rental-income.shinyapps.io/index_predictor/"> </iframe>
+
+## Our Team
+
+- Zizhao Lin zl3263
+- Zekai Jin zj2357
+- Qilin Zheng qz2492
+- Yanling Xue yx2710
+- Ruiji Pan rp3127

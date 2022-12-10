@@ -16,7 +16,7 @@ navbar:
       
       
   right:
-    - text: Report
+    - text: "Report"
       href: Report.html
     - icon: fa-github fa-lg
       href: https://github.com/zl3263/Final_Proj
