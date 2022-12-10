@@ -8,7 +8,7 @@ navbar:
     - text: "Exploring Data"
       href: Exploring_Data.html
     - text: "Spacial&Statistical Analysis"
-      href: special_analysis.html
+      href: spacial_analysis.html
     - text: "Modeling"
       href: Modeling.html
     - text: "Browse by Map"
