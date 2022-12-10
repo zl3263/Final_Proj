@@ -40,11 +40,11 @@ Therefore, we decided to dig deeper and use some of these variables to predict e
 
 The variables involved are as followed:
 
-\ ·`estimated_gross_income`**` _(dependent)_: Estimated income from the building
+\ ·`estimated_gross_income` _(dependent)_: Estimated income from the building
 
-\ ·`latitude`: latitude of the building
+\ ·`latitude`: Latitude of the building
 
-\ ·`longitude`:  longitude of the building
+\ ·`longitude`: Longitude of the building
 
 \ ·`type`: Walk-up/Elevators
 
