@@ -11,13 +11,248 @@ output:
 
 ## Motivation
 
+New to New York City, our group members are all shocked by the high cost of building rentals. This encourages us to explore more about the property market and the buildings' price in NYC.
+
+We are curious about the distribution of buildings of each pricing level in time and geographical zones. Also, we want to find factors that may have influence on buildings value. Based on which, we can further modeling and predicting the buildings price in New York. 
+
 ## Data Source
+
+To attain the price information of buildings, we use the dataset published by the Department of Finance of NYC. The origin data can be acquired from [NYC Open Data](https://data.cityofnewyork.us/City-Government/DOF-Cooperative-Comparable-Rental-Income-Citywide-/myei-c3fa)
+
+This dataset contains the income and expense statements of condominium and comparable rental buildings in NYC that helps people estimate the marked value of their own buildings. In each observations, a condominium/cooperative is compared with three rental buildings that have similar physical and geographical features.  We equaly treat these two kind of buildings and transformed the data shape to ensure that each observation records exactly one building.
 
 ## Preprocessing
 
 ## EDA 
 
 ## Spacial & Statistical Analysis
+
+### Infomation on map
+
+```{r message = FALSE, warning=FALSE}
+library(tidyverse)
+library(plotly)
+library(patchwork)
+
+load("E:/2023_autumn/DataScience/Final_Proj/data/cleaned_data.RData")
+load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
+
+
+transformed_rental_income=
+  transformed_rental_income %>%
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>%
+  mutate(
+  borough = case_when(
+    borough == "1" ~ "Manhattan",
+    borough == "2" ~ "Bronx",
+    borough == "3" ~ "Brooklyn",
+    borough == "4" ~ "Queens",
+    borough == "5" ~ "Staten Island")
+  ) %>% 
+  filter(
+    borough == "Manhattan"
+  )
+
+Manhattan_data = Manhattan_data %>%
+  separate(address, into = c("address", "toremove"), sep = ",") %>%
+  select(-toremove)
+
+transformed_rental_income = 
+  left_join(transformed_rental_income, Manhattan_data, by = "address")
+
+## Columbia university lat lon 40.80754 -73.96257
+## Hammer health science building lat lon 40.84252 -73.94243 
+
+for_map =  transformed_rental_income %>% 
+  filter(report_year > 2019) %>%
+  select(-c(latitude,longitude)) 
+
+income_sqft_M = for_map %>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~gross_income_per_sq_ft,
+    mode = 'markers',
+    alpha = 0.5,
+    hovertext = ~gross_income_per_sq_ft,
+    hoverinfo = 'text',
+    colors = "Spectral"
+  ) %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 10,
+      center = list(lat = 40.81, lon = -73.96)
+    )
+  )
+
+yearsbuild_M = for_map %>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~year_built,
+    mode = 'markers',
+    alpha = 0.5,
+    hovertext = ~year_built,
+    hoverinfo = 'text',
+    colors = c('red','yellow','green')
+  ) %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 10,
+      center = list(lat = 40.81, lon = -73.96)
+    )
+  )
+
+elevator_M = for_map %>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~building_classification,
+    mode = 'markers',
+    alpha = 1,
+    hovertext = ~building_classification,
+    hoverinfo = 'text'
+  ) %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 10,
+      center = list(lat = 40.81, lon = -73.96)
+    )
+  )
+
+
+subplot(income_sqft_M, yearsbuild_M,elevator_M, nrows = 1, margin = 0.01) %>% layout(showlegend = FALSE, title = 'Income/sqft - Year built - Classification')
+```
+
+Visualized information of `gross_income_per_sq_ft`, `year_built` and `Classification` on map. The three plots are in same size and version, providing a comparable overview. We then performed statistical analysis to test their relationships to the price. 
+
+### One Way ANOVA on Elevator Facilities
+
+```{r message=FALSE, warning=FALSE}
+
+for_map %>%
+  ggplot(aes(x =building_classification, y = gross_income_per_sq_ft,fill =building_classification))+
+  geom_boxplot()+
+  labs(title = "Elevator Facilities")+
+  theme(
+        axis.text.x = element_text(angle = 90)
+      )+
+  guides(fill=F)
+```
+
+According to the box plot, we have few records on `C8-WALK-UP` and `C9-WALK-UP`, so we filtered them out in the anova test.
+
+```{r message=FALSE, warning=FALSE}
+for_anova = for_map %>%
+  filter(
+  building_classification!= "C8-WALK-UP",
+  building_classification!= "C9-WALK-UP"
+  )%>%
+  select(c(building_classification,gross_income_per_sq_ft))
+  
+res = lm(gross_income_per_sq_ft ~ factor(building_classification), data = for_anova)
+anova(res)
+```
+
+In this one way anova test, our null hypothesis is that the average price of each kinds of building are the same. Given a p-value much smaller than 0.05, we reject the null hypothesis and conclude that there are differences in the average price of each kinds of building. This indicates that the building classification is related to the rental price. 
+
+The detailed relationship across each types can be further checked by paired t-test.
+
+### SLR on Years built
+
+```{r message=FALSE, warning=FALSE}
+for_map %>%
+  ggplot(aes(x = gross_income_per_sq_ft))+
+  geom_histogram() +
+  labs(
+    title = "Price Distribution"
+  )
+
+fit1 = lm(gross_income_per_sq_ft ~ year_built, data = for_map)
+summary(fit1)
+
+par(mfrow=c(1,2))
+plot(fit1,which = 1) 
+plot(fit1,which = 2)
+
+
+```
+We applied SLR to test the significance of the years built. Given the null hypothesis that the coefficient of years built term is 0, p-value is small and we can reject the null. However, the estimated coefficient is small and the price seems not normally distributed, which may lead to inaccurate result.
+
+### Rentals near Columbia 
+
+We plotted the buildings information near Columbia campus to help with students choosing their apartment. 
+
+```{r}
+latCU = 40.80754
+lonCU = -73.96257
+latCUIMC = 40.84252
+lonCUIMC = -73.94243
+
+near_columbia = for_map %>%
+  filter(
+    lat >  latCU - 0.01,
+    lat < latCU + 0.01,
+    lon > lonCU -0.005,
+    lon < lonCU + 0.005
+    ) %>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~gross_income_per_sq_ft,
+    mode = 'markers',
+    alpha = 1,
+    hovertext = ~address,
+    text = ~gross_income_per_sq_ft,
+    meta = ~building_classification,
+    hovertemplate = "%{hovertext} <br> %{meta} <br>gross_income_per_sq_ft: %{text}",
+    hoverinfo = 'text',
+    colors = "Spectral"
+  )  %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 13,
+      center = list(lat = latCU, lon = lonCU)
+    )
+  )
+
+
+near_CUIMC = for_map %>% 
+  filter(
+    lat >  latCUIMC - 0.01,
+    lat < latCUIMC + 0.01,
+    lon > lonCUIMC -0.005,
+    lon < lonCUIMC + 0.005    
+  )%>%
+  plot_mapbox(
+    lon = ~lon,
+    lat = ~lat,
+    color = ~gross_income_per_sq_ft,
+    mode = 'markers',
+    alpha = 1,
+    hovertext = ~address,
+    text = ~gross_income_per_sq_ft,
+    meta = ~building_classification,
+    hovertemplate = "%{hovertext} <br> %{meta} <br>gross_income_per_sq_ft: %{text}",
+    hoverinfo = 'text',
+    colors = "Spectral"
+  ) %>%
+  layout(
+    mapbox = list(
+      style = "streets",
+      zoom = 13,
+      center = list(lat = latCUIMC, lon = lonCUIMC)
+    )
+  )
+
+subplot(near_columbia, near_CUIMC, nrows = 1, titleY = TRUE, titleX = TRUE, margin = 0.01) %>% layout(title = 'Rentals near Columbia Campus')
+
+rm (list = ls ())
+```
 
 ## Modeling
 
