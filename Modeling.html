@@ -11,9 +11,9 @@
 
 
 
-<title>Modeling</title>
+<title>Regression Analysis</title>
 
-<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.18/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
@@ -64,6 +64,7 @@ if (window.hljs) {
 
 
 
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 
 
@@ -184,8 +185,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -193,16 +194,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -338,7 +332,7 @@ div.tocify {
   <a href="Exploring_Data.html">Exploring Data</a>
 </li>
 <li>
-  <a href="Statistical_Analysis.html">Statistical Analysis</a>
+  <a href="spacial_analysis.html">Spacial&amp;Statistical Analysis</a>
 </li>
 <li>
   <a href="Modeling.html">Modeling</a>
@@ -348,20 +342,8 @@ div.tocify {
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    More
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="Report.html">Report</a>
-    </li>
-    <li>
-      <a href="Acknowledgement.html">Acknowledgement</a>
-    </li>
-  </ul>
+        <li>
+  <a href="Report.html">Report</a>
 </li>
 <li>
   <a href="https://github.com/zl3263/Final_Proj">
@@ -386,20 +368,235 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Modeling</h1>
+<h1 class="title toc-ignore">Regression Analysis</h1>
 
 </div>
 
 
-<div id="Model Selection" class="section level1">
-		<h3>Model Selection</h3>
-		<p>We need to forecast the monthly housing rent based on 17 characteristic values. This is a regression problem. In this paper, we have tried the following different models for training and prediction, and selected several models with better effects for model fusion to get the final model.</p>		
-		<h4>（1）LightGBM</h4>
-		<h4>（2）XGBoost</h4>
-		<p>The algorithm measures the regression model by calculating the root mean square error of the predicted value and the real monthly rent. The smaller the root mean square error is, the better the regression model is. The calculation formula of root mean square error is as follows:
-Where, n is the number of samples; - Forecast monthly rent; X - actual monthly rent;
-We bring the training set data into different models to get the prediction results and compare them with the original target data (rent) to calculate RMSE:
-</p>
+<div id="predicting-model-for-estimated-gross-income"
+class="section level2">
+<h2>Predicting Model For Estimated Gross Income</h2>
+<div id="data" class="section level3">
+<h3>Data</h3>
+<p>Through previous data exploration and data analysis, we have learned
+that there are some variables in our data set strongly associated with
+the estimated gross income.</p>
+<p>Therefore, we decided to dig deeper and use some of these variables
+to predict estimated gross income.</p>
+<p>The variables involved are as followed:</p>
+<p> ·<code>estimated_gross_income</code> <em>(dependent)</em>: Estimated
+income from the building</p>
+<p> ·<code>latitude</code>: Latitude of the building</p>
+<p> ·<code>longitude</code>: Longitude of the building</p>
+<p> ·<code>type</code>: Walk-up/Elevators</p>
+<p> ·<code>borough</code>: 1 ~ Manhattan, 2 ~ The Bronx, 3 ~ Brooklyn, 4
+~ Queens, 5 ~ Staten Island</p>
+<p> ·<code>total_units</code>: Total number of units in the building</p>
+<p> ·<code>year_built</code>: The year the building was built</p>
+<p> .<code>gross_sq_ft</code>: Gross square footage of the building</p>
+<p>However, in the preliminary analysis, we found that some of them do
+not meet the normal distribution, so we use logarithm operation and the
+their distribution are fixed:</p>
+<pre class="r"><code>load(&#39;./data/cleaned_data.RData&#39;)
+
+data_1 = transformed_rental_income %&gt;%
+  separate(boro_block_lot, into = c(&quot;borough&quot;, &quot;block&quot;, &quot;lot&quot;), sep = &quot;-&quot;) %&gt;%
+  separate(building_classification, into = c(&quot;code&quot;, &quot;type&quot;, &quot;type_1&quot;), sep = &quot;-&quot;) %&gt;%
+  mutate(borough = factor(borough),
+         type = factor(type)) 
+  
+# make density plots of every variable to check its normality
+
+p1 = data_1 %&gt;%
+  ggplot(aes(x = latitude)) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#F0E442&quot;,
+                 alpha = 0.75,
+                 bins = 10)
+
+p2 = data_1 %&gt;%
+  ggplot(aes(x = longitude)) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#0072B2&quot;,
+                 alpha = 0.75,
+                 bins = 10)
+
+# Logarithmic operation
+p3 = data_1 %&gt;%
+  ggplot(aes(x = log(total_units))) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#CC79A7&quot;,
+                 alpha = 0.75,
+                 bins = 10)
+
+p4 = data_1 %&gt;%
+  ggplot(aes(x = year_built)) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#D55E00&quot;,
+                 alpha = 0.75,
+                 bins = 10)
+# Logarithmic operation
+p5 = data_1 %&gt;%
+  ggplot(aes(x = log(gross_sq_ft))) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#56B4E9&quot;,
+                 alpha = 0.75,
+                 bins = 10)
+# Logarithmic operation
+p6 = data_1 %&gt;%
+  ggplot(aes(x = log(estimated_gross_income))) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = &quot;#009E73&quot;,
+                 alpha = 0.75,
+                 bins = 10)
+
+
+p1 + p2 + p3 + p4 + p5 + p6 </code></pre>
+<p><img src="Modeling_files/figure-html/load%20data-1.png" width="768" /></p>
+</div>
+<div id="fitting-model" class="section level3">
+<h3>Fitting Model</h3>
+<p>We decide to use <code>latitude</code> and <code>longtitude</code>
+with <em>lowess</em> (locally weighted regression scatter plot
+smoothing) for smoothing model, so other 5 variables are fitted
+initially.</p>
+<pre class="r"><code>#### log_estimated_gross_income
+
+data_egi = data_1 %&gt;%
+  mutate(
+    log_total_units = log(total_units),
+    log_gross_sq_ft = log(gross_sq_ft),
+    log_estimated_gross_income = log(estimated_gross_income)
+  ) %&gt;%
+  select(log_estimated_gross_income, type, borough,
+         log_total_units, year_built ,log_gross_sq_ft)</code></pre>
+<p>To find the best model, we used stepwise regression procedure. That
+is to say, we start with no predictors, then sequentially add the most
+contributive predictors (like forward selection). After adding each new
+variable, remove any variables that no longer provide an improvement in
+the model fit (like backward selection)</p>
+<p><strong>Model without predictors</strong></p>
+<pre class="r"><code># intercept only model
+io_eg = lm(log_estimated_gross_income ~ 1, data = data_egi)</code></pre>
+<p><span class="math display">\[
+\widehat{log\_estimated\_gross\_income} = 13.9425
+\]</span></p>
+<p><strong>Model with all of the predictors</strong></p>
+<pre class="r"><code># model with all predictors
+all_eg = lm(log_estimated_gross_income ~ ., data = data_egi)
+# formula
+equatiomatic::extract_eq(all_eg, use_coefs = TRUE, coef_digits = 4)</code></pre>
+<p><span class="math display">\[
+\operatorname{\widehat{log\_estimated\_gross\_income}} = 1.9014 -
+0.0484(\operatorname{type}_{\operatorname{WALK}}) -
+0.9161(\operatorname{borough}_{\operatorname{2}}) -
+0.6698(\operatorname{borough}_{\operatorname{3}}) -
+0.6618(\operatorname{borough}_{\operatorname{4}}) -
+0.797(\operatorname{borough}_{\operatorname{5}}) -
+0.0011(\operatorname{\log\_total\_units}) +
+0.001(\operatorname{year\_built}) +
+0.9741(\operatorname{\log\_gross\_sq\_ft})
+\]</span></p>
+<p><strong>The best model</strong></p>
+<pre class="r"><code># stepwise procedure
+egi_fit = step(io_eg, direction = &quot;both&quot;, scope = formula(all_eg), trace = 0)
+
+# formula
+equatiomatic::extract_eq(egi_fit, use_coefs = TRUE, coef_digits = 4)</code></pre>
+<p><span class="math display">\[
+\operatorname{\widehat{log\_estimated\_gross\_income}} = 1.9139 +
+0.9732(\operatorname{\log\_gross\_sq\_ft}) -
+0.916(\operatorname{borough}_{\operatorname{2}}) -
+0.6697(\operatorname{borough}_{\operatorname{3}}) -
+0.6619(\operatorname{borough}_{\operatorname{4}}) -
+0.7969(\operatorname{borough}_{\operatorname{5}}) +
+0.001(\operatorname{year\_built}) -
+0.0485(\operatorname{type}_{\operatorname{WALK}})
+\]</span></p>
+<p><strong>Coefficients for best model</strong></p>
+<pre class="r"><code>egi_fit %&gt;% broom::tidy() %&gt;% knitr::kable(digits = 4)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.9139</td>
+<td align="right">0.0723</td>
+<td align="right">26.5</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">log_gross_sq_ft</td>
+<td align="right">0.9732</td>
+<td align="right">0.0011</td>
+<td align="right">908.3</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">borough2</td>
+<td align="right">-0.9160</td>
+<td align="right">0.0028</td>
+<td align="right">-328.5</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">borough3</td>
+<td align="right">-0.6697</td>
+<td align="right">0.0021</td>
+<td align="right">-316.8</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">borough4</td>
+<td align="right">-0.6619</td>
+<td align="right">0.0022</td>
+<td align="right">-307.7</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">borough5</td>
+<td align="right">-0.7969</td>
+<td align="right">0.0109</td>
+<td align="right">-73.3</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">year_built</td>
+<td align="right">0.0010</td>
+<td align="right">0.0000</td>
+<td align="right">25.3</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">typeWALK</td>
+<td align="right">-0.0485</td>
+<td align="right">0.0022</td>
+<td align="right">-22.1</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Model checking</strong></p>
+<pre class="r"><code># check the model
+performance::check_model(egi_fit, check = c(&quot;outliers&quot;, &quot;qq&quot;, &quot;normality&quot;))</code></pre>
+<p><img src="Modeling_files/figure-html/unnamed-chunk-5-1.png" width="768" /></p>
+<p>From above we know that <code>log_total_units</code> is left out in
+the fitting procedure, and the checking plots indicate that our model is
+well done for the sake of normality and outliers.</p>
+</div>
+</div>
+
+
+
+</div>
 </div>
 
 </div>

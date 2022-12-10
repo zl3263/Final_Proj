@@ -1,18 +1,180 @@
 ---
-title: "Modeling"
+title: "Regression Analysis"
 output: 
   html_document:
+    code_folding: hide
     toc: true
     toc_float: true
-
+    always_allow_html: true
+    css: style.css
 ---
 
-# Model Selection
+```{r setup, include=FALSE}
 
-We need to forecast the monthly housing rent based on 17  characteristic values. This is a regression problem. In this paper, we  have tried the following different models for training and prediction,  and selected several models with better effects for model fusion to get  the final model.
+library(tidyverse)
+library(glmnet)
+library(patchwork)
 
-#### （1）LightGBM
+knitr::opts_chunk$set(
+  fig.height = 6,
+  fig.width = 8
+)
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis",
+  digits = 3
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 
-#### （2）XGBoost
+```
 
-The algorithm measures the regression model by calculating the root mean square error of the predicted value and the real monthly rent. The smaller the root mean square error is, the better the regression model  is. The calculation formula of root mean square error is as follows: Where, n is the number of samples; - Forecast monthly rent; X - actual  monthly rent; We bring the training set data into different models to get the  prediction results and compare them with the original target data (rent) to calculate RMSE:
+## Predicting Model For Estimated Gross Income 
+
+### Data
+
+Through previous data exploration and data analysis, we have learned that there are some variables in our data set strongly associated with the estimated gross income. 
+
+Therefore, we decided to dig deeper and use some of these variables to predict estimated gross income.
+
+The variables involved are as followed:
+
+\ ·`estimated_gross_income` _(dependent)_: Estimated income from the building
+
+\ ·`latitude`: Latitude of the building
+
+\ ·`longitude`: Longitude of the building
+
+\ ·`type`: Walk-up/Elevators
+
+\ ·`borough`: 1 ~ Manhattan, 2 ~ The Bronx, 3 ~ Brooklyn, 4 ~ Queens, 5 ~ Staten Island
+
+\ ·`total_units`: Total number of units in the building
+
+\ ·`year_built`: The year the building was built
+
+\ .`gross_sq_ft`: Gross square footage of the building
+
+However, in the preliminary analysis, we found that some of them do not meet the normal distribution, so we use logarithm operation and the
+their distribution are fixed:
+```{r load data, warning = FALSE}
+load('./data/cleaned_data.RData')
+
+data_1 = transformed_rental_income %>%
+  separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>%
+  separate(building_classification, into = c("code", "type", "type_1"), sep = "-") %>%
+  mutate(borough = factor(borough),
+         type = factor(type)) 
+  
+# make density plots of every variable to check its normality
+
+p1 = data_1 %>%
+  ggplot(aes(x = latitude)) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = "#F0E442",
+                 alpha = 0.75,
+                 bins = 10)
+
+p2 = data_1 %>%
+  ggplot(aes(x = longitude)) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = "#0072B2",
+                 alpha = 0.75,
+                 bins = 10)
+
+# Logarithmic operation
+p3 = data_1 %>%
+  ggplot(aes(x = log(total_units))) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = "#CC79A7",
+                 alpha = 0.75,
+                 bins = 10)
+
+p4 = data_1 %>%
+  ggplot(aes(x = year_built)) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = "#D55E00",
+                 alpha = 0.75,
+                 bins = 10)
+# Logarithmic operation
+p5 = data_1 %>%
+  ggplot(aes(x = log(gross_sq_ft))) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = "#56B4E9",
+                 alpha = 0.75,
+                 bins = 10)
+# Logarithmic operation
+p6 = data_1 %>%
+  ggplot(aes(x = log(estimated_gross_income))) +
+  geom_density(aes(y = after_stat(density)),
+                 fill = "#009E73",
+                 alpha = 0.75,
+                 bins = 10)
+
+
+p1 + p2 + p3 + p4 + p5 + p6 
+
+```
+
+
+### Fitting Model
+
+We decide to use `latitude` and `longtitude` with _lowess_ (locally weighted regression scatter plot smoothing) for smoothing model, so other 5 variables are fitted initially.
+
+```{r logarithm operation}
+#### log_estimated_gross_income
+
+data_egi = data_1 %>%
+  mutate(
+    log_total_units = log(total_units),
+    log_gross_sq_ft = log(gross_sq_ft),
+    log_estimated_gross_income = log(estimated_gross_income)
+  ) %>%
+  select(log_estimated_gross_income, type, borough,
+         log_total_units, year_built ,log_gross_sq_ft)
+```
+
+To find the best model, we used stepwise regression procedure. That is to say, we start with no predictors, then sequentially add the most contributive predictors (like forward selection). After adding each new variable, remove any variables that no longer provide an improvement in the model fit (like backward selection) 
+
+**Model without predictors**
+```{r}
+# intercept only model
+io_eg = lm(log_estimated_gross_income ~ 1, data = data_egi)
+```
+
+$$
+\widehat{log\_estimated\_gross\_income} = 13.9425
+$$
+
+**Model with all of the predictors**
+```{r}
+# model with all predictors
+all_eg = lm(log_estimated_gross_income ~ ., data = data_egi)
+# formula
+equatiomatic::extract_eq(all_eg, use_coefs = TRUE, coef_digits = 4)
+
+```
+
+**The best model**
+```{r}
+# stepwise procedure
+egi_fit = step(io_eg, direction = "both", scope = formula(all_eg), trace = 0)
+
+# formula
+equatiomatic::extract_eq(egi_fit, use_coefs = TRUE, coef_digits = 4)
+```
+
+**Coefficients for best model**
+```{r}
+egi_fit %>% broom::tidy() %>% knitr::kable(digits = 4)
+```
+
+**Model checking**
+```{r}
+# check the model
+performance::check_model(egi_fit, check = c("outliers", "qq", "normality"))
+```
+
+From above we know that `log_total_units` is left out in the fitting procedure, and the checking plots indicate that our model is well done for the sake of normality and outliers.
+
