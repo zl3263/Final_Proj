@@ -196,7 +196,6 @@ corrplot(cor(corr), type = "lower", method = 'color', tl.col = "black",tl.cex=0.
 
 
 
-# Data science final
 
 ### Data Discovery (EDA)
 
@@ -289,24 +288,3 @@ all_ data["position"] = all_ data["position"].fillna(int(mode_position))
 
 ![](https://pic.jitudisk.com/public/2022/12/08/e97944febd565.png)
 
-### Characteristic engineering
-
-Feature engineering refers to the process of transforming the  original data into the training data of the model. Its purpose is to  obtain better features of the training data and make the machine  learning model approach this upper limit. Feature engineering can improve the performance of models, sometimes  even on simple models.
-
-#### According to the meaning of the original feature, we build a new  feature based on the original feature through feature transformation for later model training and numerical prediction. The specific method is  as follows:
-
-a. Total number of bedrooms=number of bedrooms+number of  halls+number of bathrooms. In order to avoid linear correlation of four  variables, the number of halls is deleted.
-
-b. Proportion of bedrooms: number of bedrooms/number of halls,  number of bedrooms/number of bathrooms, number of halls/number of  bathrooms
-
-c. House orientation: because the house area is not a number and  contains multiple directions, the house area is converted into eight  dummy variables, representing whether the house has eight orientations,  namely east, west, south, north, northeast, southeast, northwest and  southwest
-
-d. Average rent: the houses are grouped according to the name, area and location of the community, and the average group rent is  calculated. Three new average rent columns are generated corresponding  to the name, area and location of the community
-
-Because some variables are category variables, they are converted  to string types. Then, the total data set after preprocessing is divided into training set and test set for model training and prediction.
-
-### Result analysis
-
-In this paper, the factors and indicators that affect housing  prices are taken as input variables, and LightNGB and XGBoost models are used for modeling. The prediction results are compared with the actual  results, and then the model is optimized by considering the  characteristic engineering and model parameters such as adjusting the  number of input variables, and modeling again to obtain new prediction  results. Finally, compare the results of several models, draw  conclusions, and interpret the practical significance of the prediction  results. By comparing the error between the prediction results of  LightGBM model and XGBoost series model, we can find that the error of  the prediction results of LightGBM model is the smallest, while the  error of the prediction results of XGBoost model is larger, indicating  that LightGBM model is better than XGBoost model in the fitting of house prices.
-
-According to the prediction results and actual results of various  models, house prices are still on the rise. We should realize that for a stable developing economy, the steady rise of house prices is a normal  phenomenon. As long as the growth rate of house prices is basically the  same as the growth of GDP and the improvement of people's income, we can think that the real estate industry is operating within a reasonable  range, The housing price level is affordable, but the current housing  price in China is obviously much higher than the income level of our  people. Ordinary wage earners often have to spend their savings for  generations to buy a house, which makes people have to reduce their  daily consumption to reduce spending, resulting in a decline in market  consumption demand. The economic system relies too much on the real  estate industry, which will lead to insufficient consumption as a whole  and affect the healthy development of the real economy, More young  people choose to leave the first tier cities because they cannot afford  the high housing prices, and the high housing prices are also a major  factor leading to the rising cost of living in the first tier cities.  Under such adverse factors, more and more young people will not choose  to stay in the first tier cities for development, which will make it  difficult for the first tier cities to continue to develop.
