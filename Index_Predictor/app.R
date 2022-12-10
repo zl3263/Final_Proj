@@ -36,7 +36,7 @@ predict_rental = function(new_data){
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Predicting using Our Model!"),
+    #titlePanel("Predicting using Our Model!"),
 
     # Sidebar with a slider input for number of bins 
     fluidRow(
