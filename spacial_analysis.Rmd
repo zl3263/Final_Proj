@@ -1,24 +1,32 @@
 ---
-title: "How to choose rental buildings?"
+title: "Spacial&Statistical Analysis"
 output: 
   html_document:
     toc: true
     toc_float: true
-
 ---
 
+----------------
 
-```{r}
+## Prior to start
+
+This section performs spacial and statistical analysis on the data of Manhattan. In the analysis, the `gross_income_per_sq_ft` is treated as the indicator of rental price. Since the COVID-19 pandemic had great influence on the property market, we mainly focus on reports after 2019. 
+
+From the prospective of tenant rather than property owner, people cares about how to make the most cost-effective choice and rent a satisfactory room with lowest price. This page are intended to provide helpful information.
+
+----------------
+
+## Overview
+
+```{r message=FALSE, warning=FALSE}
 # load packages and data
 library(tidyverse)
 library(plotly)
 
 load("E:/2023_autumn/DataScience/Final_Proj/data/cleaned_data.RData")
 load("E:/2023_autumn/DataScience/Final_Proj/data/Manhattan_latlonmap.RData")
-```
-## Overview
 
-```{r}
+
 transformed_rental_income=
   transformed_rental_income %>%
   separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>%
@@ -40,9 +48,7 @@ Manhattan_data = Manhattan_data %>%
 
 transformed_rental_income = 
   left_join(transformed_rental_income, Manhattan_data, by = "address")
-```
 
-```{r}
 ## Columbia university lat lon 40.80754 -73.96257
 ## Hammer health science building lat lon 40.84252 -73.94243 
 
@@ -110,23 +116,49 @@ elevator_M = for_map %>%
 subplot(income_sqft_M, yearsbuild_M,elevator_M, nrows = 1, margin = 0.01) %>% layout(showlegend = FALSE, title = 'Income/sqft - Year built - Classification')
 ```
 
-```{r}
+When considering rent an apartment, people may refers to the location, building's lifespan, elevator facilities and rental price. The figure above plotted the Income/sqft, Year built and Elevator info according to building's location. The three plots are in same size and version, providing a comparable overview.
+
+### Rental Price
+```{r message=FALSE, warning=FALSE}
 income_sqft_M
 ```
-```{r}
+
+The rental price showed great difference from the north edge to south edge of Manhattan. Rentals at upper town that close to Bronx are the cheapest. As the street numbers get lower, the rental price increase and reaches its peak at west village. There is less difference between the rents at west and east side of Manhattan. But specially, rents at the lowers east side are significantly lower than surrondings.
+
+### Years built
+```{r message=FALSE, warning=FALSE}
 yearsbuild_M
 ```
-```{r}
+
+Generally, the building at west side are older than those at east side of Manhattan. There are more new buildings in midtown and lower Manhattan than in uptown Manhattan. 
+
+###  Elevator Facilities
+```{r message=FALSE, warning=FALSE}
 elevator_M
 ```
+	
+- D0 – Elevator Co-op; Conversion From Loft/Warehouse
+- D1 – Elevator Apt; Semi-fireproof (Without Stores)
+- D2 – Elevator Apt; Artists in Residence
+- D3 – Elevator Apt; Fireproof (Standard Construction Without Stores)
+- D4 – Elevator Cooperatives
+- D5 – Elevator Apt; Converted
+- D6 – Elevator Apt; Fireproof – With Stores
+- D7 – Elevator Apt; Semi-Fireproof With Stores
+- D8 – Elevator Apt; Luxury Type
+- D9 – Elevator Apt; Miscellaneous
 
+Most of the buildings in Manhattan are equipped with Elevator, while there are still groups of walk-up buildings at uptown near Bronx, midtown west and lower Manhattan. This may closly related to their year built. 
 
-text here 
+----------------
 
-### Does the building years and building classification related to rental price?
+## Statistical Analysis
 
-one way anova to test the classification term
-```{r}
+Then we are curious about  whether the factors(Years built and Elevator Facilities) are truly related to the rental price. We choose a hypothesis test approach to explore their relationship. 
+
+### One Way ANOVA on Elevator Facilities
+
+```{r message=FALSE, warning=FALSE}
 for_map %>%
   group_by(building_classification) %>%
   summarise(
@@ -144,7 +176,10 @@ for_map %>%
       )+
   guides(fill=F)
 ```
-```{r}
+
+According to the box plot, we have few records on `C8-WALK-UP` and `C9-WALK-UP`, so we filtered them out in the anova test.
+
+```{r message=FALSE, warning=FALSE}
 for_anova = for_map %>%
   filter(
   building_classification!= "C8-WALK-UP",
@@ -156,20 +191,32 @@ res = lm(gross_income_per_sq_ft ~ factor(building_classification), data = for_an
 anova(res)
 ```
 
-SLR to test the years build 
+In this one way anova test, our null hypothesis is that the average price of each kinds of building are the same. Given a p-value much smaller than 0.05, we reject the null hypothesis and conclude that there are differences in the average price of each kinds of building. This indicates that the building classification is related to the rental price. 
 
-```{r}
-lm(gross_income_per_sq_ft ~ year_built, data = for_map) %>%
-  summary()
+The detailed relationship across each types can be further checked by paired t-test.
+
+### SLR on Years built
+
+```{r message=FALSE, warning=FALSE}
+for_map %>%
+  ggplot(aes(x = gross_income_per_sq_ft))+
+  geom_histogram()
+
+fit1 = lm(gross_income_per_sq_ft ~ year_built, data = for_map)
+summary(fit1)
+
+plot(fit1,which = 1)
+plot(fit1,which = 2)
 ```
+We applied SLR to test the significance of the years built. Given the null hypothesis that the coefficient of years built term is 0, p-value is small and we can reject the null. However, the estimated coefficient is small and the price seems not normally distributed, which may lead to inaccurate result.
 
-
-
+----------------
 
 ## For Columbia Students
 
-what about the price in Columbia university and Columbia university Irving medical center?
+What about the price near Columbia university and Columbia university Irving medical center?
 
+#### This map may help you to choose your apartment!
 ```{r}
 latCU = 40.80754
 lonCU = -73.96257
@@ -235,5 +282,3 @@ near_CUIMC = for_map %>%
 
 subplot(near_columbia, near_CUIMC, nrows = 1, titleY = TRUE, titleX = TRUE, margin = 0.01) 
 ```
-
-
