@@ -11,24 +11,16 @@ output:
 
 ## Motivation
 
-New to New York City, our group members are all shocked by the high cost of building rentals. This encourages us to explore more about the property market and the buildings' price in NYC.
+New to New York City, our group members are all shocked by the high cost of building rentals. This motivates us to explore the real property market and the buildings' rental price in NYC.
 
-We are curious about the distribution of buildings of each pricing level in time and geographical zones. Also, we want to find factors that may have influence on buildings value. Based on which, we can further modeling and predicting the buildings price in New York.
+Our goal is to analyze the Rental income dataset from [NYC Open Data](https://opendata.cityofnewyork.us/). We are curious about the distribution of buildings of each pricing level in time and geographical zones. Also, we want to find factors that may have influence on buildings value. We will visulize the data and the analysis process using static plots as well as interactive map.
 
-## Planned Analysis
-
-We plan to conduct following work in our project: 
-
-- Preprocessing: Data cleaning and transforamtion.
-- Exploratory Analysis: Include visualization of a single variable and relationship between variables.
-- Statistical Analysis: Based on hypothesis testing to find factors that may have influence on the rental price.
-- Modeling: Predicting building's value based on multiple factors.
-- Project our findings to interactive webpage.
+Finally, based on our analysis, we can build a model to predict the rental cost or rental income of a given building, and upload the model as a useful web-based guidance tool or both renters and landlords.
 
 
 ## Data Source
 
-### Cooperative Comparable Rental Income
+### Primary: Cooperative Comparable Rental Income
 
 To attain the price information of buildings, we use the dataset published by the Department of Finance of NYC. The origin data can be acquired from [NYC Open Data](https://data.cityofnewyork.us/City-Government/DOF-Cooperative-Comparable-Rental-Income-Citywide-/myei-c3fa)
 
@@ -36,6 +28,8 @@ This dataset contains the income and expense statements of condominium and compa
 
 In this dataset some key variables are as follows:
 
+- `boro_block_lot`: Tax zoning id of the building
+- `address`: Address of the building
 - `Gross SqFt`: Gross square footage of the building
 - `Estimated` Gross Income: Estimated Income per SquareFoot * Gross SquareFoot
 - `Income per SqFt`: Estimated income per squarefoot of median comparable
@@ -45,9 +39,36 @@ In this dataset some key variables are as follows:
 - `Full Market Value`: Current year’s total market value of the land and building
 - `Market Value per SqFt`: Full Market Value/ Gross SquareFoot
 
-### The secend dataset 
+### Secondary: Digital Tax Map
 
-### The third
+The location of the building is key to its value. However, our first dataset doesn't contain such information. Thus, we use the `NYC Digital Tax Map` dataset from [NYC Open Data](https://data.cityofnewyork.us/Housing-Development/Department-of-Finance-Digital-Tax-Map/smk3-tmxj) to determine the relationship between  `boro_block_lot` and location. In particular, we are only interested in the `DTM_Tax_Block_Polygon.shp` file, since we only want to seperate buildings by borough-blocks. The `lot` information is far too specific (the file is more than 1GB in size!).
 
+This dataset is used to draw the boundrary of blocks in the `Browse by Map` Shiny App.
+
+### Supporting : Google Map API
+
+However, during our modeling process, we no longer need the boundrary info in `Digital Tax Map`. To have a more accurate lcation, we use the [Google Map API](https://developers.google.com/maps/documentation/places/web-service/search?hl=en) to query the specific location based on `address` variable.
+
+This dataset is used in the modeling process and  `Spacial&Statistical Analysis` page.
+
+
+### Unused Dataset
+
+- Zoning District label of `borough_bloc_lot`. [Source](https://data.cityofnewyork.us/City-Government/DOF-Cooperative-Comparable-Rental-Income-Citywide-/myei-c3fa). 
+
+- Boundrary of different Zoning Districts. [Source](https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page).
+
+These dataset was used to draw the boundraries in the `Browse by Map` Shiny App. Replaced by better dataset (Digital Tax Map).
+
+
+## Analysis Outline
+
+In our website, you will find:
+
+- Preprocessing: Data cleaning, transforamtion and merging.
+- Exploratory Analysis: Include visualization of a single variable and relationship between variables.
+- Statistical Analysis: Based on hypothesis testing to find factors that may have influence on the rental price.
+- Modeling: Predicting building's value based on multiple factors.
+- Project our findings to interactive webpage.
 
 

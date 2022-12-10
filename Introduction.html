@@ -383,31 +383,23 @@ div.tocify {
 <div id="motivation" class="section level2">
 <h2>Motivation</h2>
 <p>New to New York City, our group members are all shocked by the high
-cost of building rentals. This encourages us to explore more about the
-property market and the buildings’ price in NYC.</p>
-<p>We are curious about the distribution of buildings of each pricing
-level in time and geographical zones. Also, we want to find factors that
-may have influence on buildings value. Based on which, we can further
-modeling and predicting the buildings price in New York.</p>
-</div>
-<div id="planned-analysis" class="section level2">
-<h2>Planned Analysis</h2>
-<p>We plan to conduct following work in our project:</p>
-<ul>
-<li>Preprocessing: Data cleaning and transforamtion.</li>
-<li>Exploratory Analysis: Include visualization of a single variable and
-relationship between variables.</li>
-<li>Statistical Analysis: Based on hypothesis testing to find factors
-that may have influence on the rental price.</li>
-<li>Modeling: Predicting building’s value based on multiple
-factors.</li>
-<li>Project our findings to interactive webpage.</li>
-</ul>
+cost of building rentals. This motivates us to explore the real property
+market and the buildings’ rental price in NYC.</p>
+<p>Our goal is to analyze the Rental income dataset from <a
+href="https://opendata.cityofnewyork.us/">NYC Open Data</a>. We are
+curious about the distribution of buildings of each pricing level in
+time and geographical zones. Also, we want to find factors that may have
+influence on buildings value. We will visulize the data and the analysis
+process using static plots as well as interactive map.</p>
+<p>Finally, based on our analysis, we can build a model to predict the
+rental cost or rental income of a given building, and upload the model
+as a useful web-based guidance tool or both renters and landlords.</p>
 </div>
 <div id="data-source" class="section level2">
 <h2>Data Source</h2>
-<div id="cooperative-comparable-rental-income" class="section level3">
-<h3>Cooperative Comparable Rental Income</h3>
+<div id="primary-cooperative-comparable-rental-income"
+class="section level3">
+<h3>Primary: Cooperative Comparable Rental Income</h3>
 <p>To attain the price information of buildings, we use the dataset
 published by the Department of Finance of NYC. The origin data can be
 acquired from <a
@@ -422,6 +414,8 @@ two kind of buildings and transformed the data shape to ensure that each
 observation records exactly one building.</p>
 <p>In this dataset some key variables are as follows:</p>
 <ul>
+<li><code>boro_block_lot</code>: Tax zoning id of the building</li>
+<li><code>address</code>: Address of the building</li>
 <li><code>Gross SqFt</code>: Gross square footage of the building</li>
 <li><code>Estimated</code> Gross Income: Estimated Income per SquareFoot
 * Gross SquareFoot</li>
@@ -439,12 +433,58 @@ the land and building</li>
 SquareFoot</li>
 </ul>
 </div>
-<div id="the-secend-dataset" class="section level3">
-<h3>The secend dataset</h3>
+<div id="secondary-digital-tax-map" class="section level3">
+<h3>Secondary: Digital Tax Map</h3>
+<p>The location of the building is key to its value. However, our first
+dataset doesn’t contain such information. Thus, we use the
+<code>NYC Digital Tax Map</code> dataset from <a
+href="https://data.cityofnewyork.us/Housing-Development/Department-of-Finance-Digital-Tax-Map/smk3-tmxj">NYC
+Open Data</a> to determine the relationship between
+<code>boro_block_lot</code> and location. In particular, we are only
+interested in the <code>DTM_Tax_Block_Polygon.shp</code> file, since we
+only want to seperate buildings by borough-blocks. The <code>lot</code>
+information is far too specific (the file is more than 1GB in
+size!).</p>
+<p>This dataset is used to draw the boundrary of blocks in the
+<code>Browse by Map</code> Shiny App.</p>
 </div>
-<div id="the-third" class="section level3">
-<h3>The third</h3>
+<div id="supporting-google-map-api" class="section level3">
+<h3>Supporting : Google Map API</h3>
+<p>However, during our modeling process, we no longer need the boundrary
+info in <code>Digital Tax Map</code>. To have a more accurate lcation,
+we use the <a
+href="https://developers.google.com/maps/documentation/places/web-service/search?hl=en">Google
+Map API</a> to query the specific location based on <code>address</code>
+variable.</p>
+<p>This dataset is used in the modeling process and
+<code>Spacial&amp;Statistical Analysis</code> page.</p>
 </div>
+<div id="unused-dataset" class="section level3">
+<h3>Unused Dataset</h3>
+<ul>
+<li><p>Zoning District label of <code>borough_bloc_lot</code>. <a
+href="https://data.cityofnewyork.us/City-Government/DOF-Cooperative-Comparable-Rental-Income-Citywide-/myei-c3fa">Source</a>.</p></li>
+<li><p>Boundrary of different Zoning Districts. <a
+href="https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page">Source</a>.</p></li>
+</ul>
+<p>These dataset was used to draw the boundraries in the
+<code>Browse by Map</code> Shiny App. Replaced by better dataset
+(Digital Tax Map).</p>
+</div>
+</div>
+<div id="analysis-outline" class="section level2">
+<h2>Analysis Outline</h2>
+<p>In our website, you will find:</p>
+<ul>
+<li>Preprocessing: Data cleaning, transforamtion and merging.</li>
+<li>Exploratory Analysis: Include visualization of a single variable and
+relationship between variables.</li>
+<li>Statistical Analysis: Based on hypothesis testing to find factors
+that may have influence on the rental price.</li>
+<li>Modeling: Predicting building’s value based on multiple
+factors.</li>
+<li>Project our findings to interactive webpage.</li>
+</ul>
 </div>
 
 
