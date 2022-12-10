@@ -7,6 +7,18 @@ output:
 
 ---
 
+-------------
+
 ## Motivation
 
-## 
+## Data Source
+
+## Preprocessing
+
+## EDA 
+
+## Spacial & Statistical Analysis
+
+## Modeling
+
+## Discussion

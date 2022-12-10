@@ -16,12 +16,8 @@ navbar:
       
       
   right:
-    - text: More
-      menu:
-        - text: Report
-          href: Report.html
-        - text: Acknowledgement
-          href: Acknowledgement.html
+    - text: Report
+      href: Report.html
     - icon: fa-github fa-lg
       href: https://github.com/zl3263/Final_Proj
       
