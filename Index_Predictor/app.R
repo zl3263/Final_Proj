@@ -48,7 +48,7 @@ ui <- fluidPage(
                label = "Boro-Block",
                value  = "1-11"
              ),
-             tags$a("which boro-block?", href="https://nuc-rental-income.shinyapps.io/shiny_map/"),
+             tags$a("which boro-block?", href="https://nuc-rental-income.shinyapps.io/shiny_map/", target="_blank"),
       ),
       
       column(2,
