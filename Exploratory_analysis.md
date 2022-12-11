@@ -36,7 +36,7 @@ comparable_rental_income_raw = read_csv("data/DOF__Cooperative_Comparable_Rental
 ```
 
     ## Rows: 44960 Columns: 60
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## ── Column specification ──────────────────────────
     ## Delimiter: ","
     ## chr (16): Boro-Block-Lot, Address, Neighborhood, Building Classification, Bo...
     ## dbl (44): Total Units, Year Built, Gross SqFt, Estimated Gross Income, Gross...
@@ -162,7 +162,7 @@ taxlot_to_zoning = read_csv("data/taxlot_to_zoning.csv") %>%
     ## Warning: One or more parsing issues, see `problems()` for details
 
     ## Rows: 858266 Columns: 16
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## ── Column specification ──────────────────────────
     ## Delimiter: ","
     ## chr (7): Zoning District 1, Zoning District 2, Commercial Overlay 1, Special...
     ## dbl (4): Borough Code, Tax Block, Tax Lot, BBL
@@ -423,7 +423,8 @@ plot_neighbor_3
 ``` r
 transformed_rental_income %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  mutate(classification = substr(building_classification, 4, 12)) %>% 
+  ggplot(aes(x = year_built, y = full_market_value,color = classification))+
   geom_point(alpha = .3, size = 0.8)+ 
   theme_bw()+ 
   labs(
@@ -442,7 +443,8 @@ transformed_rental_income %>%
 ``` r
 comparable_rental_income_raw %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built, y = full_market_value,color = building_classification))+
+  mutate(classification = substr(building_classification, 4, 12)) %>% 
+  ggplot(aes(x = year_built, y = full_market_value,color = classification))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
   labs(
@@ -461,7 +463,8 @@ comparable_rental_income_raw %>%
 ``` r
 comparable_rental_income_raw %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built_1, y = full_market_value_1, color = building_classification_1))+
+  mutate(classification_1 = substr(building_classification_1, 4, 12)) %>% 
+  ggplot(aes(x = year_built_1, y = full_market_value_1, color = classification_1))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
   labs(
@@ -480,7 +483,8 @@ comparable_rental_income_raw %>%
 ``` r
 comparable_rental_income_raw %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built_2, y = full_market_value_2,color = building_classification_2))+
+  mutate(classification_2 = substr(building_classification_2, 4, 12)) %>% 
+  ggplot(aes(x = year_built_2, y = full_market_value_2,color = classification_2))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
   labs(
@@ -499,7 +503,8 @@ comparable_rental_income_raw %>%
 ``` r
 comparable_rental_income_raw %>% 
   drop_na() %>% 
-  ggplot(aes(x = year_built_3, y = full_market_value_3,color = building_classification_3))+
+  mutate(classification_3 = substr(building_classification_3, 4, 12)) %>% 
+  ggplot(aes(x = year_built_3, y = full_market_value_3,color = classification_3))+
   geom_point(alpha = .8, size = 0.8)+ 
   theme_bw()+ 
   labs(

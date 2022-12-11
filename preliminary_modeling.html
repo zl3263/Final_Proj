@@ -13,7 +13,7 @@
 
 <title>Regression Analysis</title>
 
-<script src="site_libs/header-attrs-2.18/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
@@ -185,8 +185,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "\e259";
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -194,9 +194,16 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "\e258";
-  font-family: 'Glyphicons Halflings';
+  content: "&#xe258;";
   border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -332,7 +339,10 @@ div.tocify {
   <a href="Exploring_Data.html">Exploring Data</a>
 </li>
 <li>
-  <a href="special_analysis.html">Spacial&amp;Statistical Analysis</a>
+  <a href="Data_discovery.html">Data Discovery</a>
+</li>
+<li>
+  <a href="spacial_analysis.html">Spacial&amp;Statistical Analysis</a>
 </li>
 <li>
   <a href="Modeling.html">Modeling</a>
@@ -342,20 +352,8 @@ div.tocify {
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    More
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="Report.html">Report</a>
-    </li>
-    <li>
-      <a href="Acknowledgement.html">Acknowledgement</a>
-    </li>
-  </ul>
+        <li>
+  <a href="Report.html">Report</a>
 </li>
 <li>
   <a href="https://github.com/zl3263/Final_Proj">
@@ -487,13 +485,13 @@ is to say, we start with no predictors, then sequentially add the most
 contributive predictors (like forward selection). After adding each new
 variable, remove any variables that no longer provide an improvement in
 the model fit (like backward selection)</p>
-<p>Model without predictors:</p>
+<p><strong>Model without predictors</strong></p>
 <pre class="r"><code># intercept only model
 io_eg = lm(log_estimated_gross_income ~ 1, data = data_egi)</code></pre>
 <p><span class="math display">\[
 \widehat{log\_estimated\_gross\_income} = 13.9425
 \]</span></p>
-<p>Model with all of the predictors:</p>
+<p><strong>Model with all of the predictors</strong></p>
 <pre class="r"><code># model with all predictors
 all_eg = lm(log_estimated_gross_income ~ ., data = data_egi)
 # formula
@@ -509,7 +507,7 @@ equatiomatic::extract_eq(all_eg, use_coefs = TRUE, coef_digits = 4)</code></pre>
 0.001(\operatorname{year\_built}) +
 0.9741(\operatorname{\log\_gross\_sq\_ft})
 \]</span></p>
-<p>Through the stepwise procedure, we got the best model:</p>
+<p><strong>The best model</strong></p>
 <pre class="r"><code># stepwise procedure
 egi_fit = step(io_eg, direction = &quot;both&quot;, scope = formula(all_eg), trace = 0)
 
@@ -529,70 +527,160 @@ equatiomatic::extract_eq(egi_fit, use_coefs = TRUE, coef_digits = 4)</code></pre
 <pre class="r"><code>egi_fit %&gt;% broom::tidy() %&gt;% knitr::kable(digits = 4)</code></pre>
 <table>
 <thead>
-<tr class="header">
-<th align="left">term</th>
-<th align="right">estimate</th>
-<th align="right">std.error</th>
-<th align="right">statistic</th>
-<th align="right">p.value</th>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+statistic
+</th>
+<th style="text-align:right;">
+p.value
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="right">1.9139</td>
-<td align="right">0.0723</td>
-<td align="right">26.5</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+1.9139
+</td>
+<td style="text-align:right;">
+0.0723
+</td>
+<td style="text-align:right;">
+26.5
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="even">
-<td align="left">log_gross_sq_ft</td>
-<td align="right">0.9732</td>
-<td align="right">0.0011</td>
-<td align="right">908.3</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+log_gross_sq_ft
+</td>
+<td style="text-align:right;">
+0.9732
+</td>
+<td style="text-align:right;">
+0.0011
+</td>
+<td style="text-align:right;">
+908.3
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">borough2</td>
-<td align="right">-0.9160</td>
-<td align="right">0.0028</td>
-<td align="right">-328.5</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+borough2
+</td>
+<td style="text-align:right;">
+-0.9160
+</td>
+<td style="text-align:right;">
+0.0028
+</td>
+<td style="text-align:right;">
+-328.5
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="even">
-<td align="left">borough3</td>
-<td align="right">-0.6697</td>
-<td align="right">0.0021</td>
-<td align="right">-316.8</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+borough3
+</td>
+<td style="text-align:right;">
+-0.6697
+</td>
+<td style="text-align:right;">
+0.0021
+</td>
+<td style="text-align:right;">
+-316.8
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">borough4</td>
-<td align="right">-0.6619</td>
-<td align="right">0.0022</td>
-<td align="right">-307.7</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+borough4
+</td>
+<td style="text-align:right;">
+-0.6619
+</td>
+<td style="text-align:right;">
+0.0022
+</td>
+<td style="text-align:right;">
+-307.7
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="even">
-<td align="left">borough5</td>
-<td align="right">-0.7969</td>
-<td align="right">0.0109</td>
-<td align="right">-73.3</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+borough5
+</td>
+<td style="text-align:right;">
+-0.7969
+</td>
+<td style="text-align:right;">
+0.0109
+</td>
+<td style="text-align:right;">
+-73.3
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">year_built</td>
-<td align="right">0.0010</td>
-<td align="right">0.0000</td>
-<td align="right">25.3</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+year_built
+</td>
+<td style="text-align:right;">
+0.0010
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+25.3
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="even">
-<td align="left">typeWALK</td>
-<td align="right">-0.0485</td>
-<td align="right">0.0022</td>
-<td align="right">-22.1</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+typeWALK
+</td>
+<td style="text-align:right;">
+-0.0485
+</td>
+<td style="text-align:right;">
+0.0022
+</td>
+<td style="text-align:right;">
+-22.1
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
 </tbody>
 </table>

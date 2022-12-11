@@ -9,6 +9,24 @@ output:
 
 -------------
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE
+  )
+
+library(tidyverse)
+library(plotly)
+library(patchwork)
+library(kableExtra)
+library(GGally)
+library(corrplot)
+library(glmnet)
+library(rgl)
+```
+
+
 ## Motivation
 
 New to New York City, our group members are all shocked by the high cost of building rentals. This encourages us to explore more about the property market and the buildings' price in NYC.
@@ -21,17 +39,13 @@ To attain the price information of buildings, we use the dataset published by th
 
 This dataset contains the income and expense statements of condominium and comparable rental buildings in NYC that helps people estimate the marked value of their own buildings. In each observations, a condominium/cooperative is compared with three rental buildings that have similar physical and geographical features.  We equaly treat these two kind of buildings and transformed the data shape to ensure that each observation records exactly one building.
 
+Meanwhile, The location of the building is acquired by Google Map API, and the Boundary of the Tax blocks used in the interactive map can be found at NYC Open Data website. A detailed introduction of the data source can be found at the [Introduction](Introduction.html) Page.
+
 ## Preprocessing
 
 ## EDA 
 
 ```{r message = FALSE}
-library(tidyverse)
-library(plotly)
-library(patchwork)
-library(kableExtra)
-library(GGally)
-library(corrplot)
 load("data/cleaned_data.RData")
 
 df = 
@@ -82,11 +96,11 @@ ddf =
 line_df = ddf %>% 
   group_by(borough, year_built) %>% 
   summarise(mean_value_year = mean(full_market_value)) %>% 
-  ggplot(aes(x = year_built, y = mean_value_year, color = borough))+
-  geom_line()+ 
-  theme_bw()+
-  facet_wrap(~borough, ncol=3)+ 
-  scale_colour_manual(values=c("#D9B489", "#D49F3A", "#BC3D1C", "#4C372D", "#E8E3B9"))
+  ggplot(aes(x = year_built, y = mean_value_year, color = borough)) +
+  geom_line() + 
+  theme_bw() +
+  facet_wrap(~borough, ncol = 3) + 
+  scale_colour_manual(values = c("#D9B489", "#D49F3A", "#BC3D1C", "#4C372D", "#E8E3B9"))
 
 fig <- ggplotly(line_df)
 
@@ -100,10 +114,9 @@ dddf =
   select(-report_year, -boro_block, -lot, -building_classification, -address, -zoning)
 # Plot the correlation
 corr = data.frame(lapply(lapply(dddf, as.factor), as.numeric))
-corrplot(cor(corr), type = "lower", method = 'color', tl.col = "black",tl.cex=0.8, tl.srt=50)
+corrplot(cor(corr), type = "lower", method = 'color', tl.col = "black",tl.cex = 0.8, tl.srt = 50)
 ```
 
-## Data Discovery
 
 Skewness value: it can be used to measure the asymmetry of probability distribution of random variables.
 
@@ -112,9 +125,11 @@ Kurtosis value: it can be used to measure the steepness of the probability distr
 View the rent distribution curve and draw a curve distribution diagram and rent scatter diagram、
 
 
-(1) observe the rent data. It can be seen that this data is in  line with the normal distribution, but the skewness value is too large.  We found a big tail. The "rent" value distribution has obvious skewness, so we will correct it later.
+First, observe the rent data. It can be seen that this data is in  line with the normal distribution, but the skewness value is too large.  We found a big tail. The "rent" value distribution has obvious skewness, so we will correct it later.
 
-(2) View the data histogram of each property of the apartment. Let's take a look at the impact of some important attributes  on the results The histogram is used to show the data distribution. Generally speaking, it refers to which piece of data accounts for a high proportion or  number of occurrences, and which piece has a low probability of  occurrence. The following figure shows the occurrence of 18 attributes
+(2) View the data histogram of each property of the apartment
+
+Next, let's take a look at the impact of some important attributes  on the results The histogram is used to show the data distribution. Generally speaking, it refers to which piece of data accounts for a high proportion or  number of occurrences, and which piece has a low probability of  occurrence. The following figure shows the occurrence of 18 attributes
 
 ![](https://pic.jitudisk.com/public/2022/12/08/5dbb2d328b88d.png)
 
@@ -134,73 +149,24 @@ Box diagram of area and subway_line
 
 ![](https://pic.jitudisk.com/public/2022/12/08/b9ecaff2d2f03.png)
 
-(4) Use correlation analysis to analyze the correlation degree between different factors affecting  housing price and housing price, and analyze the correlation degree  through the correlation graph. Qualitative and visual analysis of the correlation between different  factors affecting housing price and housing price with bar chart
+(4) Correlation analysis
+
+Analyze the correlation degree between different factors affecting  housing price and housing price, and analyze the correlation degree  through the correlation graph. Qualitative and visual analysis of the correlation between different  factors affecting housing price and housing price with bar chart
 
 ![](https://pic.jitudisk.com/public/2022/12/08/1dffa8519c533.png)
-
-### Deviation correction
-
-![](https://pic.jitudisk.com/public/2022/12/08/432a06bc060cc.png)
-
-Normal distribution transformation: the tail behind is too long,  and it needs to be corrected (logarithmic transformation of data)
-
-![](https://pic.jitudisk.com/public/2022/12/08/0ef458bf19af7.png)![](https://pic.jitudisk.com/public/2022/12/08/fc2481b41ed03.png)![](https://pic.jitudisk.com/public/2022/12/08/f4e557c13620b.png)
-
-For attributes with too large missing data, you can choose to  discard them, and for attribute data with small missing data, you can  fill them in four ways:
-
-(1) Delete the missing data (decoration situation, state, rent_style)
-
-all_ data. drop(['decoration situation'], axis=1, inplace=True)
-
-all_ data. drop(['state'], axis=1, inplace=True)
-
-all_ data. drop(['rent_style'], axis=1, inplace=True)
-
-(2) The three columns of "subway line", "subway station" and  "distance" represent the subway situation near the house. According to  different data types, the distance column filled with "1" represents  unlimited distance, and the first two columns filled with "0" represent  no subway station and subway line
-
-all_ data["distance"]=all_ data["distance"].fillna(1)
-
-all_ data["subway_line"]=all_ data["subway_line"].fillna(0)
-
-all_ data["subway_station"]=all_ data["subway_station"].fillna(0)
-
-(3) The number of rented houses in the community contains a small  number of vacancies, which shall be filled with the average value
-
-mean_ val = all_ data["rent_quantity"].mean()
-
-all_ data["rent_quantity"] = all_ data["rent_quantity"].fillna(mean_val)
-
-(4) There are few vacant values of "position" and "area", which are category variables and filled with mode.
-
-mode_ area = all_ data["area"].mode()
-
-mode_ position = all_ data["position"].mode()
-
-all_ data["area"] = all_ data["area"].fillna(int(mode_area))
-
-all_ data["position"] = all_ data["position"].fillna(int(mode_position))
-
-![](https://pic.jitudisk.com/public/2022/12/08/e97944febd565.png)
 
 ## Spacial & Statistical Analysis
 
 ### Infomation on map
 
 ```{r message = FALSE, warning=FALSE}
-library(tidyverse)
-library(plotly)
-library(patchwork)
-library(kableExtra)
-library(GGally)
-library(corrplot)
-library(glmnet)
-library(rgl)
+
 
 load("data/cleaned_data.RData")
 load("data/Manhattan_latlonmap.RData")
 
 
-transformed_rental_income=
+transformed_rental_income =
   transformed_rental_income %>%
   separate(boro_block_lot, into = c("borough", "block", "lot"), sep = "-") %>%
   mutate(
@@ -543,7 +509,7 @@ equatiomatic::extract_eq(all_eg, use_coefs = TRUE, coef_digits = 4)
 ```
 
 **The best model**
-```{r}
+```{r, cache=TRUE}
 # stepwise procedure
 egi_fit = step(io_eg, direction = "both", scope = formula(all_eg), trace = 0)
 
@@ -579,7 +545,7 @@ Here, we are interested in the predicting the "gross income per squre feet" vari
 ### Building the partial-LOESS model
 First, we take the dataset and fit a linear model without `longitude` and `latitude`, and save the residual for the following LOESS method.
 ```{r}
-rm(list=ls())
+rm(list = ls())
 load("data/cleaned_data.RData")
 
 transformed_rental_income = 
@@ -588,7 +554,10 @@ transformed_rental_income =
     is_elevator = str_detect(building_classification,"ELEVATOR")
   )
 
-linear_model = lm(gross_income_per_sq_ft~ is_elevator+total_units+year_built+report_year+gross_sq_ft, data=transformed_rental_income)
+linear_model =
+  lm(gross_income_per_sq_ft ~ is_elevator + total_units + year_built + report_year + gross_sq_ft,
+     data = transformed_rental_income
+  )
 
 transformed_rental_income = 
   transformed_rental_income %>%
@@ -612,9 +581,13 @@ transformed_rental_income =
 Then, we applied LOESS smoothing on the residual by location. Here, we chose `span = 0.05` because gross_income may change quickly just by a few blocks, and our dataset is large enough to capture such sudden changes. The smoothed residual is as follows:
 
 ```{r}
-lowess_surf = loess(resid_linear~latitude+longitude,data=transformed_rental_income,span = 0.05)
+lowess_surf = loess(
+  resid_linear ~ latitude + longitude,
+  data = transformed_rental_income,
+  span = 0.05
+)
 
-transformed_rental_income=
+transformed_rental_income =
   transformed_rental_income %>%
   mutate(
   resid_smooth = lowess_surf$fitted
@@ -624,31 +597,31 @@ smooth_location_resid = transformed_rental_income %>%
   select(longitude,latitude,resid_smooth)
 
 transformed_rental_income %>%
-  ggplot(aes(x=longitude,y=latitude,color=resid_smooth)) +
+  ggplot(aes(x = longitude, y = latitude, color = resid_smooth)) +
   geom_point()
 
 ```
 
 ### Predicting function and Model Validation
-The residual of the new point is estimated by a local linear model with its `n_neighbours = 20` neighbours. we don't need a large number of neighbors because the curve is already smoothed and niose is removed. Based on that, we can combine a local estimator and the linear model together using the following function:
+The residual of the new point is estimated by a local linear model with its `n_neighbours = 20` neighbors. we don't need a large number of neighbors because the curve is already smoothed and noise is removed. Based on that, we can combine a local estimator and the linear model together using the following function:
 
 ```{r}
 n_neighbours = 20
 predict_rental = function(new_data){
-  if(nrow(new_data)!=1){
+  if (nrow(new_data) != 1) {
     return("nrow must be 1")
   }
   location_resid =
     smooth_location_resid %>%
     mutate(
-      d=(longitude-new_data$longitude)^2+(latitude-new_data$latitude)^2
+      d = (longitude - new_data$longitude)^2 + (latitude - new_data$latitude)^2
     ) %>%
     arrange(d) %>% 
     head(n_neighbours) %>%
-    lm(resid_smooth~longitude+latitude,data=.) %>%
+    lm(resid_smooth ~ longitude + latitude,data = .) %>%
     predict(newdata = new_data)
   
-  predict(linear_model,newdata=new_data) + location_resid
+  predict(linear_model, newdata = new_data) + location_resid
 }
 
 
@@ -662,18 +635,21 @@ save(predict_rental,linear_model,smooth_location_resid,model_coef,file = "Index_
 
 To validate Our model, we sample 100 records in our original dataset, and use the model to predict their gross income pre square feet. However, this is not a cross-validation since excluding these observations has little effect on our model due to large sample number.
 
-```{r,warning=FALSE}
-n_test=100
+```{r}
+n_test = 100
 error = rep(0,n_test)
 
-for(i in 1:n_test){
-  test_sample=
+for (i in 1:n_test) {
+  test_sample =
     transformed_rental_income %>%
-    slice_sample(n=1)
+    slice_sample(n = 1)
   predicted = as.numeric(predict_rental(test_sample))
-  error[i] = test_sample$gross_income_per_sq_ft[1]-predicted
+  error[i] = test_sample$gross_income_per_sq_ft[1] - predicted
 }
-tibble(error=error) %>%
-  ggplot(aes(x=error)) +
+tibble(error = error) %>%
+  ggplot(aes(x = error)) +
   geom_density()
 ```
+
+Thus, our estimated prediction error is about 5 dollors per square feet.
+

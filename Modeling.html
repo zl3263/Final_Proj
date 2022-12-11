@@ -339,6 +339,9 @@ div.tocify {
   <a href="Exploring_Data.html">Exploring Data</a>
 </li>
 <li>
+  <a href="Data_discovery.html">Data Discovery</a>
+</li>
+<li>
   <a href="spacial_analysis.html">Spacial&amp;Statistical Analysis</a>
 </li>
 <li>
@@ -524,70 +527,160 @@ equatiomatic::extract_eq(egi_fit, use_coefs = TRUE, coef_digits = 4)</code></pre
 <pre class="r"><code>egi_fit %&gt;% broom::tidy() %&gt;% knitr::kable(digits = 4)</code></pre>
 <table>
 <thead>
-<tr class="header">
-<th align="left">term</th>
-<th align="right">estimate</th>
-<th align="right">std.error</th>
-<th align="right">statistic</th>
-<th align="right">p.value</th>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+statistic
+</th>
+<th style="text-align:right;">
+p.value
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="right">1.9139</td>
-<td align="right">0.0723</td>
-<td align="right">26.5</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+1.9139
+</td>
+<td style="text-align:right;">
+0.0723
+</td>
+<td style="text-align:right;">
+26.5
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="even">
-<td align="left">log_gross_sq_ft</td>
-<td align="right">0.9732</td>
-<td align="right">0.0011</td>
-<td align="right">908.3</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+log_gross_sq_ft
+</td>
+<td style="text-align:right;">
+0.9732
+</td>
+<td style="text-align:right;">
+0.0011
+</td>
+<td style="text-align:right;">
+908.3
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">borough2</td>
-<td align="right">-0.9160</td>
-<td align="right">0.0028</td>
-<td align="right">-328.5</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+borough2
+</td>
+<td style="text-align:right;">
+-0.9160
+</td>
+<td style="text-align:right;">
+0.0028
+</td>
+<td style="text-align:right;">
+-328.5
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="even">
-<td align="left">borough3</td>
-<td align="right">-0.6697</td>
-<td align="right">0.0021</td>
-<td align="right">-316.8</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+borough3
+</td>
+<td style="text-align:right;">
+-0.6697
+</td>
+<td style="text-align:right;">
+0.0021
+</td>
+<td style="text-align:right;">
+-316.8
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">borough4</td>
-<td align="right">-0.6619</td>
-<td align="right">0.0022</td>
-<td align="right">-307.7</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+borough4
+</td>
+<td style="text-align:right;">
+-0.6619
+</td>
+<td style="text-align:right;">
+0.0022
+</td>
+<td style="text-align:right;">
+-307.7
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="even">
-<td align="left">borough5</td>
-<td align="right">-0.7969</td>
-<td align="right">0.0109</td>
-<td align="right">-73.3</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+borough5
+</td>
+<td style="text-align:right;">
+-0.7969
+</td>
+<td style="text-align:right;">
+0.0109
+</td>
+<td style="text-align:right;">
+-73.3
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">year_built</td>
-<td align="right">0.0010</td>
-<td align="right">0.0000</td>
-<td align="right">25.3</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+year_built
+</td>
+<td style="text-align:right;">
+0.0010
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+25.3
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="even">
-<td align="left">typeWALK</td>
-<td align="right">-0.0485</td>
-<td align="right">0.0022</td>
-<td align="right">-22.1</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+typeWALK
+</td>
+<td style="text-align:right;">
+-0.0485
+</td>
+<td style="text-align:right;">
+0.0022
+</td>
+<td style="text-align:right;">
+-22.1
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
 </tbody>
 </table>

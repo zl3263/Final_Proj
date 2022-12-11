@@ -158,7 +158,7 @@ equatiomatic::extract_eq(all_eg, use_coefs = TRUE, coef_digits = 4)
 ```
 
 **The best model**
-```{r}
+```{r, cache=TRUE}
 # stepwise procedure
 egi_fit = step(io_eg, direction = "both", scope = formula(all_eg), trace = 0)
 
