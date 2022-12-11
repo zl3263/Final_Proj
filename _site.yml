@@ -7,7 +7,7 @@ navbar:
       href: Introduction.html
     - text: "Exploring Data"
       href: Exploring_Data.html
-     - text: "Data Discovery"
+    - text: "Data Discovery"
       href: Data_discovery.html     
     - text: "Spacial&Statistical Analysis"
       href: spacial_analysis.html
