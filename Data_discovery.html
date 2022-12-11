@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Data discovery</title>
+
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="Introduction.html">Introduction</a>
+</li>
+<li>
+  <a href="Exploring_Data.html">Exploring Data</a>
+</li>
+<li>
+  <a href="spacial_analysis.html">Spacial&amp;Statistical Analysis</a>
+</li>
+<li>
+  <a href="Modeling.html">Modeling</a>
+</li>
+<li>
+  <a href="https://nuc-rental-income.shinyapps.io/shiny_map/">Browse by Map</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="Report.html">Report</a>
+</li>
+<li>
+  <a href="https://github.com/zl3263/Final_Proj">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Data discovery</h1>
+
+</div>
+
+
+<div id="data-discovery-eda" class="section level3">
+<h3>Data Discovery (EDA)</h3>
+<p>Skewness value: it can be used to measure the asymmetry of
+probability distribution of random variables.</p>
+<p>Kurtosis value: it can be used to measure the steepness of the
+probability distribution of random variables.</p>
+<p>View the rent distribution curve and draw a curve distribution
+diagram and rent scatter diagram、</p>
+<p>First, observe the rent data. It can be seen that this data is in
+line with the normal distribution, but the skewness value is too large.
+We found a big tail. The “rent” value distribution has obvious skewness,
+so we will correct it later.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>View the data histogram of each property of the apartment</li>
+</ol>
+<p>Next, let’s take a look at the impact of some important attributes on
+the results The histogram is used to show the data distribution.
+Generally speaking, it refers to which piece of data accounts for a high
+proportion or number of occurrences, and which piece has a low
+probability of occurrence. The following figure shows the occurrence of
+18 attributes</p>
+<p><img
+src="https://pic.jitudisk.com/public/2022/12/08/5dbb2d328b88d.png" /></p>
+<p>Continuous variables include: community name (Cname), rent_quantity,
+total floors, position, subway_station, distance, rent, and the rest are
+discrete variables.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>For discrete variables, we use boxplot to represent (box plot)
+Discrete variables include time, floor, space, state, bedroom_num,
+hall_num, toilet _num Rent_style, area, subway_line, decoration.</li>
+</ol>
+<p>Box diagram of bedroom number and rent</p>
+<p><img
+src="https://pic.jitudisk.com/public/2022/12/08/08c88f05ff5e1.png" /></p>
+<p>Box diagram of living room number and rent</p>
+<p><img
+src="https://pic.jitudisk.com/public/2022/12/08/2d906371c4a89.png" /></p>
+<p>Box diagram of area and subway_line</p>
+<p><img
+src="https://pic.jitudisk.com/public/2022/12/08/b9ecaff2d2f03.png" /></p>
+<ol start="4" style="list-style-type: decimal">
+<li>Correlation analysis</li>
+</ol>
+<p>Analyze the correlation degree between different factors affecting
+housing price and housing price, and analyze the correlation degree
+through the correlation graph. Qualitative and visual analysis of the
+correlation between different factors affecting housing price and
+housing price with bar chart</p>
+<p><img
+src="https://pic.jitudisk.com/public/2022/12/08/1dffa8519c533.png" /></p>
+</div>
+<div id="data-cleaning" class="section level3">
+<h3>Data cleaning</h3>
+<p>Because the data may be incomplete, noisy, random, and have complex
+data structures, it is necessary to preliminarily sort out the data,
+clean the incomplete data, make preliminary description and analysis,
+select variables related to data mining, or change variables.</p>
+<p>Outlier processing</p>
+<p><img
+src="https://pic.jitudisk.com/public/2022/12/08/8ad3f3e6874a5.png" /><img
+src="https://pic.jitudisk.com/public/2022/12/08/21a684dbdd7cd.png" /></p>
+</div>
+<div id="deviation-correction" class="section level3">
+<h3>Deviation correction</h3>
+<p><img
+src="https://pic.jitudisk.com/public/2022/12/08/432a06bc060cc.png" /></p>
+<p>Normal distribution transformation: the tail behind is too long, and
+it needs to be corrected (logarithmic transformation of data)</p>
+<p><img
+src="https://pic.jitudisk.com/public/2022/12/08/0ef458bf19af7.png" /><img
+src="https://pic.jitudisk.com/public/2022/12/08/fc2481b41ed03.png" /><img
+src="https://pic.jitudisk.com/public/2022/12/08/f4e557c13620b.png" /></p>
+<p>For attributes with too large missing data, you can choose to discard
+them, and for attribute data with small missing data, you can fill
+them:</p>
+<ol style="list-style-type: decimal">
+<li>Delete the missing data (decoration situation, state,
+rent_style)</li>
+</ol>
+<p>all_ data. drop([‘decoration situation’], axis=1, inplace=True)</p>
+<p>all_ data. drop([‘state’], axis=1, inplace=True)</p>
+<p>all_ data. drop([‘rent_style’], axis=1, inplace=True)</p>
+<ol start="2" style="list-style-type: decimal">
+<li>The three columns of “subway line”, “subway station” and “distance”
+represent the subway situation near the house. According to different
+data types, the distance column filled with “1” represents unlimited
+distance, and the first two columns filled with “0” represent no subway
+station and subway line</li>
+</ol>
+<p>all_ data[“distance”]=all_ data[“distance”].fillna(1)</p>
+<p>all_ data[“subway_line”]=all_ data[“subway_line”].fillna(0)</p>
+<p>all_ data[“subway_station”]=all_ data[“subway_station”].fillna(0)</p>
+<ol start="3" style="list-style-type: decimal">
+<li>The number of rented houses in the community contains a small number
+of vacancies, which shall be filled with the average value</li>
+</ol>
+<p>mean_ val = all_ data[“rent_quantity”].mean()</p>
+<p>all_ data[“rent_quantity”] = all_
+data[“rent_quantity”].fillna(mean_val)</p>
+<ol start="4" style="list-style-type: decimal">
+<li>There are few vacant values of “position” and “area”, which are
+category variables and filled with mode.</li>
+</ol>
+<p>mode_ area = all_ data[“area”].mode()</p>
+<p>mode_ position = all_ data[“position”].mode()</p>
+<p>all_ data[“area”] = all_ data[“area”].fillna(int(mode_area))</p>
+<p>all_ data[“position”] = all_
+data[“position”].fillna(int(mode_position))</p>
+<p><img
+src="https://pic.jitudisk.com/public/2022/12/08/e97944febd565.png" /></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
