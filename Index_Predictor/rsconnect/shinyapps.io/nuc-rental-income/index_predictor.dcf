@@ -5,7 +5,7 @@ account: nuc-rental-income
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7854186
-bundleId: 6621822
+bundleId: 6621928
 url: https://nuc-rental-income.shinyapps.io/index_predictor/
-when: 1670726477.38189
-lastSyncTime: 1670726477.38191
+when: 1670729379.28646
+lastSyncTime: 1670729379.28647

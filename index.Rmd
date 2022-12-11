@@ -18,12 +18,13 @@ Everyone who tries to move to New York City is suffering from the high rent of a
 - [Modeling](Modeling.html)
 
 
-## Screencast
+## Predict your annual rental income!
 
+<iframe height="180" width="100%" frameborder="no" src="https://nuc-rental-income.shinyapps.io/index_predictor/"> </iframe>
 
-## Try Our Model
+## Screencast - How to use?
 
-<iframe height="400" width="100%" frameborder="no" src="https://nuc-rental-income.shinyapps.io/index_predictor/"> </iframe>
+<iframe width="420" height="250" src="https://www.youtube.com/embed/rlGFfjY_vrY"></iframe>
 
 ## Our Team
 
