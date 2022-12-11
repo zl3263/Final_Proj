@@ -84,10 +84,11 @@ ui <- fluidPage(
              ),
       ),
       column(2,
-             textInput(
-               "apartment_sq_ft",
-               label = "Apartment Area",
-               value  = "1"
+             selectInput(
+               "report_year",
+               label = "Estimate Year",
+               choices = 2012:this_year,
+               selected = this_year
              ),
       )
     ),
@@ -109,8 +110,7 @@ server <- function(input, output) {
       total_units = as.numeric(input$total_units)
       year_built = as.numeric(input$year_built)
       gross_sq_ft = as.numeric(input$gross_sq_ft)
-      report_year = this_year
-      apartment_sq_ft = as.numeric(input$apartment_sq_ft)
+      report_year = as.numeric(input$report_year)
       
       new_data = tibble(
         is_elevator = is_elevator,
@@ -122,10 +122,10 @@ server <- function(input, output) {
         latitude = location$latitude[1],
       )
       
-      predicted = predict_rental(new_data)*apartment_sq_ft
+      predicted = predict_rental(new_data)
       
       output$result <- renderText({
-        paste0("Your annual rent income is ", as.character(round(predicted,1)))
+        paste0("Your gross rent income per suqare feet is ", as.character(round(predicted,2)))
         #as.character(location)
       })
       
