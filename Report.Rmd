@@ -32,22 +32,6 @@ library(patchwork)
 library(kableExtra)
 library(GGally)
 library(corrplot)
-library(glmnet)
-library(rgl)
-
-knitr::opts_chunk$set(
-  fig.height = 6,
-  fig.width = 8
-)
-theme_set(theme_minimal() + theme(legend.position = "bottom"))
-options(
-  ggplot2.continuous.colour = "viridis",
-  ggplot2.continuous.fill = "viridis",
-  digits = 3
-)
-scale_colour_discrete = scale_colour_viridis_d
-scale_fill_discrete = scale_fill_viridis_d
-
 load("data/cleaned_data.RData")
 
 df = 
@@ -652,6 +636,3 @@ tibble(error=error) %>%
   ggplot(aes(x=error)) +
   geom_density()
 ```
-
-
-## Discussion
