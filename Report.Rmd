@@ -25,7 +25,7 @@ This dataset contains the income and expense statements of condominium and compa
 
 ## EDA 
 
-```{r}
+```{r message = FALSE}
 library(tidyverse)
 library(plotly)
 library(patchwork)
@@ -165,6 +165,11 @@ Analyze the correlation degree between different factors affecting  housing pric
 library(tidyverse)
 library(plotly)
 library(patchwork)
+library(kableExtra)
+library(GGally)
+library(corrplot)
+library(glmnet)
+library(rgl)
 
 load("data/cleaned_data.RData")
 load("data/Manhattan_latlonmap.RData")
